@@ -44,10 +44,12 @@
       <t>
         This specification describes how JCS <xref target="JCS"/>
         combined with JWS <xref target="RFC7515"/>,
-        can be utilized to support REST <xref target="REST"/> applications
-        needing digitally signed requests. The described scheme is
-        tailored for Web applications using JSON <xref target="RFC8259"/>
-        as message format.
+        can be utilized to support HTTP <xref target="RFC7231"/> based REST <xref target="REST"/> applications
+        needing digitally signed requests.
+        The described scheme is tailored for Web applications
+        using JSON <xref target="RFC8259"/> as message format.
+        In addition, there is a specific variant for requests that
+        do not have a HTTP body like GET.
       </t>
       <t>
         The intended audiences of this document are Web tool vendors, as
@@ -71,7 +73,7 @@
         the security portion of a message.  This arrangement has the following characteristics:
         <list style="symbols">
           <t>
-            Since REST requests (as a minimum) also are defined by HTTP URI and HTTP Verb
+            Since REST requests (as a minimum) also are defined by an HTTP URI and a HTTP Verb
             these attributes are added as reserved JSON properties to signed request data.
           </t>
           <t>
@@ -91,10 +93,12 @@
             JSON message data is limitied to the I&nbhy;JSON <xref target="RFC7493"/> subset. 
           </t>
         </list>
-        The above applies to REST requests using the HTTP methods POST, PUT or PATCH.
-        For REST requests using the HTTP methods GET or DELETE, another entirely URI based
-        scheme is described which also depends on JWS in detached mode for security.
+        The above applies to REST requests using the HTTP methods POST, PUT or PATCH described in <xref target="rest.operation.withbody"/>.
       </t>
+      <t>
+        For REST requests using the HTTP methods GET or DELETE, another entirely URI <xref target="RFC3986"/> based
+        scheme is described in <xref target="rest.operation.urionly"/>.
+    </t>
     </section>
 
     <section anchor="Terminology" title="Terminology">
@@ -107,66 +111,180 @@
       </t>
     </section>
 
-    <section anchor="rest.operation" title="Detailed Operation">
+    <section anchor="rest.operation.withbody" title="Methods: POST, PUT and PATCH">
       <t>
-        Assume you want to compare productions of JSON data where the schema
-        designer assigned the property "big" for holding a "BigInteger" subtype and
-        "time" for holding a "DateTime" subtype, while "val" is supposed to be a JSON Number
-        compliant with JCS. The following example shows such an object:
-      </t>
-      <section anchor="rest.operation.withbody" title="Methods: POST, PUT and PATCH">
-        <t>
-          <figure align="center"><artwork><![CDATA[  {
-    "time": "2019-01-28T07:45:10Z",
-    "big": "055", 
-    "val": 3.5
-  }]]>
-            </artwork>
-          </figure>
-        </t>
-      </section>
-    <section anchor="rest.operation.urionly" title="Methods: GET and DELETE">
-      <t>
-        A problem here is that "055" clearly is not a canonical form for a "BigInteger"
-        while a "DateTime" object like "2019-01-28T07:45:10Z"
-        might as well be expressed as "2019-01-28T08:45:10.000+01:00" making
-        comparisons based on JCS canonicalization fail.
+        Assume you have an unsigned HTTP request like the following:
       </t>
       <t>
-        To resolve this issue using JCS the following measures MUST be taken:
+        <figure align="center"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
+  Host: example.com
+  Content-Type: application/json
+  Content-Length: 1234
+
+  {
+    "something": "data",
+
+         Additional application specific properties
+
+  }]]></artwork></figure>
+      </t>
+      <t>
+        Adding a signature to this request would require the following enhancements to the JSON payload:
+      </t>
+      <t>
+        <figure align="center"><artwork><![CDATA[  {
+    "@rest.uri": "https://example.com/transact/pay",
+    "@rest.verb": "POST",
+    "something": "data",
+
+         Additional application specific properties
+
+    "@rest.signature": "eyJhbGciOiJIUzI1NiJ9..VHVItCBCb849imarDtjw4"
+  }]]></artwork></figure>
+      </t>
+      <t>
+        Notes:
         <list style="symbols">
           <t>
-            The community or standard utilizing a specific JSON schema
-            defines a strict normalized form for each of the used subtypes.
+            The argument to "@rest.signature" (a detached JWS) was truncated for brevity.
           </t>
           <t>
-            Compatible serializers are created for each subtype.
+            This specification presumes that JSON data ("payload") is expressed
+            through a top level JSON Object.
           </t>
         </list>
-        A positive side effect of this arrangement is that it enforces strict definitions
-        of subtypes which improves interoperability in general as well.
       </t>
       <t>
-        Defining specific subtypes and their normalized form is out of scope for
-        this application note.  Although the JSON example illustrated a "BigInteger" in
-        decimal notation, applications transferring huge integers
-        (like raw RSA keys) typically rather use Base64 <xref target="RFC4648"/>
-        encoding to conserve space.
+        The following subsections detail the operation for requests having an HTTP body.
       </t>
-      <t>
-        Below is an example of a strict serializer expressed in 
-        for a "DateTime" subtype:
-      </t>
+      <section anchor="rest.creation.withbody" title="Request Creation">
         <t>
-          <figure align="center"><artwork><![CDATA[  Date.prototype.toJSON = function() {
-      let date = this.toISOString();
-      // In this particular case an ISO/UTC notation was selected
-      // yyyy-mm-ddThh:mm:ssZ
-      return date.substring(0, date.indexOf('.')) + 'Z';
-  };]]></artwork></figure>
+          For compliance with this specification the following properties MUST be
+          be added to the JSON Object to be signed:
+        </t>
+        <t>
+          <list style="hanging">
+            <t hangText="@rest.uri">&nbsp;
+              <vspace blankLines="0"/>
+              REQUIRED property holding the complete target URI.
+            </t>
+            <t hangText="@rest.verb">&nbsp;
+              <vspace blankLines="0"/>
+              REQUIRED property holding the HTTP method in uppercase.
+            </t>
+            <t hangText="@rest.headers">&nbsp;
+              <vspace blankLines="0"/>
+              OPTIONAL property holding a JSON object with HTTP headers
+              related to the message.
+              For more information see <xref target="signed.headers"/>.
+            </t>
+            <t hangText="@rest.signature">&nbsp;
+              <vspace blankLines="0"/>
+              REQUIRED property holding a detached JWS signature calculated over the rest of the JSON payload
+              using the method described in <xref target="JWSJCS"/>.
+              Note that this property MUST be created and added after all other properties have
+              been inserted in the JSON Object.
+            </t>
+          </list>
+          Since these property names are reserved they MUST NOT be used for other purposes
+          in applications whishing to use this specification.
         </t>
       </section>
+      <section anchor="rest.validation.withbody" title="Request Validation">
+        <t>
+          In addition to normal validation of received data, the following steps MUST also be performed:
+          <list style="symbols">
+            <t>
+              The arguments to "@rest.uri" and "@rest.verb" MUST be checked for correctness
+              which usually only can be done by the service processing the request.
+              If there is a mismatch the service MUST reject the request with an
+              HTTP code 400 (malformed request).
+            </t>
+            <t>
+              The processing of the optional "@rest.headers" element is described in <xref target="signed.headers"/>.
+            </t>
+            <t>
+              The signature provided in "@rest.signature" MUST be validated as described in <xref target="JWSJCS"/>.
+            </t>
+          </list>
+        </t>
       </section>
+    </section>
+    <section anchor="rest.operation.urionly" title="Methods: GET and DELETE">
+      <t>
+        Assume you have an unsigned HTTP request like the following:
+      </t>
+      <t>
+        <figure align="center"><artwork><![CDATA[  GET /lookup?user=435 HTTP/1.1
+  Host: example.com]]></artwork></figure>
+      </t>
+      <t>
+        Adding a signature to this request would require the following enhancements to the URI:
+      </t>
+      <t>
+        <figure align="center"><artwork><![CDATA[  GET /lookup?user=435&@rest.signature=eyJhiJ..VHVIt HTTP/1.1
+  Host: example.com]]></artwork></figure>
+      </t>
+      <t>
+        Notes:
+        <list style="symbols">
+          <t>
+            The argument to "@rest.signature" (a detached JWS) was truncated for brevity.
+          </t>
+          <t>
+            This specification presumes that JSON data ("payload") is expressed
+            through a top level JSON Object.
+          </t>
+        </list>
+      </t>
+      <t>
+        The following subsections detail the operation for requests having an HTTP body.
+      </t>
+      <section anchor="rest.creation.urionly" title="Request Creation">
+        <t>
+          For compliance with this specification the following properties MUST be
+          be added to the JSON Object to be signed:
+        </t>
+        <t>
+          <list style="hanging">
+            <t hangText="@rest.headers">&nbsp;
+              <vspace blankLines="0"/>
+              OPTIONAL property holding a JSON object with HTTP headers
+              related to the message.
+              For more information see <xref target="signed.headers"/>.
+            </t>
+            <t hangText="@rest.signature">&nbsp;
+              <vspace blankLines="0"/>
+              REQUIRED property holding a detached JWS signature calculated over the rest of the JSON payload
+              using the method described in <xref target="JWSJCS"/>.
+              Note that this property MUST be created and added after all other properties have
+              been inserted in the JSON Object.
+            </t>
+          </list>
+          Since these property names are reserved they MUST NOT be used for other purposes
+          in applications whishing to use this specification.
+        </t>
+      </section>
+      <section anchor="rest.validation.urionly" title="Request Validation">
+        <t>
+          In addition to normal validation of received data, the following steps MUST also be performed:
+          <list style="symbols">
+            <t>
+              The arguments to "@rest.uri" and "@rest.verb" MUST be checked for correctness
+              which usually only can be done by the service processing the request.
+              If there is a mismatch the service MUST reject the request with an
+              HTTP code 400 (malformed request).
+            </t>
+            <t>
+              The processing of the optional "@rest.headers" element is described in <xref target="signed.headers"/>.
+            </t>
+            <t>
+              The signature provided in "@rest.signature" MUST be validated as described in <xref target="JWSJCS"/>.
+            </t>
+          </list>
+        </t>
+      </section>
+    </section>
 
     <section anchor="IANA" title="IANA Considerations">
       <t>
@@ -191,15 +309,26 @@
   <back>
     <references title="Normative References">
       <?rfc include='reference.RFC.2119'?>
+      <?rfc include='reference.RFC.3986'?>
       <?rfc include='reference.RFC.8259'?>
       <?rfc include='reference.RFC.7515'?>
       <?rfc include='reference.RFC.8174'?>
       <?rfc include='reference.RFC.7493'?>
+      <?rfc include='reference.RFC.7231'?>
       <reference anchor="JCS" target="https://tools.ietf.org/html/draft-rundgren-json-canonicalization-scheme-05">
         <front>
           <title>JSON Canonicalization Scheme - Work in progress</title>
           <author>
             <organization>A. Rundgren, B. Jordan, S. Erdtman</organization>
+          </author>
+          <date/>
+        </front>
+      </reference>
+      <reference anchor="JWSJCS" target="https://tools.ietf.org/html/draft-rundgren-jws-jcs-signature-scheme-00">
+        <front>
+          <title>Combined JWS and JCS Signature Scheme - Work in progress</title>
+          <author>
+            <organization>A. Rundgren</organization>
           </author>
           <date/>
         </front>
@@ -217,6 +346,12 @@
         </front>
       </reference>
     </references>
+    <section anchor="signed.headers" title="Optional Headers">
+      <t>
+        Systems implementing this application note are subject
+        to the same security considerations as JCS and JWS.
+      </t>
+    </section>
     <section anchor="other.solutions" title="Other Signed REST Solutions">
       <t>
         Systems implementing this application note are subject
