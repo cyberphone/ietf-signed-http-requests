@@ -43,10 +43,10 @@
     <abstract>
       <t>
         This specification describes how JCS <xref target="JCS"/>
-        combined with JWS <xref target="JWS"/>,
+        combined with JWS <xref target="RFC7515"/>,
         can be utilized to support REST <xref target="REST"/> applications
         needing digitally signed requests. The described scheme is
-        exclusively tailored for Web applications using JSON <xref target="REST"/>
+        tailored for Web applications using JSON <xref target="RFC8259"/>
         as message format.
       </t>
       <t>
@@ -59,8 +59,8 @@
   <middle>
     <section anchor="Introduction" title="Introduction">
       <t>
-        Currently there is no standard for digitally signing REST <xref target="JCS"/>
-        requests.  This has lead to the development of several propriatary solutions (see <xref target="OTHER"/>)
+        Currently there is no standard for digitally signing REST <xref target="REST"/>
+        requests.  This has lead to the development of several proprietary solutions (see <xref target="other.solutions"/>)
         typically building on using HTTP header data for holding security constructs,
         while JSON request data is provided in clear in the HTTP body.
       </t>
@@ -69,21 +69,26 @@
         fully honors the REST concept without (directly) using HTTP headers for holding
         security constructs.  That is, JSON message data is supposed to also hold
         the security portion of a message.  This arrangement has the following characteristics:
-        <list>
+        <list style="symbols">
           <t>
             Since REST requests (as a minimum) also are defined by HTTP URI and HTTP Verb
             these attributes are added as reserved JSON properties to signed request data.
           </t>
           <t>
-            Since messages are self-contained JSON objectes they may be serialized in databases
-            or be embedded in other JSON objects.
+            Due to the fact that messages compliant with this specification constitute of self-contained JSON objects,
+            they may be serialized in databases or be embedded in other JSON objects.  The latter includes
+            supporting counter signatures.
           </t>
           <t>
             The use of canonicalization provided by JCS makes signatures remain valid
             also after being processed by arbitrary JSON compliant tools.
           </t>
           <t>
-            JWS is used in detached mode without any modifications. 
+            JWS is used in detached mode without modifications or extensions. 
+          </t>
+          <t>
+            For general interoperability concerns as well as due to the relyiance on JCS,
+            JSON message data is limitied to the I&nbhy;JSON <xref target="RFC7493"/> subset. 
           </t>
         </list>
         The above applies to REST requests using the HTTP methods POST, PUT or PATCH.
@@ -102,20 +107,25 @@
       </t>
     </section>
 
-    <section anchor="string.subtypes" title="String Subtype Normalization">
+    <section anchor="rest.operation" title="Detailed Operation">
       <t>
         Assume you want to compare productions of JSON data where the schema
         designer assigned the property "big" for holding a "BigInteger" subtype and
         "time" for holding a "DateTime" subtype, while "val" is supposed to be a JSON Number
         compliant with JCS. The following example shows such an object:
       </t>
-      <t>
-        <figure align="center"><artwork><![CDATA[  {
+      <section anchor="rest.operation.withbody" title="Methods: POST, PUT and PATCH">
+        <t>
+          <figure align="center"><artwork><![CDATA[  {
     "time": "2019-01-28T07:45:10Z",
     "big": "055", 
     "val": 3.5
-  }]]></artwork></figure>
-      </t>
+  }]]>
+            </artwork>
+          </figure>
+        </t>
+      </section>
+    <section anchor="rest.operation.urionly" title="Methods: GET and DELETE">
       <t>
         A problem here is that "055" clearly is not a canonical form for a "BigInteger"
         while a "DateTime" object like "2019-01-28T07:45:10Z"
@@ -144,7 +154,7 @@
         encoding to conserve space.
       </t>
       <t>
-        Below is an example of a strict serializer expressed in ECMAScript <xref target="ECMASCRIPT"/> 
+        Below is an example of a strict serializer expressed in 
         for a "DateTime" subtype:
       </t>
         <t>
@@ -156,7 +166,8 @@
   };]]></artwork></figure>
         </t>
       </section>
- 
+      </section>
+
     <section anchor="IANA" title="IANA Considerations">
       <t>
         This document has no IANA actions.
@@ -166,14 +177,13 @@
     <section anchor="Security" title="Security Considerations">
       <t>
         Systems implementing this application note are subject
-        to the same security considerations as JCS.
+        to the same security considerations as JCS and JWS.
       </t>
     </section>
 
     <section anchor="Acknowledgements" title="Acknowledgements">
       <t>
-        This document was created based on feedback (on JCS) from many people
-        including Mark&nbsp;Nottingham and Jim&nbsp;Schaad.
+        TBD.
       </t>
     </section>
   </middle>
@@ -182,6 +192,7 @@
     <references title="Normative References">
       <?rfc include='reference.RFC.2119'?>
       <?rfc include='reference.RFC.8259'?>
+      <?rfc include='reference.RFC.7515'?>
       <?rfc include='reference.RFC.8174'?>
       <?rfc include='reference.RFC.7493'?>
       <reference anchor="JCS" target="https://tools.ietf.org/html/draft-rundgren-json-canonicalization-scheme-05">
@@ -196,15 +207,21 @@
     </references>
     <references title="Informal References">
       <?rfc include='reference.RFC.4648'?>
-      <reference anchor="ECMASCRIPT" target="https://www.ecma-international.org/ecma-262/6.0/index.html">
+      <reference anchor="REST" target="http://roy.gbiv.com/pubs/dissertation/top.htm">
         <front>
-          <title>ECMAScript 2015 Language Specification</title>
+          <title>Architectural Styles and the Design of Network-based Software Architectures</title>
           <author>
-            <organization>Ecma International</organization>
+            <organization>Roy Fielding</organization>
           </author>
           <date/>
         </front>
       </reference>
     </references>
+    <section anchor="other.solutions" title="Other Signed REST Solutions">
+      <t>
+        Systems implementing this application note are subject
+        to the same security considerations as JCS and JWS.
+      </t>
+    </section>
   </back>
 </rfc>
