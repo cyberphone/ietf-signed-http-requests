@@ -73,8 +73,8 @@
         the security portion of a message.  This arrangement has the following characteristics:
         <list style="symbols">
           <t>
-            Since REST requests (as a minimum) also are defined by an HTTP URI and a HTTP Verb
-            these attributes are added as reserved JSON properties to signed request data.
+            Since REST requests (as a minimum) also are defined by the HTTP URI and HTTP Verb
+            these attributes are added as reserved JSON properties to the signed request data.
           </t>
           <t>
             Due to the fact that messages compliant with this specification constitute of self-contained JSON objects,
@@ -98,7 +98,7 @@
       <t>
         For REST requests using the HTTP methods GET or DELETE, another entirely URI <xref target="RFC3986"/> based
         scheme is described in <xref target="rest.operation.urionly"/>.
-    </t>
+      </t>
     </section>
 
     <section anchor="Terminology" title="Terminology">
@@ -215,25 +215,28 @@
         Assume you have an unsigned HTTP request like the following:
       </t>
       <t>
-        <figure align="center"><artwork><![CDATA[  GET /lookup?user=435 HTTP/1.1
+        <figure align="center"><artwork><![CDATA[  GET /lookup?id=435 HTTP/1.1
   Host: example.com]]></artwork></figure>
       </t>
       <t>
         Adding a signature to this request would require the following enhancements to the URI:
       </t>
       <t>
-        <figure align="center"><artwork><![CDATA[  GET /lookup?user=435&@rest.signature=eyJhiJ..VHVIt HTTP/1.1
+        <figure align="center"><artwork><![CDATA[  GET /lookup?id=435&@rest.signature=eyJhiJ..VHVIt HTTP/1.1
   Host: example.com]]></artwork></figure>
       </t>
       <t>
         Notes:
         <list style="symbols">
           <t>
-            The argument to "@rest.signature" (a detached JWS) was truncated for brevity.
+            The URI
+            <vspace blankLines="0"/>
+            "https://example.com/lookup?id=435&amp;@rest.signature=eyJhiJ..VHVIt"
+            <vspace blankLines="0"/>
+            represents a complete serializable signed request object.
           </t>
           <t>
-            This specification presumes that JSON data ("payload") is expressed
-            through a top level JSON Object.
+            The argument to "@rest.signature" (a detached JWS) was truncated for brevity.
           </t>
         </list>
       </t>
@@ -345,7 +348,53 @@
           <date/>
         </front>
       </reference>
+      <reference anchor="HTTPSIG" target="https://tools.ietf.org/html/draft-cavage-http-signatures-10">
+        <front>
+          <title>Signing HTTP Messages</title>
+          <author>
+            <organization>M. Cavage, M. Sporny</organization>
+          </author>
+          <date/>
+        </front>
+      </reference>
+      <reference anchor="OBIE" target="https://www.openbanking.org.uk/">
+        <front>
+          <title>Open Banking API</title>
+          <author>
+            <organization>Open Banking UK</organization>
+          </author>
+          <date/>
+        </front>
+      </reference>
+      <reference anchor="AWS" target="https://docs.aws.amazon.com/general/latest/gr/signing_aws_api_requests.html">
+        <front>
+          <title>Signing AWS API Requests</title>
+          <author>
+            <organization>Amazon.com</organization>
+          </author>
+          <date/>
+        </front>
+      </reference>
+      <reference anchor="FAPI" target="https://openid.net/wg/fapi/">
+        <front>
+          <title>Financial-grade API</title>
+          <author>
+            <organization>Open ID</organization>
+          </author>
+          <date/>
+        </front>
+      </reference>
+      <reference anchor="STET" target="https://www.stet.eu/en/psd2/">
+        <front>
+          <title>PSD2 API V1.4.1</title>
+          <author>
+            <organization>STET</organization>
+          </author>
+          <date/>
+        </front>
+      </reference>
     </references>
+
     <section anchor="signed.headers" title="Optional Headers">
       <t>
         Systems implementing this application note are subject
@@ -354,9 +403,85 @@
     </section>
     <section anchor="other.solutions" title="Other Signed REST Solutions">
       <t>
-        Systems implementing this application note are subject
-        to the same security considerations as JCS and JWS.
+        This appendix briefly outlines a few other solutions addressing
+        "Signed REST".
       </t>
+      <section anchor="other.aws" title="Amazon Web Services">
+        <t>
+          Amazon Web Sevices provides a system for their clients using
+          HTTP headers holding security constructs while the
+          digested HTTP body may hold any valid media type.
+          For more information see the <xref target="AWS"/>.
+          Signatures may also be added to query strings in a similar
+          fashion to <xref target="rest.operation.urionly"/>.
+        </t>
+      </section>
+      <section anchor="other.httsignatures" title="HTTP Signatures">
+        <t>
+          HTTP Signatures <xref target="HTTPSIG"/> is a system using
+          HTTP headers holding security constructs while the (optional)
+          digested HTTP body may hold any valid media type.  This scheme
+          has been adopted by the French Open Banking API <xref target="STET"/>.
+          For more information see the Internet draft.
+        </t>
+      </section>
+      <section anchor="other.openbanking" title="Open Banking (UK)">
+        <t>
+          The current (3.1) version of the Open Banking API <xref target="OBIE"/>
+          use a scheme where a dedicated HTTP header holds
+          a detached JWS signature covering a clear text JSON
+          message in the HTTP body:
+          <figure align="center"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
+  Host: example.com
+  Content-Type: application/json
+  x-jws-signature: eyJhbGciOiJSUzI1N..SD7xMbpL-2QgwUsAlMGzw
+  Content-Length: 2765
+
+  {
+     "something": "data",
+ 
+         Additional application specific properties
+
+  }]]></artwork></figure>
+        </t>
+        <t>
+          Notes:
+          <list style="symbols">
+            <t>
+              The HTTP URI, method and headers are unsigned.
+            </t>
+            <t>
+              The signature argument (a JWS) was truncated for brevity.
+            </t>
+          </list>
+        </t>
+      </section>
+      <section anchor="other.fapi" title="Financial API">
+        <t>
+          The current version (Draft 06) of the financial API <xref target="FAPI"/> use
+          a scheme where the payload is signed using JWS in Base64Url <xref target="RFC4648"/> mode:
+          <figure align="center"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
+  Host: example.com
+  Content-Type: application/jws
+  Content-Length: 1288
+
+  eyJhbGcRjIn0.ew0KICJfds56gty5ypc3MiOiA.2QgwUsA565656lMGzw]]></artwork></figure>
+        </t>
+        <t>
+          Notes:
+          <list style="symbols">
+            <t>
+              The HTTP URI, method and headers are unsigned.
+            </t>
+            <t>
+              The JWS signature was truncated for brevity.
+            </t>
+          </list>
+        </t>
+        <t>
+          <vspace blankLines="3"/>
+        </t>
+      </section>
     </section>
   </back>
 </rfc>
