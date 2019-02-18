@@ -221,7 +221,18 @@
               Processing of the optional "@req.hdr" element is described in <xref target="signed.headers"/>.
             </t>
             <t>
-              The signature provided in  MUST be validated as described in <xref target="JWSJCS"/>.
+              Finally, apply the common signature validation steps used by SHREQ:
+              <list style="symbols">
+                <t>
+                  Validate the signature as a standard compact mode JWS <xref target="RFC7515"/>,
+                  by concatenating "JWS&nbsp;Protected&nbsp;Header", "JWS&nbsp;Payload" and "JWS&nbsp;Signature"
+                  using "." as separator between the elements.
+                </t>
+                <t>
+                  If the signature fails to validate, reject the request with
+                  an HTTP 401 code (Unauthorized).
+                </t>
+              </list>
             </t>
           </list>
         </t>
@@ -314,7 +325,7 @@
                     <t>
                       "crit": ["@req.hdr"],
                       <vspace blankLines="0"/>
-                      "@req.hdr": { the-JSON-header-object }
+                      "@req.hdr": { the-SHREQ-header-object }
                     </t>
                   </list>
                 </t>
@@ -339,17 +350,17 @@
           In addition to normal validation of received data, the following steps MUST also be performed:
           <list style="numbers">
             <t>
-              Extract the JWS object from the "@req.jws" element in the query string.
-              If the JWS object is missing or malformed the service MUST reject the request
-              with an HTTP code 400 (Malformed request).
+              Extract the JWS string from the "@req.jws" element in the query string.
+              If the JWS string is missing or malformed the service MUST reject the request
+              with an HTTP 400 code (Malformed request).
             </t>
             <t>
-              Extract the "JWS&nbsp;Protected&nbsp;Header" and "JWS&nbsp;Signature" from the recieved JWS object.
+              Extract the "JWS&nbsp;Protected&nbsp;Header" and "JWS&nbsp;Signature" from the recieved JWS string.
             </t>
             <t>
               If the algorithm or key (optionally) specified in the "JWS&nbsp;Protected&nbsp;Header" do not match
               the service's expectations or requirements, reject the request with
-              an HTTP code 401 (Unauthorized).
+              an HTTP 401 code (Unauthorized).
             </t>
             <t>
               Processing of the optional "@req.hdr" element (featured in the "JWS&nbsp;Protected&nbsp;Header")
@@ -357,21 +368,22 @@
             </t>
             <t>
               Recreate HTTP method and the (unsigned) URI from the HTTP headers in the request.
-              Concatenate and convert this data to UTF-8 as described in <xref target="req.creation.urionly"/>
-              to form a "JWS&nbsp;Payload".
+              Concatenate and convert this data as described in step 1-3
+              in <xref target="req.creation.urionly"/> to form a "JWS&nbsp;Payload".
             </t>
             <t>
-              Validate the signature using the recreated "JWS&nbsp;Payload" together with
-              the recieved "JWS&nbsp;Protected&nbsp;Header" and "JWS&nbsp;Signature" as described in
-              Appendix F of <xref target="RFC7515"/>.
-              If the signature fails to validate, reject the request with
-              an HTTP code 401 (Unauthorized).
+              Validate the signature as described in step 5 in <xref target="req.validation.withbody"/>.
             </t>
           </list>
         </t>
       </section>
     </section>
-
+    <section anchor="signed.headers" title="Optional SHREQ Headers">
+      <t>
+        Systems implementing this application note are subject
+        to the same security considerations as JCS and JWS.
+      </t>
+    </section>
     <section anchor="IANA" title="IANA Considerations">
       <t>
         This document has no IANA actions.
@@ -486,13 +498,6 @@
         </front>
       </reference>
     </references>
-
-    <section anchor="signed.headers" title="Optional SHREQ Headers">
-      <t>
-        Systems implementing this application note are subject
-        to the same security considerations as JCS and JWS.
-      </t>
-    </section>
     <section anchor="other.solutions" title="Other Signed HTTP Request Solutions">
       <t>
         This appendix briefly outlines a few other solutions addressing
