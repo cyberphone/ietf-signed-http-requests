@@ -48,7 +48,8 @@
         needing digitally signed requests.
         SHREQ is specifically tailored for Web applications using JSON <xref target="RFC8259"/> as message format.
         However, there is also a SHREQ scheme for HTTP requests that do not have a message body like "GET".
-        This specification also covers Web applications utilizing the REST <xref target="REST"/> concept.
+        SHREQ was designed to be agnostic with respect to the use of
+        REST <xref target="REST"/> concepts versus more traditional GET/POST schemes.
       </t>
       <t>
         The intended audiences of this document are Web tool vendors, as
@@ -61,7 +62,8 @@
     <section anchor="Introduction" title="Introduction">
       <t>
         Currently there is no standard for digitally signing HTTP <xref target="RFC7231"/>
-        requests.  This has lead to the development of several proprietary solutions (see <xref target="other.solutions"/>)
+        requests.  This has lead to the development of a multitude
+        of proprietary solutions (see <xref target="other.solutions"/>),
         typically building on using HTTP header data for holding security constructs,
         while JSON request data is provided in clear in the HTTP body.
       </t>
@@ -93,11 +95,12 @@
             JSON message data is limited to the I&nbhy;JSON <xref target="RFC7493"/> subset. 
           </t>
         </list>
-        The above applies to HTTP requests using the methods "POST", "PUT" or "PATCH" described in <xref target="req.operation.withbody"/>.
+        The above applies to HTTP requests using the methods
+        "POST", "PUT" or "PATCH" described in <xref target="req.operation.withbody"/>.
       </t>
       <t>
-        For HTTP requests using the methods "GET" or "DELETE", another entirely URI <xref target="RFC3986"/> based
-        scheme is described in <xref target="req.operation.urionly"/>.
+        For HTTP requests using the methods "GET" or "DELETE" there is another,
+        entirely URI <xref target="RFC3986"/> based scheme described in <xref target="req.operation.urionly"/>.
       </t>
     </section>
 
@@ -198,18 +201,27 @@
       <section anchor="req.validation.withbody" title="Request Validation">
         <t>
           In addition to normal validation of received data, the following steps MUST also be performed:
-          <list style="symbols">
+          <list style="numbers">
             <t>
-              The arguments to "@req.uri" and "@req.vrb" MUST be verified for correctness
+              The arguments to "@req.uri", "@req.vrb" and "@req.jws" MUST be verified for correctness
               which usually only can be done by the service processing the request.
               If there is a mismatch the service MUST reject the request with an
-              HTTP code 400 (malformed request).
+              HTTP code 400 (Malformed request).
             </t>
             <t>
-              The processing of the optional "@req.hdr" element is described in <xref target="signed.headers"/>.
+              Extract the "JWS&nbsp;Protected&nbsp;Header" and "JWS&nbsp;Signature" from the JWS
+              object recieved in "@req.jws".
             </t>
             <t>
-              The signature provided in "@req.jws" MUST be validated as described in <xref target="JWSJCS"/>.
+              If the algorithm or key (optionally) specified in the "JWS&nbsp;Protected&nbsp;Header" do not match
+              the service's expectations or requirements, reject the request with
+              an HTTP code 401 (Unauthorized).
+            </t>
+            <t>
+              Processing of the optional "@req.hdr" element is described in <xref target="signed.headers"/>.
+            </t>
+            <t>
+              The signature provided in  MUST be validated as described in <xref target="JWSJCS"/>.
             </t>
           </list>
         </t>
@@ -308,18 +320,35 @@
       <section anchor="req.validation.urionly" title="Request Validation">
         <t>
           In addition to normal validation of received data, the following steps MUST also be performed:
-          <list style="symbols">
+          <list style="numbers">
             <t>
-              The arguments to "@req.uri" and "@req.vrb" MUST be checked for correctness
-              which usually only can be done by the service processing the request.
-              If there is a mismatch the service MUST reject the request with an
-              HTTP code 400 (malformed request).
+              Extract the JWS object from the "@req.jws" element in the query string.
+              If the JWS object is missing or malformed the service MUST reject the request
+              with an HTTP code 400 (Malformed request).
             </t>
             <t>
-              The processing of the optional "@req.hdr" element is described in <xref target="signed.headers"/>.
+              Extract the "JWS&nbsp;Protected&nbsp;Header" and "JWS&nbsp;Signature" from the recieved JWS object.
             </t>
             <t>
-              The signature provided in "@req.jws" MUST be validated as described in <xref target="JWSJCS"/>.
+              If the algorithm or key (optionally) specified in the "JWS&nbsp;Protected&nbsp;Header" do not match
+              the service's expectations or requirements, reject the request with
+              an HTTP code 401 (Unauthorized).
+            </t>
+            <t>
+              Processing of the optional "@req.hdr" element (featured in the "JWS&nbsp;Protected&nbsp;Header")
+              is described in <xref target="signed.headers"/>.
+            </t>
+            <t>
+              Recreate HTTP method and the (unsigned) URI from the HTTP headers in the request.
+              Concatenate and convert this data to UTF-8 as described in <xref target="req.creation.urionly"/>
+              to form a "JWS&nbsp;Payload".
+            </t>
+            <t>
+              Validate the signature using the recreated "JWS&nbsp;Payload" together with
+              the recieved "JWS&nbsp;Protected&nbsp;Header" and "JWS&nbsp;Signature" as described in
+              Appendix F of <xref target="RFC7515"/>.
+              If the signature fails to validate, reject the request with
+              an HTTP code 401 (Unauthorized).
             </t>
           </list>
         </t>
