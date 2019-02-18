@@ -251,6 +251,10 @@
       </t>
       <section anchor="req.creation.urionly" title="Request Creation">
         <t>
+          In order to create a valid request, the steps described in this section
+          MUST be adheared to.
+        </t>
+        <t>
           The data to be signed consists of the HTTP method in uppercase and the
           target URI separated by a comma character.  Applied to the sample that
           would yield the following string:
@@ -259,7 +263,7 @@
           <figure align="center"><artwork><![CDATA[  GET,https://example.com/lookup?id=435]]></artwork></figure>
         </t>
         <t>
-          The resulting is string subsequently converted to UTF-8 <xref target="UNICODE"/> which
+          The resulting string is subsequently converted to UTF-8 <xref target="UNICODE"/> which
           applied to the sample would yield the following bytes, here in hexadecimal notation:
         </t>
         <t>
@@ -268,11 +272,28 @@
         </t>
         <t>
           This data is used as "JWS Payload" to create a detached JWS object as described in
-          Appendix F of <xref target="RFC7515"/>.
+          Appendix F of <xref target="RFC7515"/>. Note that
+          if additional HTTP headers need signing the following steps MUST be performed before the signature
+          is generated:
+          <list style="numbers">
+            <t>
+              Create a JSON header object as described in <xref target="signed.headers"/>.
+            </t>
+            <t>
+              Add the JSON header object to the "JWS Header" object as follows:
+              <list style="empty">
+                <t>
+                  "crit": ["@req.headers"],
+                  <vspace blankLines="0"/>
+                  "@req.headers": { the-JSON-header-object }
+                </t>
+              </list>
+            </t>
+          </list>
         </t>
         <t>
-          The signature is provided through an added query string "@req.jws" component.
-          This component SHOULD be appended to the original unsiged request URL prepended by
+          The resulting JWS string is supplied as an argument to an added query string "@req.jws" component.
+          This component SHOULD be appended to the original unsiged request URI prepended by
           &amp; or ? depending on if it is the only query component or not.
         </t>
         <t>
