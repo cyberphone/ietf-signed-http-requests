@@ -265,8 +265,8 @@
       </t>
       <section anchor="req.creation.urionly" title="Request Creation">
         <t>
-          In order to create a valid request, the steps described in this section
-          MUST be adheared to.
+          In order to create a valid request, the steps (and ordering)
+          described in this section MUST be adheared to.
           <list style="numbers">
             <t>
               The data to be signed consists of the HTTP method in uppercase and the
@@ -280,7 +280,7 @@
             </t>
             <t>
               The resulting string is subsequently converted to UTF-8 <xref target="UNICODE"/> which
-              applied to the sample would yield the following bytes, here in hexadecimal notation:
+              applied to the sample would yield the following byte array, here in hexadecimal notation:
               <list style="empty">
                 <t>
                   47 45 54 2c 68 74 74 70 73 3a 2f 2f 65 78 61 6d 70 6c 65 2e 63 6f
@@ -289,16 +289,27 @@
               </list>
             </t>
             <t>
-              This data is used as "JWS Payload" to create a detached JWS object as described in
-              Appendix F of <xref target="RFC7515"/>. 
-              Note that if HTTP headers also need to be signed the following steps
-              MUST be performed before the signature is generated:
+              The resulting byte array is subsequently encoded in Base64Url <xref target="RFC4648"/>
+              notation which applied to the sample would yield the following string:
+              <list style="empty">
+                <t>
+                  R0VULGh0dHBzOi8vZXhhbXBsZS5jb20vbG9va3VwP2lkPTQzNQ
+                </t>
+              </list>
+              This data is defined as the "JWS Payload" using <xref target="RFC7515"/> terms.
+            </t>
+            <t>
+              Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>
+              with algorithm and key data adapted for the application.
+            </t>
+            <t>
+              If HTTP headers also need to be signed the following steps are performed:
               <list style="symbols">
                 <t>
                   Create a SHREQ header object as described in <xref target="signed.headers"/>.
                 </t>
                 <t>
-                  Add the SHREQ header object to the "JWS Protected Header" object as follows:
+                  Add the SHREQ header object to the "JWS&nbsp;Protected&nbsp;Header" object as follows:
                   <list style="empty">
                     <t>
                       "crit": ["@req.hdr"],
@@ -310,8 +321,14 @@
               </list>
             </t>
             <t>
+              Use the "JWS&nbsp;Protected&nbsp;Header", "JWS&nbsp;Payload" and
+              signature key to create a detached JWS object as described in
+              <vspace blankLines="0"/>
+              Appendix F of <xref target="RFC7515"/>. 
+            </t>
+            <t>
               The resulting JWS string is supplied as an argument to an added query string "@req.jws" component.
-              This component SHOULD be appended to the original unsiged request URI prepended by
+              This component is appended to the original unsiged request URI prepended by
               &amp; or ? depending on if it is the only query component or not.
             </t>
           </list>
@@ -379,6 +396,7 @@
     <references title="Normative References">
       <?rfc include='reference.RFC.2119'?>
       <?rfc include='reference.RFC.3986'?>
+      <?rfc include='reference.RFC.4648'?>
       <?rfc include='reference.RFC.8259'?>
       <?rfc include='reference.RFC.7515'?>
       <?rfc include='reference.RFC.8174'?>
@@ -413,7 +431,6 @@
       </reference>
     </references>
     <references title="Informal References">
-      <?rfc include='reference.RFC.4648'?>
       <reference anchor="REST" target="http://roy.gbiv.com/pubs/dissertation/top.htm">
         <front>
           <title>Architectural Styles and the Design of Network-based Software Architectures</title>
