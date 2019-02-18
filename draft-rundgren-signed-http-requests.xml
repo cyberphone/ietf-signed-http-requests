@@ -10,10 +10,10 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-rundgren-signed-rest-for-json-00" ipr="trust200902">
+<rfc category="std" docName="draft-rundgren-signed-http-requests-00" ipr="trust200902">
   <front>
-    <title abbrev="draft-rundgren-signed-rest-for-json">
-      Signed REST for JSON (SIGREST)
+    <title abbrev="draft-rundgren-signed-http-requests">
+      Signed HTTP Requests (SHREQ)
     </title>
 
     <author fullname="Anders Rundgren" initials="A." surname="Rundgren">
@@ -37,19 +37,19 @@
     <workgroup></workgroup>
 
     <keyword>
-      HTTP, JSON, Canonicalization, Signatures
+      HTTP, REST, JSON, Canonicalization, Signatures
     </keyword>
 
     <abstract>
       <t>
         This specification describes how JCS <xref target="JCS"/>
         combined with JWS <xref target="RFC7515"/>,
-        can be utilized to support HTTP <xref target="RFC7231"/> based REST <xref target="REST"/> applications
+        can be utilized to support HTTP <xref target="RFC7231"/> based applications
         needing digitally signed requests.
         The described scheme is tailored for Web applications
         using JSON <xref target="RFC8259"/> as message format.
-        In addition, there is a specific variant for requests that
-        do not have a HTTP body like GET.
+        In addition, there is a specific variant for HTTP requests that do not have a message body like "GET".
+        Targeted Web applications also include such utilizing the REST <xref target="REST"/> concept.
       </t>
       <t>
         The intended audiences of this document are Web tool vendors, as
@@ -61,14 +61,14 @@
   <middle>
     <section anchor="Introduction" title="Introduction">
       <t>
-        Currently there is no standard for digitally signing REST <xref target="REST"/>
+        Currently there is no standard for digitally signing HTTP <xref target="RFC7231"/>
         requests.  This has lead to the development of several proprietary solutions (see <xref target="other.solutions"/>)
         typically building on using HTTP header data for holding security constructs,
         while JSON request data is provided in clear in the HTTP body.
       </t>
       <t>
         This specification is intended to provide a standardized alternative that
-        fully honors the REST concept without (directly) using HTTP headers for holding
+        also fully honors the REST concept without (directly) using HTTP headers for holding
         security constructs.  That is, JSON message data is supposed to also hold
         the security portion of a message.  This arrangement has the following characteristics:
         <list style="symbols">
@@ -93,11 +93,11 @@
             JSON message data is limitied to the I&nbhy;JSON <xref target="RFC7493"/> subset. 
           </t>
         </list>
-        The above applies to REST requests using the HTTP methods POST, PUT or PATCH described in <xref target="rest.operation.withbody"/>.
+        The above applies to HTTP requests using the methods "POST", "PUT" or "PATCH" described in <xref target="req.operation.withbody"/>.
       </t>
       <t>
-        For REST requests using the HTTP methods GET or DELETE, another entirely URI <xref target="RFC3986"/> based
-        scheme is described in <xref target="rest.operation.urionly"/>.
+        For HTTP requests using the methods "GET" or "DELETE", another entirely URI <xref target="RFC3986"/> based
+        scheme is described in <xref target="req.operation.urionly"/>.
       </t>
     </section>
 
@@ -111,7 +111,7 @@
       </t>
     </section>
 
-    <section anchor="rest.operation.withbody" title="Methods: POST, PUT and PATCH">
+    <section anchor="req.operation.withbody" title="POST, PUT and PATCH Requests">
       <t>
         Assume you have an unsigned HTTP request like the following:
       </t>
@@ -133,52 +133,57 @@
       </t>
       <t>
         <figure align="center"><artwork><![CDATA[  {
-    "@rest.uri": "https://example.com/transact/pay",
-    "@rest.verb": "POST",
+    "@req.uri": "https://example.com/transact/pay",
+    "@req.verb": "POST",
     "something": "data",
 
          Additional application specific properties
 
-    "@rest.signature": "eyJhbGciOiJIUzI1NiJ9..VHVItCBCb849imarDtjw4"
+    "@req.jws": "eyJhbGciOiJIUzI1NiJ9..VHVItCBCb849imarDtjw4"
   }]]></artwork></figure>
       </t>
       <t>
         Notes:
         <list style="symbols">
           <t>
-            The argument to "@rest.signature" (a detached JWS) was truncated for brevity.
+            The argument to "@req.jws" (a detached JWS) was truncated for brevity.
           </t>
           <t>
             This specification presumes that JSON data ("payload") is expressed
             through a top level JSON Object.
+          </t>
+          <t>
+            The "@req.verb" property is actually redundant since the HTTP method "POST" is default.
           </t>
         </list>
       </t>
       <t>
         The following subsections detail the operation for requests having an HTTP body.
       </t>
-      <section anchor="rest.creation.withbody" title="Request Creation">
+      <section anchor="req.creation.withbody" title="Request Creation">
         <t>
           For compliance with this specification the following properties MUST be
-          be added to the JSON Object to be signed:
+          be added to the JSON Object to be signed (unless they are optional
+          in the specific request scenario):
         </t>
         <t>
           <list style="hanging">
-            <t hangText="@rest.uri">&nbsp;
+            <t hangText="@req.uri">&nbsp;
               <vspace blankLines="0"/>
               REQUIRED property holding the complete target URI.
             </t>
-            <t hangText="@rest.verb">&nbsp;
+            <t hangText="@req.verb">&nbsp;
               <vspace blankLines="0"/>
-              REQUIRED property holding the HTTP method in uppercase.
+              OPTIONAL property holding the HTTP method in uppercase.
+              If this property is missing, the HTTP method "POST" is assumed.
             </t>
-            <t hangText="@rest.headers">&nbsp;
+            <t hangText="@req.headers">&nbsp;
               <vspace blankLines="0"/>
               OPTIONAL property holding a JSON object with HTTP headers
               related to the message.
               For more information see <xref target="signed.headers"/>.
             </t>
-            <t hangText="@rest.signature">&nbsp;
+            <t hangText="@req.jws">&nbsp;
               <vspace blankLines="0"/>
               REQUIRED property holding a detached JWS signature calculated over the rest of the JSON payload
               using the method described in <xref target="JWSJCS"/>.
@@ -190,27 +195,27 @@
           in applications whishing to use this specification.
         </t>
       </section>
-      <section anchor="rest.validation.withbody" title="Request Validation">
+      <section anchor="req.validation.withbody" title="Request Validation">
         <t>
           In addition to normal validation of received data, the following steps MUST also be performed:
           <list style="symbols">
             <t>
-              The arguments to "@rest.uri" and "@rest.verb" MUST be checked for correctness
+              The arguments to "@req.uri" and "@req.verb" MUST be verified for correctness
               which usually only can be done by the service processing the request.
               If there is a mismatch the service MUST reject the request with an
               HTTP code 400 (malformed request).
             </t>
             <t>
-              The processing of the optional "@rest.headers" element is described in <xref target="signed.headers"/>.
+              The processing of the optional "@req.headers" element is described in <xref target="signed.headers"/>.
             </t>
             <t>
-              The signature provided in "@rest.signature" MUST be validated as described in <xref target="JWSJCS"/>.
+              The signature provided in "@req.jws" MUST be validated as described in <xref target="JWSJCS"/>.
             </t>
           </list>
         </t>
       </section>
     </section>
-    <section anchor="rest.operation.urionly" title="Methods: GET and DELETE">
+    <section anchor="req.operation.urionly" title="GET and DELETE Requests">
       <t>
         Assume you have an unsigned HTTP request like the following:
       </t>
@@ -222,7 +227,7 @@
         Adding a signature to this request would require the following enhancements to the URI:
       </t>
       <t>
-        <figure align="center"><artwork><![CDATA[  GET /lookup?id=435&@rest.signature=eyJhiJ..VHVIt HTTP/1.1
+        <figure align="center"><artwork><![CDATA[  GET /lookup?id=435&@req.jws=eyJhiJ..VHVIt HTTP/1.1
   Host: example.com]]></artwork></figure>
       </t>
       <t>
@@ -231,32 +236,54 @@
           <t>
             The URI
             <vspace blankLines="0"/>
-            "https://example.com/lookup?id=435&amp;@rest.signature=eyJhiJ..VHVIt"
+            "https://example.com/lookup?id=435&amp;@req.jws=eyJhiJ..VHVIt"
             <vspace blankLines="0"/>
             represents a complete serializable signed request object.
           </t>
           <t>
-            The argument to "@rest.signature" (a detached JWS) was truncated for brevity.
+            The argument to "@req.jws" (a detached JWS) was truncated for brevity.
           </t>
         </list>
       </t>
       <t>
-        The following subsections detail the operation for requests having an HTTP body.
+        The following subsections detail the operation for requests using an HTTP query string
+        component for holding a signature.
       </t>
-      <section anchor="rest.creation.urionly" title="Request Creation">
+      <section anchor="req.creation.urionly" title="Request Creation">
         <t>
-          For compliance with this specification the following properties MUST be
-          be added to the JSON Object to be signed:
+          The data to be signed consists of the HTTP method in uppercase and the
+          target URI separated by a comma character.  Applied to the sample that
+          would yield the following string:
+        </t>
+        <t>
+          <figure align="center"><artwork><![CDATA[  GET,https://example.com/lookup?id=435]]></artwork></figure>
+        </t>
+        <t>
+          The resulting is string subsequently converted to UTF-8 <xref target="UNICODE"/> which
+          applied to the sample would yield the following bytes, here in hexadecimal notation:
+        </t>
+        <t>
+          <figure align="center"><artwork><![CDATA[  47 45 54 2c 68 74 74 70 73 3a 2f 2f 65 78 61 6d 70 6c 65 2e 63 6f
+  6d 2f 6c 6f 6f 6b 75 70 3f 69 64 3d 34 33 35]]></artwork></figure>
+        </t>
+        <t>
+          This data is used as "JWS Payload" to create a detached JWS object as described in
+          Appendix F of <xref target="RFC7515"/>.
+        </t>
+        <t>
+          The signature is provided through an added query string "@req.jws" component.
+          This component SHOULD be appended to the original unsiged request URL prepended by
+          &amp; or ? depending on if it is the only query component or not.
         </t>
         <t>
           <list style="hanging">
-            <t hangText="@rest.headers">&nbsp;
+            <t hangText="@req.headers">&nbsp;
               <vspace blankLines="0"/>
               OPTIONAL property holding a JSON object with HTTP headers
               related to the message.
               For more information see <xref target="signed.headers"/>.
             </t>
-            <t hangText="@rest.signature">&nbsp;
+            <t hangText="@req.jws">&nbsp;
               <vspace blankLines="0"/>
               REQUIRED property holding a detached JWS signature calculated over the rest of the JSON payload
               using the method described in <xref target="JWSJCS"/>.
@@ -268,21 +295,21 @@
           in applications whishing to use this specification.
         </t>
       </section>
-      <section anchor="rest.validation.urionly" title="Request Validation">
+      <section anchor="req.validation.urionly" title="Request Validation">
         <t>
           In addition to normal validation of received data, the following steps MUST also be performed:
           <list style="symbols">
             <t>
-              The arguments to "@rest.uri" and "@rest.verb" MUST be checked for correctness
+              The arguments to "@req.uri" and "@req.verb" MUST be checked for correctness
               which usually only can be done by the service processing the request.
               If there is a mismatch the service MUST reject the request with an
               HTTP code 400 (malformed request).
             </t>
             <t>
-              The processing of the optional "@rest.headers" element is described in <xref target="signed.headers"/>.
+              The processing of the optional "@req.headers" element is described in <xref target="signed.headers"/>.
             </t>
             <t>
-              The signature provided in "@rest.signature" MUST be validated as described in <xref target="JWSJCS"/>.
+              The signature provided in "@req.jws" MUST be validated as described in <xref target="JWSJCS"/>.
             </t>
           </list>
         </t>
@@ -318,6 +345,15 @@
       <?rfc include='reference.RFC.8174'?>
       <?rfc include='reference.RFC.7493'?>
       <?rfc include='reference.RFC.7231'?>
+      <reference anchor="UNICODE" target="https://www.unicode.org/versions/Unicode10.0.0/">
+        <front>
+          <title>The Unicode Standard, Version 10.0.0</title>
+          <author>
+            <organization>The Unicode Consortium</organization>
+          </author>
+          <date/>
+        </front>
+      </reference>
       <reference anchor="JCS" target="https://tools.ietf.org/html/draft-rundgren-json-canonicalization-scheme-05">
         <front>
           <title>JSON Canonicalization Scheme - Work in progress</title>
@@ -404,7 +440,7 @@
     <section anchor="other.solutions" title="Other Signed REST Solutions">
       <t>
         This appendix briefly outlines a few other solutions addressing
-        "Signed REST".
+        Signed HTTP Requests.
       </t>
       <section anchor="other.aws" title="Amazon Web Services">
         <t>
@@ -413,7 +449,7 @@
           digested HTTP body may hold any valid media type.
           For more information see the <xref target="AWS"/>.
           Signatures may also be added to query strings in a similar
-          fashion to <xref target="rest.operation.urionly"/>.
+          fashion to <xref target="req.operation.urionly"/>.
         </t>
       </section>
       <section anchor="other.httsignatures" title="HTTP Signatures">
