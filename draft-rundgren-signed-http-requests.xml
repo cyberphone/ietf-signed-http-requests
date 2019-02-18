@@ -42,14 +42,13 @@
 
     <abstract>
       <t>
-        This specification describes how JCS <xref target="JCS"/>
+        The SHREQ specification describes how JCS <xref target="JCS"/>
         combined with JWS <xref target="RFC7515"/>,
         can be utilized to support HTTP <xref target="RFC7231"/> based applications
         needing digitally signed requests.
-        The described scheme is tailored for Web applications
-        using JSON <xref target="RFC8259"/> as message format.
-        In addition, there is a specific variant for HTTP requests that do not have a message body like "GET".
-        Targeted Web applications also include such utilizing the REST <xref target="REST"/> concept.
+        SHREQ is specifically tailored for Web applications using JSON <xref target="RFC8259"/> as message format.
+        However, there is also a SHREQ scheme for HTTP requests that do not have a message body like "GET".
+        This specification also covers Web applications utilizing the REST <xref target="REST"/> concept.
       </t>
       <t>
         The intended audiences of this document are Web tool vendors, as
@@ -67,9 +66,9 @@
         while JSON request data is provided in clear in the HTTP body.
       </t>
       <t>
-        This specification is intended to provide a standardized alternative that
-        also fully honors the REST concept without (directly) using HTTP headers for holding
-        security constructs.  That is, JSON message data is supposed to also hold
+        SHREQ is intended to provide a standardized alternative that also fully
+        honors the REST concept without (directly) using HTTP headers for holding
+        security constructs.  That is, JSON message data is supposed to also contain
         the security portion of a message.  This arrangement has the following characteristics:
         <list style="symbols">
           <t>
@@ -77,9 +76,10 @@
             these attributes are added as reserved JSON properties to the signed request data.
           </t>
           <t>
-            Due to the fact that messages compliant with this specification constitute of self-contained JSON objects,
-            they may be serialized in databases or be embedded in other JSON objects.  The latter includes
-            supporting counter signatures.
+            Due to the fact that messages compliant with this specification constitute
+            of self-contained JSON objects, they may be serialized in databases or be
+            embedded in other JSON objects.
+            The latter includes supporting counter signatures.
           </t>
           <t>
             The use of canonicalization provided by JCS makes signatures remain valid
@@ -89,8 +89,8 @@
             JWS is used in detached mode without modifications or extensions. 
           </t>
           <t>
-            For general interoperability concerns as well as due to the relyiance on JCS,
-            JSON message data is limitied to the I&nbhy;JSON <xref target="RFC7493"/> subset. 
+            For general interoperability concerns as well as due to the reliance on JCS,
+            JSON message data is limited to the I&nbhy;JSON <xref target="RFC7493"/> subset. 
           </t>
         </list>
         The above applies to HTTP requests using the methods "POST", "PUT" or "PATCH" described in <xref target="req.operation.withbody"/>.
@@ -134,7 +134,7 @@
       <t>
         <figure align="center"><artwork><![CDATA[  {
     "@req.uri": "https://example.com/transact/pay",
-    "@req.verb": "POST",
+    "@req.vrb": "POST",
     "something": "data",
 
          Additional application specific properties
@@ -153,7 +153,7 @@
             through a top level JSON Object.
           </t>
           <t>
-            The "@req.verb" property is actually redundant since the HTTP method "POST" is default.
+            The "@req.vrb" property is actually redundant since the HTTP method "POST" is default.
           </t>
         </list>
       </t>
@@ -172,12 +172,12 @@
               <vspace blankLines="0"/>
               REQUIRED property holding the complete target URI.
             </t>
-            <t hangText="@req.verb">&nbsp;
+            <t hangText="@req.vrb">&nbsp;
               <vspace blankLines="0"/>
               OPTIONAL property holding the HTTP method in uppercase.
               If this property is missing, the HTTP method "POST" is assumed.
             </t>
-            <t hangText="@req.headers">&nbsp;
+            <t hangText="@req.hdr">&nbsp;
               <vspace blankLines="0"/>
               OPTIONAL property holding a JSON object with HTTP headers
               related to the message.
@@ -200,13 +200,13 @@
           In addition to normal validation of received data, the following steps MUST also be performed:
           <list style="symbols">
             <t>
-              The arguments to "@req.uri" and "@req.verb" MUST be verified for correctness
+              The arguments to "@req.uri" and "@req.vrb" MUST be verified for correctness
               which usually only can be done by the service processing the request.
               If there is a mismatch the service MUST reject the request with an
               HTTP code 400 (malformed request).
             </t>
             <t>
-              The processing of the optional "@req.headers" element is described in <xref target="signed.headers"/>.
+              The processing of the optional "@req.hdr" element is described in <xref target="signed.headers"/>.
             </t>
             <t>
               The signature provided in "@req.jws" MUST be validated as described in <xref target="JWSJCS"/>.
@@ -234,11 +234,13 @@
         Notes:
         <list style="symbols">
           <t>
-            The URI
-            <vspace blankLines="0"/>
-            "https://example.com/lookup?id=435&amp;@req.jws=eyJhiJ..VHVIt"
-            <vspace blankLines="0"/>
-            represents a complete serializable signed request object.
+            The full URI to the sample above is as follows:
+            <list style="empty">
+              <t>
+                https://example.com/lookup?id=435&amp;@req.jws=eyJhiJ..VHVIt
+              </t>
+            </list>
+            This represents a complete serializable signed request object.
           </t>
           <t>
             The argument to "@req.jws" (a detached JWS) was truncated for brevity.
@@ -253,67 +255,54 @@
         <t>
           In order to create a valid request, the steps described in this section
           MUST be adheared to.
-        </t>
-        <t>
-          The data to be signed consists of the HTTP method in uppercase and the
-          target URI separated by a comma character.  Applied to the sample that
-          would yield the following string:
-        </t>
-        <t>
-          <figure align="center"><artwork><![CDATA[  GET,https://example.com/lookup?id=435]]></artwork></figure>
-        </t>
-        <t>
-          The resulting string is subsequently converted to UTF-8 <xref target="UNICODE"/> which
-          applied to the sample would yield the following bytes, here in hexadecimal notation:
-        </t>
-        <t>
-          <figure align="center"><artwork><![CDATA[  47 45 54 2c 68 74 74 70 73 3a 2f 2f 65 78 61 6d 70 6c 65 2e 63 6f
-  6d 2f 6c 6f 6f 6b 75 70 3f 69 64 3d 34 33 35]]></artwork></figure>
-        </t>
-        <t>
-          This data is used as "JWS Payload" to create a detached JWS object as described in
-          Appendix F of <xref target="RFC7515"/>. Note that
-          if additional HTTP headers need signing the following steps MUST be performed before the signature
-          is generated:
           <list style="numbers">
             <t>
-              Create a JSON header object as described in <xref target="signed.headers"/>.
-            </t>
-            <t>
-              Add the JSON header object to the "JWS Header" object as follows:
+              The data to be signed consists of the HTTP method in uppercase and the
+              target URI separated by a comma character.  Applied to the sample that
+              would yield the following string:
               <list style="empty">
                 <t>
-                  "crit": ["@req.headers"],
-                  <vspace blankLines="0"/>
-                  "@req.headers": { the-JSON-header-object }
+                  GET,https://example.com/lookup?id=435
                 </t>
               </list>
             </t>
-          </list>
-        </t>
-        <t>
-          The resulting JWS string is supplied as an argument to an added query string "@req.jws" component.
-          This component SHOULD be appended to the original unsiged request URI prepended by
-          &amp; or ? depending on if it is the only query component or not.
-        </t>
-        <t>
-          <list style="hanging">
-            <t hangText="@req.headers">&nbsp;
-              <vspace blankLines="0"/>
-              OPTIONAL property holding a JSON object with HTTP headers
-              related to the message.
-              For more information see <xref target="signed.headers"/>.
+            <t>
+              The resulting string is subsequently converted to UTF-8 <xref target="UNICODE"/> which
+              applied to the sample would yield the following bytes, here in hexadecimal notation:
+              <list style="empty">
+                <t>
+                  47 45 54 2c 68 74 74 70 73 3a 2f 2f 65 78 61 6d 70 6c 65 2e 63 6f
+                  6d 2f 6c 6f 6f 6b 75 70 3f 69 64 3d 34 33 35
+                </t>
+              </list>
             </t>
-            <t hangText="@req.jws">&nbsp;
-              <vspace blankLines="0"/>
-              REQUIRED property holding a detached JWS signature calculated over the rest of the JSON payload
-              using the method described in <xref target="JWSJCS"/>.
-              Note that this property MUST be created and added after all other properties have
-              been inserted in the JSON Object.
+            <t>
+              This data is used as "JWS Payload" to create a detached JWS object as described in
+              Appendix F of <xref target="RFC7515"/>. 
+              Note that if HTTP headers also need to be signed the following steps
+              MUST be performed before the signature is generated:
+              <list style="symbols">
+                <t>
+                  Create a SHREQ header object as described in <xref target="signed.headers"/>.
+                </t>
+                <t>
+                  Add the SHREQ header object to the "JWS Protected Header" object as follows:
+                  <list style="empty">
+                    <t>
+                      "crit": ["@req.hdr"],
+                      <vspace blankLines="0"/>
+                      "@req.hdr": { the-JSON-header-object }
+                    </t>
+                  </list>
+                </t>
+              </list>
+            </t>
+            <t>
+              The resulting JWS string is supplied as an argument to an added query string "@req.jws" component.
+              This component SHOULD be appended to the original unsiged request URI prepended by
+              &amp; or ? depending on if it is the only query component or not.
             </t>
           </list>
-          Since these property names are reserved they MUST NOT be used for other purposes
-          in applications whishing to use this specification.
         </t>
       </section>
       <section anchor="req.validation.urionly" title="Request Validation">
@@ -321,13 +310,13 @@
           In addition to normal validation of received data, the following steps MUST also be performed:
           <list style="symbols">
             <t>
-              The arguments to "@req.uri" and "@req.verb" MUST be checked for correctness
+              The arguments to "@req.uri" and "@req.vrb" MUST be checked for correctness
               which usually only can be done by the service processing the request.
               If there is a mismatch the service MUST reject the request with an
               HTTP code 400 (malformed request).
             </t>
             <t>
-              The processing of the optional "@req.headers" element is described in <xref target="signed.headers"/>.
+              The processing of the optional "@req.hdr" element is described in <xref target="signed.headers"/>.
             </t>
             <t>
               The signature provided in "@req.jws" MUST be validated as described in <xref target="JWSJCS"/>.
@@ -452,13 +441,13 @@
       </reference>
     </references>
 
-    <section anchor="signed.headers" title="Optional Headers">
+    <section anchor="signed.headers" title="Optional SHREQ Headers">
       <t>
         Systems implementing this application note are subject
         to the same security considerations as JCS and JWS.
       </t>
     </section>
-    <section anchor="other.solutions" title="Other Signed REST Solutions">
+    <section anchor="other.solutions" title="Other Signed HTTP Request Solutions">
       <t>
         This appendix briefly outlines a few other solutions addressing
         Signed HTTP Requests.
@@ -475,11 +464,12 @@
       </section>
       <section anchor="other.httsignatures" title="HTTP Signatures">
         <t>
-          HTTP Signatures <xref target="HTTPSIG"/> is a system using
+          HTTP Signatures is a system using
           HTTP headers holding security constructs while the (optional)
-          digested HTTP body may hold any valid media type.  This scheme
-          has been adopted by the French Open Banking API <xref target="STET"/>.
-          For more information see the Internet draft.
+          digested HTTP body may hold any valid media type.
+          This scheme has been adopted by the French Open Banking API <xref target="STET"/>.
+          For more information see the Internet draft <xref target="HTTPSIG"/>.
+          HTTP Signatures also supports signed response data.
         </t>
       </section>
       <section anchor="other.openbanking" title="Open Banking (UK)">
