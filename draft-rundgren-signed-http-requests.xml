@@ -42,14 +42,15 @@
 
     <abstract>
       <t>
-        The SHREQ specification describes how JCS <xref target="JCS"/>
-        combined with JWS <xref target="RFC7515"/>,
+        The SHREQ specification describes how JWS <xref target="RFC7515"/>
+        combined with JCS <xref target="JCS"/>,
         can be utilized to support HTTP <xref target="RFC7231"/> based applications
         needing digitally signed requests.
-        SHREQ is specifically tailored for Web applications using JSON <xref target="RFC8259"/> as message format.
+        SHREQ is specifically tailored for Web applications using JSON <xref target="RFC8259"/> as
+        data interchange format.
         However, there is also a SHREQ scheme for HTTP requests that do not have a message body like "GET".
-        SHREQ was designed to be agnostic with respect to the use of
-        REST <xref target="REST"/> concepts versus more traditional GET/POST schemes.
+        SHREQ was designed to be agnostic with respect to
+        REST <xref target="REST"/> concepts versus traditional GET/POST schemes.
       </t>
       <t>
         The intended audiences of this document are Web tool vendors, as
@@ -63,7 +64,7 @@
       <t>
         Currently there is no standard for digitally signing HTTP <xref target="RFC7231"/>
         requests.  This has lead to the development of a multitude
-        of proprietary solutions (see <xref target="other.solutions"/>),
+        of more or less proprietary solutions (see <xref target="other.solutions"/>),
         typically building on using HTTP header data for holding security constructs,
         while JSON request data is provided in clear in the HTTP body.
       </t>
@@ -76,7 +77,7 @@
         This arrangement has the following characteristics:
         <list style="symbols">
           <t>
-            Since HTTP requests (as a minimum) also are defined by the HTTP URI and HTTP Verb
+            Since HTTP requests (as a minimum) also are defined by the HTTP URI and HTTP Method (verb),
             these attributes are added as reserved JSON properties to the signed request data.
           </t>
           <t>
@@ -141,13 +142,13 @@
       <t>
         <figure align="center">
           <artwork><![CDATA[  {
-    "@req.uri": "https://example.com/transact/pay",
-    "@req.vrb": "POST",
+    "$req.uri": "https://example.com/transact/pay",
+    "$req.mtd": "POST",
     "something": "data",
 
          Additional application specific properties
 
-    "@req.jws": "eyJhbGciOiJIUzI1NiJ9..VHVItCBCb849imarDtjw4"
+    "$req.jws": "eyJhbGciOiJIUzI1NiJ9..VHVItCBCb849imarDtjw4"
   }]]></artwork>
         </figure>
       </t>
@@ -155,14 +156,13 @@
         Notes:
         <list style="symbols">
           <t>
-            The argument to "@req.jws" (a detached JWS) was truncated for brevity.
+            The argument to "$req.jws" (a detached JWS) was truncated for brevity.
           </t>
           <t>
-            This specification presumes that JSON data ("payload") is expressed
-            through a top level JSON Object.
+            This specification presumes that request data is expressed as a JSON Object.
           </t>
           <t>
-            The "@req.vrb" property is actually redundant since the HTTP method "POST" is default.
+            The "$req.mtd" property is actually redundant since the HTTP method "POST" is default.
           </t>
         </list>
       </t>
@@ -171,32 +171,32 @@
       </t>
       <section anchor="req.creation.withbody" title="Request Creation">
         <t>
-          Precondition: the data to be submitted with the request already exists in
+          Precondition: the application data to be submitted with the request already exists in
           a format serializable as a JSON Object, from now on referred to as "Message".
         </t>
         <t>
-          In order to create a valid request, the steps (and ordering)
-          described in this section MUST be adheared to.
+          In order to create a valid signed request, the steps (and ordering)
+          described in this section MUST be adheared to:
           <list style="numbers">
             <t>
-              Add a top level property "@req.uri" to "Message".  The argument to the
+              Add a property "$req.uri" to "Message".  The argument to the
               property is a JSON String holding the full target URI.
             </t>
             <t>
-              Add a top level property "@req.vrb" to "Message".  The argument to the
+              Add a property "$req.mtd" to "Message".  The argument to the
               property is a JSON String holding the HTTP method in uppercase.
               <vspace blankLines="1"/>
               Note: if the HTTP method is "POST" this step is optional because "POST" is default.
             </t>
             <t>
-              If there is a need to include additional HTTP headers in the signed "Message",
+              If there is a need to include additional HTTP headers in the signed request data,
               perform the following steps:
               <list style="empty">
                 <t>
                   Create a header object as described in <xref target="header.creation"/>.
                 </t>
                 <t>
-                  Add a top level property "@req.hdr" to "Message".  The argument to the
+                  Add a property "$req.hdr" to "Message".  The argument to the
                   property is the JSON Object created in the preceding step.
                 </t>
               </list>
@@ -211,11 +211,11 @@
               Create a JWS string object as described in <xref target="create.signature"/>.
             </t>
             <t>
-              Add a top level property "@req.jws" to "Message".  The argument to the
+              Add a property "$req.jws" to "Message".  The argument to the
               property is a JSON String holding the result of the preceding step.
             </t>
             <t>
-              Submit an HTTP <xref target="RFC7231"/> compliant request to the designated URI including the following information:
+              Submit an HTTP <xref target="RFC7231"/> compliant request to the target URI including the following information:
               <list style="empty">
                 <t>
                   The selected HTTP method.
@@ -249,14 +249,14 @@
               the service MUST reject the request with an HTTP code 400 (Malformed request).
             </t>
             <t>
-              The arguments to "@req.uri", "@req.vrb" and "@req.jws" MUST be verified for correctness
+              The arguments to "$req.uri", "$req.mtd" and "$req.jws" MUST be verified for correctness
               which usually only can be done by the service processing the request.
               If there is a mismatch the service MUST reject the request with an
               HTTP code 400 (Malformed request).
             </t>
             <t>
               Extract the "JWS&nbsp;Protected&nbsp;Header" and "JWS&nbsp;Signature" from the JWS
-              object recieved in "@req.jws".
+              object recieved in "$req.jws".
             </t>
             <t>
               If the algorithm or key (optionally) specified in the "JWS&nbsp;Protected&nbsp;Header" do not match
@@ -264,7 +264,7 @@
               an HTTP code 401 (Unauthorized).
             </t>
             <t>
-              Processing of the optional "@req.hdr" element is described in <xref target="header.creation"/>.
+              Processing of the optional "$req.hdr" element is described in <xref target="header.creation"/>.
             </t>
             <t>
               Finally, apply the common signature validation steps used by SHREQ:
@@ -300,7 +300,7 @@
       </t>
       <t>
         <figure align="center">
-          <artwork><![CDATA[  GET /lookup?id=435&@req.jws=eyJhiJ..VHVIt HTTP/1.1
+          <artwork><![CDATA[  GET /lookup?id=435&$req.jws=eyJhiJ..VHVIt HTTP/1.1
   Host: example.com]]></artwork>
         </figure>
       </t>
@@ -311,13 +311,13 @@
             The full URI to the sample above is as follows:
             <list style="empty">
               <t>
-                https://example.com/lookup?id=435&amp;@req.jws=eyJhiJ..VHVIt
+                https://example.com/lookup?id=435&amp;$req.jws=eyJhiJ..VHVIt
               </t>
             </list>
             This represents a complete serializable signed request object.
           </t>
           <t>
-            The argument to "@req.jws" (a detached JWS) was truncated for brevity.
+            The argument to "$req.jws" (a detached JWS) was truncated for brevity.
           </t>
         </list>
       </t>
@@ -328,11 +328,11 @@
       <section anchor="req.creation.urionly" title="Request Creation">
         <t>
           In order to create a valid request, the steps (and ordering)
-          described in this section MUST be adheared to.
+          described in this section MUST be adheared to:
           <list style="numbers">
             <t>
               Create a "JWS&nbsp;Payload" as described in <xref target="signable.uri"/>
-              using the designated URI and HTTP method as input.
+              using the target URI and HTTP method as input.
             </t>
             <t>
               Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>
@@ -348,10 +348,10 @@
                   Add the following elements to the "JWS&nbsp;Protected&nbsp;Header" object:
                   <list style="empty">
                     <t>
-                      "crit": ["@req.hdr"]
+                      "crit": ["$req.hdr"]
                     </t>
                     <t>
-                      "@req.hdr": { ... }
+                      "$req.hdr": { ... }
                     </t>
                   </list>
                   "{ ... }" denotes the SHREQ header object.
@@ -362,15 +362,15 @@
               Create a JWS string object as described in <xref target="create.signature"/>.
             </t>
             <t>
-              Create a query string component by concatenating "@req.jws=" with the JWS string created in the preceding step.
+              Create a query string component by concatenating "$req.jws=" with the JWS string created in the preceding step.
               This component is appended to the original unsigned request URI prepended by
               &amp; or ? depending on if it is the only query component or not.
             </t>
             <t>
-              Submit an HTTP <xref target="RFC7231"/> compliant request to the designated URI including the following information:
+              Submit an HTTP <xref target="RFC7231"/> compliant request to the target URI including the following information:
               <list style="empty">
                 <t>
-                  The designated HTTP method.
+                  The selected HTTP method.
                 </t>
                 <t>
                   All HTTP headers (if any) specified in step 3.
@@ -394,19 +394,19 @@
               Save these items as "TargetURI" and "TargetMethod" respectively.
             </t>
             <t>
-              Extract the JWS string from the "@req.jws" element which MUST reside in the query string of "TargetURI".
+              Extract the JWS string from the "$req.jws" element which MUST reside in the query string of "TargetURI".
               Then extract the "JWS&nbsp;Protected&nbsp;Header" and "JWS&nbsp;Signature" from the received JWS string.
               If the JWS string is missing or malformed the service MUST reject the request
               with an HTTP 400 code (Malformed request).
             </t>
             <t>
-              Remove the "@req.jws" query string component (including the preceding &amp; or ? character)
+              Remove the "$req.jws" query string component (including the preceding &amp; or ? character)
               from "TargetURI".
             </t>
             <t>
-              Decode the "JWS&nbsp;Protected&nbsp;Header" element and extract the optional "crit" and "@req.hdr"
+              Decode the "JWS&nbsp;Protected&nbsp;Header" element and extract the optional "crit" and "$req.hdr"
               properties (see step 3 of <xref target="req.creation.urionly"/>).
-              Processing of the optional "@req.hdr" property is described in <xref target="header.validation"/>.
+              Processing of the optional "$req.hdr" property is described in <xref target="header.validation"/>.
             </t>
             <t>
               Create a "JWS&nbsp;Payload" as described in <xref target="signable.uri"/>
@@ -479,7 +479,8 @@
       </section>
       <section anchor="create.signature" title="Creation of Detached JWS Object">
         <t>
-          Use the "JWS Protected Header" and "JWS Payload" strings together designated signature key
+          Use the "JWS Protected Header" and "JWS Payload" strings together
+          with a for the purpose designated signature key
           to create a detached JWS object (a string) as described in
           Appendix F of [RFC7515].
         </t>
@@ -508,22 +509,22 @@
           This document currently has no IANA actions but the reserved property names
           below could be candidates for IANA registration:
           <list style="hanging">
-            <t hangText="@req.uri">
+            <t hangText="$req.uri">
               &nbsp;
               <vspace blankLines="0"/>
               Property holding the target URI.
             </t>
-            <t hangText="@req.vrb">
+            <t hangText="$req.mtd">
               &nbsp;
               <vspace blankLines="0"/>
               Property holding the HTTP method in uppercase.
             </t>
-            <t hangText="@req.hdr">
+            <t hangText="$req.hdr">
               &nbsp;
               <vspace blankLines="0"/>
               Property holding a JSON object containing a list of HTTP headers and a consolidated hash of the headers and their the arguments.
             </t>
-            <t hangText="@req.jws">
+            <t hangText="$req.jws">
               &nbsp;
               <vspace blankLines="0"/>
               Property holding a detached JWS signature.
