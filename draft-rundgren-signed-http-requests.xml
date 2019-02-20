@@ -242,21 +242,41 @@
       </section>
       <section anchor="req.validation.withbody" title="Request Validation">
         <t>
-          In addition to normal validation of received data, the following steps MUST also be performed:
+          In order to validate a request the following steps MUST be performed:
           <list style="numbers">
             <t>
-              If the HTTP header "Content-Type" is missing of is not "application/json"
+              If the HTTP header "Content-Type" is missing or differs from "application/json"
               the service MUST reject the request with an HTTP code 400 (Malformed request).
             </t>
             <t>
-              The arguments to "$req.uri", "$req.mtd" and "$req.jws" MUST be verified for correctness
-              which usually only can be done by the service processing the request.
-              If there is a mismatch the service MUST reject the request with an
+              If the HTTP header "Content-Length" is missing or malformed
+              the service MUST reject the request with an HTTP code 400 (Malformed request).
+              Save the length data.
+            </t>
+            <t>
+              Read HTTP body data into a byte-array with the length retrieved in the preceding step.
+            </t>
+            <t>
+              Parse the byte-array created in the preceding step with a JSON parser and return the result
+              in an object from now on referred to as "Message".
+              If there are parsing errors the service MUST reject the request with an HTTP code 400 (Malformed request).
+            </t>
+            <t>
+              Using "Message", the "$req.uri" property is read.
+              If "$req.uri" is missing or does not match the anticipated value (or type) the service MUST reject the request with an
               HTTP code 400 (Malformed request).
             </t>
             <t>
-              Extract the "JWS&nbsp;Protected&nbsp;Header" and "JWS&nbsp;Signature" from the JWS
-              object recieved in "$req.jws".
+              Using "Message", the "$req.mtd" property is read.
+              if "$req.mtd" is missing a local variable "method" is set to "POST" else it is set to the read value.
+              If "method" does not match the anticipated value (or type) the service MUST reject the request with an
+              HTTP code 400 (Malformed request).
+            </t>
+            <t>
+              Using "Message", the "$req.jws" property is read.
+              If "$req.jws" is missing or is not a string the service MUST reject the request with an
+              HTTP code 400 (Malformed request).
+              Decode the read string as described in <xref target="jws.string.decoding"/>.
             </t>
             <t>
               If the algorithm or key (optionally) specified in the "JWS&nbsp;Protected&nbsp;Header" do not match
@@ -265,6 +285,9 @@
             </t>
             <t>
               Processing of the optional "$req.hdr" element is described in <xref target="header.creation"/>.
+            </t>
+            <t>
+              Remove the "$req.jws" property from "Message".
             </t>
             <t>
               Finally, apply the common signature validation steps used by SHREQ:
@@ -470,6 +493,30 @@
       <section anchor="header.creation" title="Creation of Optional Header Object">
         <t>
           Cool.
+        </t>
+      </section>
+      <section anchor="jws.string.decoding" title="Decoding of JWS String">
+        <t>
+          The following processing steps presume that there is an input string holding
+          a detached JWS compact object, here called "jwsString":
+          <list style="numbers">
+            <t>
+              Verify that jwsString has the syntax "header..signature".
+            </t>
+            <t>
+              Assign the header portion of "jwsString" to a variable "jwsProtectedHeaderB64U".
+            </t>
+            <t>
+              Decode the Base64Url-encoded "jwsProtectedHeaderB64U" into a local byte array "header".
+              Parse the "header" using a JSON parser and return the result into 
+              the object "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>.
+            </t>
+            <t>
+              Decode the Base64Url-encoded signature portion of "jwsString"
+              into the byte array "JWS&nbsp;Signature" <xref target="RFC7515"/>.
+            </t>
+          </list>
+          If any of the steps fails the service MUST reject the request with an HTTP 400 code (Malformed request). 
         </t>
       </section>
       <section anchor="header.validation" title="Validation of Optional Header Object">
