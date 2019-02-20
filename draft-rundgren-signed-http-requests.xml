@@ -69,12 +69,14 @@
       </t>
       <t>
         SHREQ is intended to provide a standardized alternative that also fully
-        honors the REST concept without (directly) using HTTP headers for holding
-        security constructs.  That is, JSON message data is supposed to also contain
-        the security portion of a message.  This arrangement has the following characteristics:
+        honors the REST <xref target="REST"/> concept without using HTTP headers for holding
+        security constructs.
+        That is, JSON <xref target="RFC8259"/> formatted request data is supposed to
+        also contain the security portion of a request.
+        This arrangement has the following characteristics:
         <list style="symbols">
           <t>
-            Since REST requests (as a minimum) also are defined by the HTTP URI and HTTP Verb
+            Since HTTP requests (as a minimum) also are defined by the HTTP URI and HTTP Verb
             these attributes are added as reserved JSON properties to the signed request data.
           </t>
           <t>
@@ -84,15 +86,12 @@
             The latter includes supporting counter signatures.
           </t>
           <t>
-            The use of canonicalization provided by JCS makes signatures remain valid
+            The use of canonicalization provided by JCS make signatures remain valid
             also after being processed by arbitrary JSON compliant tools.
           </t>
           <t>
-            JWS is used in detached mode without modifications or extensions. 
-          </t>
-          <t>
             For general interoperability concerns as well as due to the reliance on JCS,
-            JSON message data is limited to the I&nbhy;JSON <xref target="RFC7493"/> subset. 
+            JSON request data is limited to the I&nbhy;JSON <xref target="RFC7493"/> subset.
           </t>
         </list>
         The above applies to HTTP requests using the methods
@@ -101,6 +100,9 @@
       <t>
         For HTTP requests using the methods "GET" or "DELETE" there is another,
         entirely URI <xref target="RFC3986"/> based scheme described in <xref target="req.operation.urionly"/>.
+      </t>
+      <t>
+        Both variants utilize JWS <xref target="RFC7515"/> in detached mode for holding the signature data.
       </t>
     </section>
 
@@ -119,7 +121,8 @@
         Assume you have an unsigned HTTP request like the following:
       </t>
       <t>
-        <figure align="center"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
+        <figure align="center">
+          <artwork><![CDATA[  POST /transact/pay HTTP/1.1
   Host: example.com
   Content-Type: application/json
   Content-Length: 1234
@@ -129,13 +132,15 @@
 
          Additional application specific properties
 
-  }]]></artwork></figure>
+  }]]></artwork>
+        </figure>
       </t>
       <t>
         Adding a signature to this request would require the following enhancements to the JSON payload:
       </t>
       <t>
-        <figure align="center"><artwork><![CDATA[  {
+        <figure align="center">
+          <artwork><![CDATA[  {
     "@req.uri": "https://example.com/transact/pay",
     "@req.vrb": "POST",
     "something": "data",
@@ -143,7 +148,8 @@
          Additional application specific properties
 
     "@req.jws": "eyJhbGciOiJIUzI1NiJ9..VHVItCBCb849imarDtjw4"
-  }]]></artwork></figure>
+  }]]></artwork>
+        </figure>
       </t>
       <t>
         Notes:
@@ -165,7 +171,7 @@
       </t>
       <section anchor="req.creation.withbody" title="Request Creation">
         <t>
-          Precondition: the data to be submitted already exists in
+          Precondition: the data to be submitted with the request already exists in
           a format serializable as a JSON Object, from now on referred to as "Message".
         </t>
         <t>
@@ -187,7 +193,7 @@
               perform the following steps:
               <list style="empty">
                 <t>
-                  Create a SHREQ header object as described in <xref target="signed.headers"/>.
+                  Create a header object as described in <xref target="header.creation"/>.
                 </t>
                 <t>
                   Add a top level property "@req.hdr" to "Message".  The argument to the
@@ -199,30 +205,29 @@
               Create a "JWS&nbsp;Payload" <xref target="RFC7515"/> as described in <xref target="canonicalization"/>.
             </t>
             <t>
-              Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>
-              with algorithm and key data adapted for the application.
+              Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/> as described in <xref target="create.jwsprotheader"/>.
             </t>
             <t>
-              Create a JWS string object as described in <xref target="detached.signature"/>.
+              Create a JWS string object as described in <xref target="create.signature"/>.
             </t>
             <t>
               Add a top level property "@req.jws" to "Message".  The argument to the
               property is a JSON String holding the result of the preceding step.
             </t>
             <t>
-              Submit the HTTP request to the designated URI including the following information:
+              Submit an HTTP <xref target="RFC7231"/> compliant request to the designated URI including the following information:
               <list style="empty">
                 <t>
-                  The designated HTTP method.
+                  The selected HTTP method.
                 </t>
                 <t>
-                  The HTTP Body containing a JSON-serialized "Message" object using UTF-8 encoding.
+                  An HTTP Body containing a JSON-serialized "Message" object using UTF-8 encoding.
                 </t>
                 <t>
-                  The HTTP Header "Content-Length" with the argument set to the length in bytes of the HTTP Body.
+                  An HTTP Header "Content-Length" with the argument set to the length in bytes of the HTTP Body.
                 </t>
                 <t>
-                  The HTTP Header "Content-Type" with the argument set to "application/json".
+                  An HTTP Header "Content-Type" with the argument set to "application/json".
                 </t>
                 <t>
                   All HTTP headers (if any) specified in step 3.
@@ -240,6 +245,10 @@
           In addition to normal validation of received data, the following steps MUST also be performed:
           <list style="numbers">
             <t>
+              If the HTTP header "Content-Type" is missing of is not "application/json"
+              the service MUST reject the request with an HTTP code 400 (Malformed request).
+            </t>
+            <t>
               The arguments to "@req.uri", "@req.vrb" and "@req.jws" MUST be verified for correctness
               which usually only can be done by the service processing the request.
               If there is a mismatch the service MUST reject the request with an
@@ -255,7 +264,7 @@
               an HTTP code 401 (Unauthorized).
             </t>
             <t>
-              Processing of the optional "@req.hdr" element is described in <xref target="signed.headers"/>.
+              Processing of the optional "@req.hdr" element is described in <xref target="header.creation"/>.
             </t>
             <t>
               Finally, apply the common signature validation steps used by SHREQ:
@@ -275,20 +284,25 @@
         </t>
       </section>
     </section>
+
     <section anchor="req.operation.urionly" title="GET and DELETE Requests">
       <t>
         Assume you have an unsigned HTTP request like the following:
       </t>
       <t>
-        <figure align="center"><artwork><![CDATA[  GET /lookup?id=435 HTTP/1.1
-  Host: example.com]]></artwork></figure>
+        <figure align="center">
+          <artwork><![CDATA[  GET /lookup?id=435 HTTP/1.1
+  Host: example.com]]></artwork>
+        </figure>
       </t>
       <t>
         Adding a signature to this request would require the following enhancements to the URI:
       </t>
       <t>
-        <figure align="center"><artwork><![CDATA[  GET /lookup?id=435&@req.jws=eyJhiJ..VHVIt HTTP/1.1
-  Host: example.com]]></artwork></figure>
+        <figure align="center">
+          <artwork><![CDATA[  GET /lookup?id=435&@req.jws=eyJhiJ..VHVIt HTTP/1.1
+  Host: example.com]]></artwork>
+        </figure>
       </t>
       <t>
         Notes:
@@ -317,9 +331,113 @@
           described in this section MUST be adheared to.
           <list style="numbers">
             <t>
+              Create a "JWS&nbsp;Payload" as described in <xref target="signable.uri"/>
+              using the designated URI and HTTP method as input.
+            </t>
+            <t>
+              Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>
+              with algorithm and key data adapted for the application.
+            </t>
+            <t>
+              If HTTP headers also need to be signed the following steps are performed:
+              <list style="symbols">
+                <t>
+                  Create a SHREQ header object as described in <xref target="header.creation"/>.
+                </t>
+                <t>
+                  Add the following elements to the "JWS&nbsp;Protected&nbsp;Header" object:
+                  <list style="empty">
+                    <t>
+                      "crit": ["@req.hdr"]
+                    </t>
+                    <t>
+                      "@req.hdr": { ... }
+                    </t>
+                  </list>
+                  "{ ... }" denotes the SHREQ header object.
+                </t>
+              </list>
+            </t>
+            <t>
+              Create a JWS string object as described in <xref target="create.signature"/>.
+            </t>
+            <t>
+              Create a query string component by concatenating "@req.jws=" with the JWS string created in the preceding step.
+              This component is appended to the original unsigned request URI prepended by
+              &amp; or ? depending on if it is the only query component or not.
+            </t>
+            <t>
+              Submit an HTTP <xref target="RFC7231"/> compliant request to the designated URI including the following information:
+              <list style="empty">
+                <t>
+                  The designated HTTP method.
+                </t>
+                <t>
+                  All HTTP headers (if any) specified in step 3.
+                </t>
+                <t>
+                  Other HTTP headers (if any) needed by the application.
+                </t>
+              </list>
+            </t>
+          </list>
+        </t>
+      </section>
+      <section anchor="req.validation.urionly" title="Request Validation">
+        <t>
+          In addition to normal validation of received data (which may be carried out
+          before or after the steps outlined here),
+          the following steps MUST be performed in order to validate a URI based HTTP request:
+          <list style="numbers">
+            <t>
+              Recreate the full URI and HTTP method from the received request.
+              Save these items as "TargetURI" and "TargetMethod" respectively.
+            </t>
+            <t>
+              Extract the JWS string from the "@req.jws" element which MUST reside in the query string of "TargetURI".
+              Then extract the "JWS&nbsp;Protected&nbsp;Header" and "JWS&nbsp;Signature" from the received JWS string.
+              If the JWS string is missing or malformed the service MUST reject the request
+              with an HTTP 400 code (Malformed request).
+            </t>
+            <t>
+              Remove the "@req.jws" query string component (including the preceding &amp; or ? character)
+              from "TargetURI".
+            </t>
+            <t>
+              Decode the "JWS&nbsp;Protected&nbsp;Header" element and extract the optional "crit" and "@req.hdr"
+              properties (see step 3 of <xref target="req.creation.urionly"/>).
+              Processing of the optional "@req.hdr" property is described in <xref target="header.validation"/>.
+            </t>
+            <t>
+              Create a "JWS&nbsp;Payload" as described in <xref target="signable.uri"/>
+              using "TargetURI" and "TargetMethod" method as input.
+            </t>
+            <t>
+              If the algorithm or key (optionally) specified in the "JWS&nbsp;Protected&nbsp;Header" do not match
+              the service's expectations or requirements, reject the request with
+              an HTTP 401 code (Unauthorized).
+            </t>
+            <t>
+              Validate the signature as described in step 5 in <xref target="req.validation.withbody"/>.
+            </t>
+          </list>
+        </t>
+      </section>
+    </section>
+
+    <section anchor="common.ops" title="Common Operations">
+      <t>
+        SHREQ is a modular system using shared procedures described
+        in the following subsections.
+      </t>
+      <section anchor="signable.uri" title="Creation of Signable URI">
+        <t>
+          For URI based requests, the steps to create a signable URI are as follows:
+          <list style="numbers">
+            <t>
               The data to be signed consists of the HTTP method in uppercase and the
-              target URI separated by a comma character.  Applied to the sample that
-              would yield the following string:
+              target URI, separated by a comma character.  Applied to the sample in
+              <xref target="req.operation.urionly"/> that would yield the following string:
               <list style="empty">
                 <t>
                   GET,https://example.com/lookup?id=435
@@ -344,106 +462,38 @@
                   R0VULGh0dHBzOi8vZXhhbXBsZS5jb20vbG9va3VwP2lkPTQzNQ
                 </t>
               </list>
-              This data is defined as the "JWS Payload" using <xref target="RFC7515"/> terms.
-            </t>
-            <t>
-              Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>
-              with algorithm and key data adapted for the application.
-            </t>
-            <t>
-              If HTTP headers also need to be signed the following steps are performed:
-              <list style="symbols">
-                <t>
-                  Create a SHREQ header object as described in <xref target="signed.headers"/>.
-                </t>
-                <t>
-                  Add the following elements to the "JWS&nbsp;Protected&nbsp;Header" object:
-                  <list style="empty">
-                    <t>
-                      "crit": ["@req.hdr"]
-                    </t>
-                    <t>
-                      "@req.hdr": { ... }
-                    </t>
-                  </list>
-                  "{ ... }" denotes the SHREQ header object.
-                </t>
-              </list>
-            </t>
-            <t>
-              Create a JWS string object as described in <xref target="detached.signature"/>.
-            </t>
-            <t>
-              Create a query string component by concatenating "@req.jws=" with the JWS string created in the preceding step.
-              This component is appended to the original unsigned request URI prepended by
-              &amp; or ? depending on if it is the only query component or not.
-            </t>
-            <t>
-              Submit the HTTP request to the designated URI including the following information:
-              <list style="empty">
-                <t>
-                  The designated HTTP method.
-                </t>
-                <t>
-                  All HTTP headers (if any) specified in step 5.
-                </t>
-                <t>
-                  Other HTTP headers (if any) needed by the application.
-                </t>
-              </list>
             </t>
           </list>
+          The string generated in the final step is intended to be used as a "JWS&nbsp;Payload" <xref target="RFC7515"/>.
         </t>
       </section>
-      <section anchor="req.validation.urionly" title="Request Validation">
-        <t>
-          In addition to normal validation of received data, the following steps MUST also be performed:
-          <list style="numbers">
-            <t>
-              Extract the JWS string from the "@req.jws" element in the query string.
-              If the JWS string is missing or malformed the service MUST reject the request
-              with an HTTP 400 code (Malformed request).
-            </t>
-            <t>
-              Extract the "JWS&nbsp;Protected&nbsp;Header" and "JWS&nbsp;Signature" from the recieved JWS string.
-            </t>
-            <t>
-              If the algorithm or key (optionally) specified in the "JWS&nbsp;Protected&nbsp;Header" do not match
-              the service's expectations or requirements, reject the request with
-              an HTTP 401 code (Unauthorized).
-            </t>
-            <t>
-              Processing of the optional "@req.hdr" element (featured in the "JWS&nbsp;Protected&nbsp;Header")
-              is described in <xref target="signed.headers"/>.
-            </t>
-            <t>
-              Recreate HTTP method and the (unsigned) URI from the HTTP headers in the request.
-              Concatenate and convert this data as described in step 1-3
-              in <xref target="req.creation.urionly"/> to form a "JWS&nbsp;Payload".
-            </t>
-            <t>
-              Validate the signature as described in step 5 in <xref target="req.validation.withbody"/>.
-            </t>
-          </list>
-        </t>
-      </section>
-    </section>
-
-    <section anchor="common.ops" title="Common SHREQ Operations">
-      <t>
-        SHREQ is a modular system using shared procedures described
-        in the following subsections.
-      </t>
-      <section anchor="signed.headers" title="Creation of Optional Header Object">
+      <section anchor="header.creation" title="Creation of Optional Header Object">
         <t>
           Cool.
         </t>
       </section>
-      <section anchor="detached.signature" title="Creation of Detached JWS Object">
+      <section anchor="header.validation" title="Validation of Optional Header Object">
         <t>
-          Use the "JWS Protected Header", "JWS Payload" and designated signature key
+          Cool.
+        </t>
+      </section>
+      <section anchor="create.signature" title="Creation of Detached JWS Object">
+        <t>
+          Use the "JWS Protected Header" and "JWS Payload" strings together designated signature key
           to create a detached JWS object (a string) as described in
           Appendix F of [RFC7515].
+        </t>
+      </section>
+      <section anchor="create.jwsprotheader" title="Creation of JWS Protected Header">
+        <t>
+          Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>
+          with algorithm and key data adapted for the application.
+        </t>
+      </section>
+      <section anchor="validate.signature" title="Validation of JWS Object">
+        <t>
+          Create JWS compact object by concatenating the "JWS&nbsp;Protected Header",
+          "JWS&nbsp;Payload" and "JWS&nbsp;Signature" strings, separated by point characters (".").
         </t>
       </section>
       <section anchor="canonicalization" title="Canonicalization of &quot;Message&quot;">
@@ -453,44 +503,48 @@
       </section>
     </section>
 
-    <section anchor="IANA" title="IANA Considerations">
-      <t>
-        This document currently has no IANA actions but the reserved property names
-        below could be candidates for IANA registration:
-        <list style="hanging">
-          <t hangText="@req.uri">&nbsp;
-            <vspace blankLines="0"/>
-            Property holding the target URI.
-          </t>
-          <t hangText="@req.vrb">&nbsp;
-            <vspace blankLines="0"/>
-            Property holding the HTTP method in uppercase.
-          </t>
-          <t hangText="@req.hdr">&nbsp;
-            <vspace blankLines="0"/>
-            Property holding a JSON object containing a list of HTTP headers and a consolidated hash of the headers and their the arguments.
-          </t>
-          <t hangText="@req.jws">&nbsp;
-            <vspace blankLines="0"/>
-            Property holding a detached JWS signature.
-          </t>
-        </list>
-      </t>
-    </section>
+      <section anchor="IANA" title="IANA Considerations">
+        <t>
+          This document currently has no IANA actions but the reserved property names
+          below could be candidates for IANA registration:
+          <list style="hanging">
+            <t hangText="@req.uri">
+              &nbsp;
+              <vspace blankLines="0"/>
+              Property holding the target URI.
+            </t>
+            <t hangText="@req.vrb">
+              &nbsp;
+              <vspace blankLines="0"/>
+              Property holding the HTTP method in uppercase.
+            </t>
+            <t hangText="@req.hdr">
+              &nbsp;
+              <vspace blankLines="0"/>
+              Property holding a JSON object containing a list of HTTP headers and a consolidated hash of the headers and their the arguments.
+            </t>
+            <t hangText="@req.jws">
+              &nbsp;
+              <vspace blankLines="0"/>
+              Property holding a detached JWS signature.
+            </t>
+          </list>
+        </t>
+      </section>
 
-    <section anchor="Security" title="Security Considerations">
-      <t>
-        Systems implementing this application note are subject
-        to the same security considerations as JCS and JWS.
-      </t>
-    </section>
+      <section anchor="Security" title="Security Considerations">
+        <t>
+          Systems implementing this application note are subject
+          to the same security considerations as JCS and JWS.
+        </t>
+      </section>
 
-    <section anchor="Acknowledgements" title="Acknowledgements">
-      <t>
-        TBD.
-      </t>
-    </section>
-  </middle>
+      <section anchor="Acknowledgements" title="Acknowledgements">
+        <t>
+          TBD.
+        </t>
+      </section>
+    </middle>
 
   <back>
     <references title="Normative References">
