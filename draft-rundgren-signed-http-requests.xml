@@ -115,7 +115,7 @@
       </t>
       <t>
         For supporting signed HTTP responses any solution may be used.  For maximum "symmetry"
-        and code reuse, the <xref target="JWSJCS"/> scheme should be a suitable alternative
+        and code reuse, the <xref target="JWSJCS"/> scheme should be a suitable candidate
         since it builds on the same building blocks as SHREQ.
       </t>
     </section>
@@ -204,7 +204,7 @@
             <t>
               If there is a need to include additional HTTP headers in the signed request data,
               perform the following steps:
-              <list style="empty">
+              <list style="symbols">
                 <t>
                   Create a header object as described in <xref target="header.creation"/>.
                 </t>
@@ -232,15 +232,15 @@
             </t>
             <t>
               Submit an HTTP <xref target="RFC7231"/> compliant request to the target URI including the following information:
-              <list style="empty">
+              <list style="symbols">
                 <t>
-                  The selected HTTP method.
+                  Selected HTTP method.
                 </t>
                 <t>
-                  An HTTP Header "Content-Length" with the argument set to the length of "requestData".
+                  HTTP Header "Content-Length" with the argument set to the length of "requestData".
                 </t>
                 <t>
-                  An HTTP Header "Content-Type" with the argument set to "application/json".
+                  HTTP Header "Content-Type" with the argument set to "application/json".
                 </t>
                 <t>
                   All HTTP headers (if any) specified in step 3.
@@ -262,11 +262,11 @@
           <list style="numbers">
             <t>
               If the HTTP header "Content-Type" is missing or differs from "application/json"
-              the service MUST reject the request with an HTTP code 400 (Malformed request).
+              the service MUST reject the request with an HTTP 400 code (Malformed request).
             </t>
             <t>
               If the HTTP header "Content-Length" is missing or malformed
-              the service MUST reject the request with an HTTP code 400 (Malformed request).
+              the service MUST reject the request with an HTTP 400 code (Malformed request).
               Save the length data.
             </t>
             <t>
@@ -275,51 +275,42 @@
             <t>
               Parse the byte array created in the preceding step with a JSON parser and return the result
               in an object from now on referred to as "Message".
-              If there are parsing errors the service MUST reject the request with an HTTP code 400 (Malformed request).
+              If there are parsing errors the service MUST reject the request with an
+              HTTP 400 code (Malformed request).
             </t>
             <t>
               Using "Message", the "$req.uri" property is read.
-              If "$req.uri" is missing or does not match the anticipated value (or type) the service MUST reject the request with an
-              HTTP code 400 (Malformed request).
+              If "$req.uri" is missing or does not match the anticipated value or is not a JSON String the service MUST reject the request with an
+              HTTP 400 code (Malformed request).
             </t>
             <t>
               Using "Message", the "$req.mtd" property is read.
-              if "$req.mtd" is missing a local variable "method" is set to "POST" else it is set to the read value.
-              If "method" does not match the anticipated value (or type) the service MUST reject the request with an
-              HTTP code 400 (Malformed request).
+              if "$req.mtd" is missing the HTTP method is assumed to be "POST" else it is assumed to be the read value.
+              If the computed method does not match the anticipated value is not a JSON String the service MUST reject the request with an
+              HTTP 400 code (Malformed request).
             </t>
             <t>
               Using "Message", the "$req.jws" property is read.
-              If "$req.jws" is missing or is not a string the service MUST reject the request with an
-              HTTP code 400 (Malformed request).
+              If "$req.jws" is missing or is not a JSON String the service MUST reject the request with an
+              HTTP 400 code (Malformed request).
               Decode the read string as described in <xref target="jws.string.decoding"/>.
             </t>
             <t>
-              If the algorithm or key (optionally) specified in the "JWS&nbsp;Protected&nbsp;Header" do not match
-              the service's expectations or requirements, reject the request with
-              an HTTP code 401 (Unauthorized).
-            </t>
-            <t>
-              Processing of the optional "$req.hdr" element is described in <xref target="header.creation"/>.
+              If the optional "$req.hdr" property is present in "Message", extract the argument
+              and process it as described in <xref target="validate.header"/>.
             </t>
             <t>
               Remove the "$req.jws" property from "Message".
             </t>
             <t>
-              Finally, apply the common signature validation steps used by SHREQ:
-              <list style="symbols">
-                <t>
-                  Validate the signature as a standard compact mode JWS <xref target="RFC7515"/>,
-                  by concatenating "JWS&nbsp;Protected&nbsp;Header", "JWS&nbsp;Payload" and "JWS&nbsp;Signature"
-                  using "." as separator between the elements.
-                </t>
-                <t>
-                  If the signature fails to validate, reject the request with
-                  an HTTP 401 code (Unauthorized).
-                </t>
-              </list>
+              Create a "JWS&nbsp;Payload" <xref target="RFC7515"/> object as described in <xref target="signable.json"/>.
+            </t>
+            <t>
+              Perform signature validation as described in <xref target="validate.signature"/>.
             </t>
           </list>
+          Note: validation of application specific data can be performed anytime after step 4.
+          The action(s) to perform after a possible failure is out of scope for this specification.
         </t>
       </section>
     </section>
@@ -381,7 +372,7 @@
               If HTTP headers also need to be signed the following steps are performed:
               <list style="symbols">
                 <t>
-                  Create a SHREQ header object as described in <xref target="header.creation"/>.
+                  Create an HTTP header object as described in <xref target="header.creation"/>.
                 </t>
                 <t>
                   Add the following elements to the "JWS&nbsp;Protected&nbsp;Header" object:
@@ -393,7 +384,7 @@
                       "$req.hdr": { ... }
                     </t>
                   </list>
-                  "{ ... }" denotes the SHREQ header object.
+                  "{ ... }" denotes the HTTP header object.
                 </t>
               </list>
             </t>
@@ -407,9 +398,9 @@
             </t>
             <t>
               Submit an HTTP <xref target="RFC7231"/> compliant request to the target URI including the following information:
-              <list style="empty">
+              <list style="symbols">
                 <t>
-                  The selected HTTP method.
+                  Selected HTTP method.
                 </t>
                 <t>
                   All HTTP headers (if any) specified in step 3.
@@ -434,30 +425,36 @@
             </t>
             <t>
               Extract the JWS string from the "$req.jws" element which MUST reside in the query string of "TargetURI".
-              Then extract the "JWS&nbsp;Protected&nbsp;Header" and "JWS&nbsp;Signature" from the received JWS string.
-              If the JWS string is missing or malformed the service MUST reject the request
+              If the JWS string is missing the service MUST reject the request
               with an HTTP 400 code (Malformed request).
+              Decode the read string as described in <xref target="jws.string.decoding"/>.
             </t>
             <t>
               Remove the "$req.jws" query string component (including the preceding &amp; or ? character)
               from "TargetURI".
             </t>
             <t>
-              Decode the "JWS&nbsp;Protected&nbsp;Header" element and extract the optional "crit" and "$req.hdr"
-              properties (see step 3 of <xref target="req.creation.urionly"/>).
-              Processing of the optional "$req.hdr" property is described in <xref target="header.validation"/>.
+              if the "JWS&nbsp;Protected&nbsp;Header" object contains a "$req.hdr" property,
+              perform the following steps:
+              <list style="symbols">
+                <t>
+                  Verify that the "JWS&nbsp;Protected&nbsp;Header" object contains a JWS "crit"
+                  property holding a JSON Array with JSON String elements where
+                  one of the elements MUST be "$req.hdr".
+                  If there is a mismatch the service MUST reject the request
+                  with an HTTP 400 code (Malformed request).
+                </t>
+                <t>
+                  Extract the argument to "$req.hdr" from the "JWS&nbsp;Protected&nbsp;Header" and process it as described in <xref target="validate.header"/>.
+                </t>
+              </list>
             </t>
             <t>
-              Create a "JWS&nbsp;Payload" as described in <xref target="signable.uri"/>
+              Create a "JWS&nbsp;Payload" object as described in <xref target="signable.uri"/>
               using "TargetURI" and "TargetMethod" method as input.
             </t>
             <t>
-              If the algorithm or key (optionally) specified in the "JWS&nbsp;Protected&nbsp;Header" do not match
-              the service's expectations or requirements, reject the request with
-              an HTTP 401 code (Unauthorized).
-            </t>
-            <t>
-              Validate the signature as described in step 5 in <xref target="req.validation.withbody"/>.
+              Perform signature validation as described in <xref target="validate.signature"/>.
             </t>
           </list>
         </t>
@@ -469,7 +466,7 @@
         SHREQ is a modular system using shared procedures described
         in the following subsections.
       </t>
-      <section anchor="signable.json" title="Creation of Signable JSON">
+      <section anchor="signable.json" title="Creation of Signable JSON Data">
         <t>
           Unsigned request data is now supposed to reside in "Message".
           To facilitate resilience against (legitimate) variances in JSON processing
@@ -515,12 +512,26 @@
               </list>
             </t>
           </list>
-          The output from the last step is intended to be used as a "JWS&nbsp;Payload" <xref target="RFC7515"/> object.
+          The output from the last step is assigned to a "JWS&nbsp;Payload" <xref target="RFC7515"/> object.
         </t>
       </section>
-      <section anchor="header.creation" title="Creation of Optional Header Object">
+      <section anchor="header.creation" title="Creation of HTTP Header Object">
         <t>
           Cool.
+        </t>
+      </section>
+      <section anchor="create.jwsprotheader" title="Creation of JWS Protected Header">
+        <t>
+          Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>
+          JSON object with algorithm and key data adapted for the application.
+        </t>
+      </section>
+      <section anchor="create.signature" title="Creation of JWS String">
+        <t>
+          Use the "JWS Protected Header" and "JWS Payload" strings together
+          with a for the purpose designated signature key
+          to create a detached JWS object (a string) as described in
+          Appendix F of [RFC7515].
         </t>
       </section>
       <section anchor="jws.string.decoding" title="Decoding of JWS String">
@@ -535,35 +546,20 @@
               Assign the header portion of "jwsString" to a variable "jwsProtectedHeaderB64U".
             </t>
             <t>
-              Decode the Base64Url-encoded "jwsProtectedHeaderB64U" into a local byte array "header".
-              Parse the "header" using a JSON parser and return the result into 
-              the object "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>.
+              Decode the Base64Url-encoded "jwsProtectedHeaderB64U" into a byte array.
             </t>
             <t>
-              Decode the Base64Url-encoded signature portion of "jwsString"
-              into the byte array "JWS&nbsp;Signature" <xref target="RFC7515"/>.
+              Parse the output from the preceding step with a JSON parser and
+              assume that the result is a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/> object.
+            </t>
+            <t>
+              Decode the Base64Url-encoded signature portion of "jwsString" into a byte array.
+            </t>
+            <t>
+              Use the output from the preceding step to create a "JWS&nbsp;Signature" <xref target="RFC7515"/> object.
             </t>
           </list>
-          If any of the steps fails the service MUST reject the request with an HTTP 400 code (Malformed request). 
-        </t>
-      </section>
-      <section anchor="header.validation" title="Validation of Optional Header Object">
-        <t>
-          Cool.
-        </t>
-      </section>
-      <section anchor="create.signature" title="Creation of Detached JWS Object">
-        <t>
-          Use the "JWS Protected Header" and "JWS Payload" strings together
-          with a for the purpose designated signature key
-          to create a detached JWS object (a string) as described in
-          Appendix F of [RFC7515].
-        </t>
-      </section>
-      <section anchor="create.jwsprotheader" title="Creation of JWS Protected Header">
-        <t>
-          Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>
-          JSON object with algorithm and key data adapted for the application.
+          If any of the steps fails, the service MUST reject the request with an HTTP 400 code (Malformed request). 
         </t>
       </section>
       <section anchor="validate.signature" title="Validation of JWS Object">
@@ -596,8 +592,11 @@
               </list>
             </t>
           </list>
-          Create JWS compact object by concatenating the "JWS&nbsp;Protected&nbsp;Header",
-          "JWS&nbsp;Payload" and "JWS&nbsp;Signature" strings, separated by point characters (".").
+        </t>
+      </section>
+      <section anchor="validate.header" title="Validation of HTTP Header Object">
+        <t>
+          Cool.
         </t>
       </section>
     </section>
