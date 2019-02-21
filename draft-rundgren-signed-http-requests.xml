@@ -69,8 +69,8 @@
         while JSON request data is provided in clear in the HTTP body.
       </t>
       <t>
-        SHREQ is intended to provide a standardized alternative that also fully
-        honors the REST <xref target="REST"/> concept.
+        SHREQ is intended to provide a standardized alternative, including supporting
+        the REST <xref target="REST"/> concept.
       </t>
       <t>
         SHREQ builds on a common security model where the following elements of an HTTP request are signed:
@@ -150,7 +150,7 @@
         </figure>
       </t>
       <t>
-        Adding a signature to this request would require the following enhancements to the JSON payload:
+        Adding a signature to the request above would require the following enhancements to the JSON payload:
       </t>
       <t>
         <figure align="center">
@@ -175,7 +175,10 @@
             This specification presumes that request data is expressed as a JSON Object.
           </t>
           <t>
-            The "$req.mtd" property is actually redundant since the HTTP method "POST" is default.
+            The "$req.mtd" property is actually redundant since the HTTP method "POST" is the default.
+          </t>
+          <t>
+            The ordering of properties is insignificant.
           </t>
         </list>
       </t>
@@ -365,8 +368,7 @@
               using the target URI and HTTP method as input.
             </t>
             <t>
-              Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>
-              with algorithm and key data adapted for the application.
+              Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/> as described in <xref target="create.jwsprotheader"/>.
             </t>
             <t>
               If HTTP headers also need to be signed the following steps are performed:
@@ -528,10 +530,51 @@
       </section>
       <section anchor="create.signature" title="Creation of JWS String">
         <t>
-          Use the "JWS Protected Header" and "JWS Payload" strings together
-          with a for the purpose designated signature key
-          to create a detached JWS object (a string) as described in
-          Appendix F of [RFC7515].
+          To create a detached JWS object as described in Appendix F of <xref target="RFC7515"/>,
+          perform the following steps:
+          <list style="numbers">
+            <t>
+              Serialize "JWS Protected Header" into byte array.
+            </t>
+            <t>
+              Base64Url-encode the output from the preceding step into a variable "jwsProtectedHeaderB64U".
+            </t>
+            <t>
+              Set local variable "signedData" to the UTF-8 encoded representation of the
+              concatenation of:
+              <list style="empty">
+                <t>
+                  The previously defined variable "jwsProtectedHeaderB64U".
+                </t>
+                <t>
+                  A point character (".").
+                </t>
+                <t>
+                  The previously defined variable "JWS&nbsp;Payload",
+                  here encoded in Base64Url <xref target="RFC4648"/>.
+                </t>
+              </list>
+            </t>
+            <t>
+              Use the designated signature key, algorithm and
+              "signedData" to create a "JWS&nbsp;Signature" object.
+            </t>
+            <t>
+              Return the string consisting of the concatenation of:
+              <list style="empty">
+                <t>
+                  The previously defined variable "jwsProtectedHeaderB64U".
+                </t>
+                <t>
+                  Two point characters ("..").
+                </t>
+                <t>
+                  The previously defined variable "JWS&nbsp;Signature",
+                  here encoded in Base64Url <xref target="RFC4648"/>.
+                </t>
+              </list>
+            </t>
+          </list>
         </t>
       </section>
       <section anchor="jws.string.decoding" title="Decoding of JWS String">
@@ -540,20 +583,20 @@
           a detached JWS compact object, here called "jwsString":
           <list style="numbers">
             <t>
-              Verify that jwsString has the syntax "header..signature".
+              Verify that "jwsString" has the syntax "header..signature".
             </t>
             <t>
-              Assign the header portion of "jwsString" to a variable "jwsProtectedHeaderB64U".
+              Assign the "header" portion of "jwsString" to a variable "jwsProtectedHeaderB64U".
             </t>
             <t>
-              Decode the Base64Url-encoded "jwsProtectedHeaderB64U" into a byte array.
+              Base64Url-decode "jwsProtectedHeaderB64U" into a byte array.
             </t>
             <t>
               Parse the output from the preceding step with a JSON parser and
               assume that the result is a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/> object.
             </t>
             <t>
-              Decode the Base64Url-encoded signature portion of "jwsString" into a byte array.
+              Base64Url-decode the "signature" portion of "jwsString" into a byte array.
             </t>
             <t>
               Use the output from the preceding step to create a "JWS&nbsp;Signature" <xref target="RFC7515"/> object.
@@ -576,7 +619,7 @@
               Retrieve the signature validation key. 
             </t>
             <t>
-              Set local variable "data" to the UTF-8 encoded value of the
+              Set local variable "signedData" to the UTF-8 encoded representation of the
               concatenation of:
               <list style="empty">
                 <t>
@@ -586,12 +629,19 @@
                   A point character (".").
                 </t>
                 <t>
-                  The previously defined variable "JWS Payload"
-                  encoded in Base64Url <xref target="RFC4648"/>.
+                  The previously defined variable "JWS Payload",
+                  here encoded in Base64Url <xref target="RFC4648"/>.
                 </t>
               </list>
             </t>
+            <t>
+              Validate the signature using the algorithm retrieved in step 1,
+              the signature validation key from step 2,
+              "signedData" from step 3 and the previously collected "JWS&nbsp;Signature" object. 
+            </t>
           </list>
+          If any of these steps fail, the service MUST reject the request with an
+          HTTP 401 code (Unauthorized). 
         </t>
       </section>
       <section anchor="validate.header" title="Validation of HTTP Header Object">
@@ -601,48 +651,48 @@
       </section>
     </section>
 
-      <section anchor="IANA" title="IANA Considerations">
-        <t>
-          This document currently has no IANA actions but the reserved property names
-          below could be candidates for IANA registration:
-          <list style="hanging">
-            <t hangText="$req.uri">
-              &nbsp;
-              <vspace blankLines="0"/>
-              Property holding the target URI.
-            </t>
-            <t hangText="$req.mtd">
-              &nbsp;
-              <vspace blankLines="0"/>
-              Property holding the HTTP method in uppercase.
-            </t>
-            <t hangText="$req.hdr">
-              &nbsp;
-              <vspace blankLines="0"/>
-              Property holding a JSON object containing a list of HTTP headers and a consolidated hash of the headers and their the arguments.
-            </t>
-            <t hangText="$req.jws">
-              &nbsp;
-              <vspace blankLines="0"/>
-              Property holding a detached JWS signature.
-            </t>
-          </list>
-        </t>
-      </section>
+    <section anchor="IANA" title="IANA Considerations">
+      <t>
+        This document currently has no IANA actions but the reserved property names
+        below could be candidates for IANA registration:
+        <list style="hanging">
+          <t hangText="$req.uri">
+            &nbsp;
+            <vspace blankLines="0"/>
+            Property holding the target URI.
+          </t>
+          <t hangText="$req.mtd">
+            &nbsp;
+            <vspace blankLines="0"/>
+            Property holding the HTTP method in uppercase.
+          </t>
+          <t hangText="$req.hdr">
+            &nbsp;
+            <vspace blankLines="0"/>
+            Property holding a JSON object containing a list of HTTP headers and a consolidated hash of the headers and their the arguments.
+          </t>
+          <t hangText="$req.jws">
+            &nbsp;
+            <vspace blankLines="0"/>
+            Property holding a detached JWS signature.
+          </t>
+        </list>
+      </t>
+    </section>
 
-      <section anchor="Security" title="Security Considerations">
-        <t>
-          Systems implementing this application note are subject
-          to the same security considerations as JCS and JWS.
-        </t>
-      </section>
+    <section anchor="Security" title="Security Considerations">
+      <t>
+        Systems implementing this application note are subject
+        to the same security considerations as JCS and JWS.
+      </t>
+    </section>
 
-      <section anchor="Acknowledgements" title="Acknowledgements">
-        <t>
-          TBD.
-        </t>
-      </section>
-    </middle>
+    <section anchor="Acknowledgements" title="Acknowledgements">
+      <t>
+        TBD.
+      </t>
+    </section>
+  </middle>
 
   <back>
     <references title="Normative References">
@@ -738,6 +788,7 @@
         </front>
       </reference>
     </references>
+
     <section anchor="other.solutions" title="Other Signed HTTP Request Solutions">
       <t>
         This appendix briefly outlines a few other solutions addressing
@@ -816,10 +867,22 @@
             </t>
           </list>
         </t>
-        <t>
-          <vspace blankLines="3"/>
-        </t>
       </section>
     </section>
+  
+    <section anchor="shreq.development" title="Development Portal">
+      <t>
+        The SHREQ specification is currently developed at:
+        <eref target="https://github.com/cyberphone/ietf-signed-http-requests">https://github.com/cyberphone/ietf-signed-http-requests</eref>.
+      </t>
+      <t>
+        SHREQ source code and test data is available at:
+        <eref target="https://github.com/cyberphone/shreq">https://github.com/cyberphone/shreq</eref>
+      </t>
+      <t>
+        <vspace blankLines="3"/>
+      </t>
+    </section>
+  
   </back>
 </rfc>
