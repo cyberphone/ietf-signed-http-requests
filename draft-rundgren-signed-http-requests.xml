@@ -92,13 +92,13 @@
       <t>
         One of the design goals was turning signed requests into self-contained objects.
         To achieve this for HTTP methods having a body (see <xref target="req.operation.withbody"/>),
-        the JSON <xref target="RFC8259"/> formatted request data also
-        carries the security portion of a request.
+        the JSON <xref target="RFC8259"/> formatted request data also carries the signature.
         This arrangement has certain implications:
         <list style="symbols">
           <t>
-            Requests may be serialized in databases or be embedded in other JSON objects.
-            The latter includes supporting counter signatures.
+            Signed requests may be stored in databases or be embedded in other JSON objects.
+            The latter includes supporting counter signatures.  The canonicalization
+            offered by JCS enables validating the integrity of request data at any time.
           </t>
           <t>
             For general interoperability concerns as well as due to the reliance on JCS,
@@ -115,7 +115,8 @@
       </t>
       <t>
         For supporting signed HTTP responses any solution may be used.  For maximum "symmetry"
-        and code reuse, the <xref target="JWSJCS"/> scheme should be a suitable alternative.
+        and code reuse, the <xref target="JWSJCS"/> scheme should be a suitable alternative
+        since it builds on the same building blocks as SHREQ.
       </t>
     </section>
 
@@ -196,9 +197,9 @@
             </t>
             <t>
               Add a property "$req.mtd" to "Message" where the argument
-              is a JSON String holding the HTTP method in uppercase.
+              is a JSON String holding the selected HTTP method in uppercase.
               <vspace blankLines="1"/>
-              Note: if the HTTP method is "POST" this step is optional because "POST" is default.
+              Note: for the HTTP method "POST", this step is optional because "POST" is the default.
             </t>
             <t>
               If there is a need to include additional HTTP headers in the signed request data,
@@ -227,16 +228,16 @@
               is a JSON String holding the result of the preceding step.
             </t>
             <t>
+              Serialize "Message" into an UTF-8 encoded byte array called "requestData".
+            </t>
+            <t>
               Submit an HTTP <xref target="RFC7231"/> compliant request to the target URI including the following information:
               <list style="empty">
                 <t>
                   The selected HTTP method.
                 </t>
                 <t>
-                  An HTTP Body containing a JSON-serialized "Message" object using UTF-8 encoding.
-                </t>
-                <t>
-                  An HTTP Header "Content-Length" with the argument set to the length in bytes of the HTTP Body.
+                  An HTTP Header "Content-Length" with the argument set to the length of "requestData".
                 </t>
                 <t>
                   An HTTP Header "Content-Type" with the argument set to "application/json".
@@ -246,6 +247,9 @@
                 </t>
                 <t>
                   Other HTTP headers (if any) needed by the application.
+                </t>
+                <t>
+                  An HTTP Body containing "requestData".
                 </t>
               </list>
             </t>
@@ -266,10 +270,10 @@
               Save the length data.
             </t>
             <t>
-              Read HTTP body data into a byte-array with the length retrieved in the preceding step.
+              Read HTTP body data into a byte array with the length retrieved in the preceding step.
             </t>
             <t>
-              Parse the byte-array created in the preceding step with a JSON parser and return the result
+              Parse the byte array created in the preceding step with a JSON parser and return the result
               in an object from now on referred to as "Message".
               If there are parsing errors the service MUST reject the request with an HTTP code 400 (Malformed request).
             </t>
@@ -467,15 +471,30 @@
       </t>
       <section anchor="signable.json" title="Creation of Signable JSON">
         <t>
-          Cool.
-        </t>
-      </section>
-      <section anchor="signable.uri" title="Creation of Signable URI">
-        <t>
-          For URI based requests, the steps to create a signable URI are as follows:
+          Unsigned request data is now supposed to reside in "Message".
+          To facilitate resilience against (legitimate) variances in JSON processing
+          between different platforms and systems,
+          "Message" needs to be canonicalized and serialized into a UTF-8 encoded byte array.
+          If the used JSON tools offer intrinsic support for JCS <xref target="JCS"/>, this is
+          typically a single operation, else the followings steps are performed:
           <list style="numbers">
             <t>
-              The data to be signed consists of the HTTP method in uppercase and the
+              Serialize "Message" using standard JSON tools for the platform.
+            </t>
+            <t>
+              Create a canonical and UTF-8 encoded form of the data created in the preceding step,
+              through an external software solution supporting JCS.
+            </t>
+          </list>
+          The output from JCS is intended to be used as a "JWS&nbsp;Payload" <xref target="RFC7515"/> object.
+        </t>
+      </section>
+      <section anchor="signable.uri" title="Creation of Signable URI Data">
+        <t>
+          For URI based requests, the steps to create signable URI data are as follows:
+          <list style="numbers">
+            <t>
+              The signable URI data consists of the selected HTTP method in uppercase and the
               target URI, separated by a comma character.  Applied to the sample in
               <xref target="req.operation.urionly"/> that would yield the following string:
               <list style="empty">
@@ -496,7 +515,7 @@
               </list>
             </t>
           </list>
-          The byte array generated in the final step is intended to be used as a "JWS&nbsp;Payload" <xref target="RFC7515"/>.
+          The output from the last step is intended to be used as a "JWS&nbsp;Payload" <xref target="RFC7515"/> object.
         </t>
       </section>
       <section anchor="header.creation" title="Creation of Optional Header Object">
