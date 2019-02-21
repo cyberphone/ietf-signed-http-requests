@@ -70,40 +70,52 @@
       </t>
       <t>
         SHREQ is intended to provide a standardized alternative that also fully
-        honors the REST <xref target="REST"/> concept without using HTTP headers for holding
-        security constructs.
-        That is, JSON <xref target="RFC8259"/> formatted request data is supposed to
-        also contain the security portion of a request.
-        This arrangement has the following characteristics:
+        honors the REST <xref target="REST"/> concept.
+      </t>
+      <t>
+        SHREQ builds on a common security model where the following elements of an HTTP request are signed:
         <list style="symbols">
           <t>
-            Since HTTP requests (as a minimum) also are defined by the HTTP URI and HTTP Method (verb),
-            these attributes are added as reserved JSON properties to the signed request data.
+            HTTP URI <xref target="RFC3986"/>.
           </t>
           <t>
-            Due to the fact that messages compliant with this specification constitute
-            of self-contained JSON objects, they may be serialized in databases or be
-            embedded in other JSON objects.
+            HTTP method.
+          </t>
+          <t>
+            HTTP body (if applicable for the specific HTTP method).
+          </t>
+          <t>
+            Optional: Additional HTTP headers as defined by the actual ecosystem.
+          </t>
+        </list>
+      </t>
+      <t>
+        One of the design goals was turning signed requests into self-contained objects.
+        To achieve this for HTTP methods having a body (see <xref target="req.operation.withbody"/>),
+        the JSON <xref target="RFC8259"/> formatted request data also
+        carries the security portion of a request.
+        This arrangement has certain implications:
+        <list style="symbols">
+          <t>
+            Requests may be serialized in databases or be embedded in other JSON objects.
             The latter includes supporting counter signatures.
-          </t>
-          <t>
-            The use of canonicalization provided by JCS make signatures remain valid
-            also after being processed by arbitrary JSON compliant tools.
           </t>
           <t>
             For general interoperability concerns as well as due to the reliance on JCS,
             JSON request data is limited to the I&nbhy;JSON <xref target="RFC7493"/> subset.
           </t>
         </list>
-        The above applies to HTTP requests using the methods
-        "POST", "PUT" or "PATCH" described in <xref target="req.operation.withbody"/>.
       </t>
       <t>
-        For HTTP requests using the methods "GET" or "DELETE" there is another,
-        entirely URI <xref target="RFC3986"/> based scheme described in <xref target="req.operation.urionly"/>.
+        For URI based HTTP methods (see <xref target="req.operation.urionly"/>), the
+        signature is provided in the URI itself.
       </t>
       <t>
         Both variants utilize JWS <xref target="RFC7515"/> in detached mode for holding the signature data.
+      </t>
+      <t>
+        For supporting signed HTTP responses any solution may be used.  For maximum "symmetry"
+        and code reuse, the <xref target="JWSJCS"/> scheme should be a suitable alternative.
       </t>
     </section>
 
@@ -175,16 +187,16 @@
           a format serializable as a JSON Object, from now on referred to as "Message".
         </t>
         <t>
-          In order to create a valid signed request, the steps (and ordering)
-          described in this section MUST be adheared to:
+          In order to create a valid signed request, the following steps (and ordering)
+          MUST be adheared to:
           <list style="numbers">
             <t>
-              Add a property "$req.uri" to "Message".  The argument to the
-              property is a JSON String holding the full target URI.
+              Add a property "$req.uri" to "Message" where the argument
+              is a JSON String holding the complete target URI.
             </t>
             <t>
-              Add a property "$req.mtd" to "Message".  The argument to the
-              property is a JSON String holding the HTTP method in uppercase.
+              Add a property "$req.mtd" to "Message" where the argument
+              is a JSON String holding the HTTP method in uppercase.
               <vspace blankLines="1"/>
               Note: if the HTTP method is "POST" this step is optional because "POST" is default.
             </t>
@@ -196,13 +208,13 @@
                   Create a header object as described in <xref target="header.creation"/>.
                 </t>
                 <t>
-                  Add a property "$req.hdr" to "Message".  The argument to the
-                  property is the JSON Object created in the preceding step.
+                  Add a property "$req.hdr" to "Message" where the argument
+                  is the JSON Object created in the preceding step.
                 </t>
               </list>
             </t>
             <t>
-              Create a "JWS&nbsp;Payload" <xref target="RFC7515"/> as described in <xref target="canonicalization"/>.
+              Create a "JWS&nbsp;Payload" <xref target="RFC7515"/> as described in <xref target="signable.json"/>.
             </t>
             <t>
               Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/> as described in <xref target="create.jwsprotheader"/>.
@@ -211,8 +223,8 @@
               Create a JWS string object as described in <xref target="create.signature"/>.
             </t>
             <t>
-              Add a property "$req.jws" to "Message".  The argument to the
-              property is a JSON String holding the result of the preceding step.
+              Add a property "$req.jws" to "Message" where the argument
+              is a JSON String holding the result of the preceding step.
             </t>
             <t>
               Submit an HTTP <xref target="RFC7231"/> compliant request to the target URI including the following information:
@@ -453,6 +465,11 @@
         SHREQ is a modular system using shared procedures described
         in the following subsections.
       </t>
+      <section anchor="signable.json" title="Creation of Signable JSON">
+        <t>
+          Cool.
+        </t>
+      </section>
       <section anchor="signable.uri" title="Creation of Signable URI">
         <t>
           For URI based requests, the steps to create a signable URI are as follows:
@@ -469,7 +486,8 @@
             </t>
             <t>
               The resulting string is subsequently converted to UTF-8 <xref target="UNICODE"/> which
-              applied to the sample would yield the following byte array, here in hexadecimal notation:
+              applied to the sample would yield the following byte array, here displayed
+              in hexadecimal notation:
               <list style="empty">
                 <t>
                   47 45 54 2c 68 74 74 70 73 3a 2f 2f 65 78 61 6d 70 6c 65 2e 63 6f
@@ -477,17 +495,8 @@
                 </t>
               </list>
             </t>
-            <t>
-              The resulting byte array is subsequently encoded in Base64Url <xref target="RFC4648"/>
-              notation which applied to the sample would yield the following string:
-              <list style="empty">
-                <t>
-                  R0VULGh0dHBzOi8vZXhhbXBsZS5jb20vbG9va3VwP2lkPTQzNQ
-                </t>
-              </list>
-            </t>
           </list>
-          The string generated in the final step is intended to be used as a "JWS&nbsp;Payload" <xref target="RFC7515"/>.
+          The byte array generated in the final step is intended to be used as a "JWS&nbsp;Payload" <xref target="RFC7515"/>.
         </t>
       </section>
       <section anchor="header.creation" title="Creation of Optional Header Object">
@@ -535,18 +544,41 @@
       <section anchor="create.jwsprotheader" title="Creation of JWS Protected Header">
         <t>
           Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>
-          with algorithm and key data adapted for the application.
+          JSON object with algorithm and key data adapted for the application.
         </t>
       </section>
       <section anchor="validate.signature" title="Validation of JWS Object">
         <t>
-          Create JWS compact object by concatenating the "JWS&nbsp;Protected Header",
+          Validation of the JWS object using the previously extracted and decoded
+          object requires the following steps:
+          <list style="numbers">
+            <t>
+              Verify that the received "JWS&nbsp;Protected&nbsp;Header" contains
+              a JWS algorithm ("alg") and key identifiers (if not implicit) that
+              matches the needs of the application.
+            </t>
+            <t>
+              Retrieve the signature validation key. 
+            </t>
+            <t>
+              Set local variable "data" to the UTF-8 encoded value of the
+              concatenation of:
+              <list style="empty">
+                <t>
+                  The previously defined variable "jwsProtectedHeaderB64U".
+                </t>
+                <t>
+                  A point character (".").
+                </t>
+                <t>
+                  The previously defined variable "JWS Payload"
+                  encoded in Base64Url <xref target="RFC4648"/>.
+                </t>
+              </list>
+            </t>
+          </list>
+          Create JWS compact object by concatenating the "JWS&nbsp;Protected&nbsp;Header",
           "JWS&nbsp;Payload" and "JWS&nbsp;Signature" strings, separated by point characters (".").
-        </t>
-      </section>
-      <section anchor="canonicalization" title="Canonicalization of &quot;Message&quot;">
-        <t>
-          Cool.
         </t>
       </section>
     </section>
@@ -622,7 +654,7 @@
           <date/>
         </front>
       </reference>
-      <reference anchor="JWSJCS" target="https://tools.ietf.org/html/draft-rundgren-jws-jcs-signature-scheme-00">
+      <reference anchor="JWSJCS" target="https://github.com/cyberphone/jws-jcs">
         <front>
           <title>Combined JWS and JCS Signature Scheme - Work in progress</title>
           <author>
