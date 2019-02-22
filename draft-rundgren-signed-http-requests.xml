@@ -192,7 +192,7 @@
         </t>
         <t>
           In order to create a valid signed request, the following steps (and ordering)
-          MUST be adheared to:
+          MUST be adhered to:
           <list style="numbers">
             <t>
               Add a property "$req.uri" to "Message" where the argument
@@ -361,7 +361,7 @@
       <section anchor="req.creation.urionly" title="Request Creation">
         <t>
           In order to create a valid request, the steps (and ordering)
-          described in this section MUST be adheared to:
+          described in this section MUST be adhered to:
           <list style="numbers">
             <t>
               Create a "JWS&nbsp;Payload" as described in <xref target="signable.uri"/>
@@ -429,7 +429,7 @@
               Extract the JWS string from the "$req.jws" element which MUST reside in the query string of "TargetURI".
               If the JWS string is missing the service MUST reject the request
               with an HTTP 400 code (Malformed request).
-              Decode the read string as described in <xref target="jws.string.decoding"/>.
+              Decode the argument to "$req.jws" as described in <xref target="jws.string.decoding"/>.
             </t>
             <t>
               Remove the "$req.jws" query string component (including the preceding &amp; or ? character)
@@ -530,14 +530,14 @@
       </section>
       <section anchor="create.signature" title="Creation of JWS String">
         <t>
-          To create a detached JWS object as described in Appendix F of <xref target="RFC7515"/>,
+          To create a detached JWS object (see Appendix F of <xref target="RFC7515"/>),
           perform the following steps:
           <list style="numbers">
             <t>
-              Serialize "JWS Protected Header" into byte array.
+              Serialize the previously defined "JWS Protected Header" object into a UTF-8 encoded byte array.
             </t>
             <t>
-              Base64Url-encode the output from the preceding step into a variable "jwsProtectedHeaderB64U".
+              Base64Url-encode the output from the preceding step into a local variable "jwsProtectedHeaderB64U".
             </t>
             <t>
               Set local variable "signedData" to the UTF-8 encoded representation of the
@@ -556,8 +556,8 @@
               </list>
             </t>
             <t>
-              Use the designated signature key, algorithm and
-              "signedData" to create a "JWS&nbsp;Signature" object.
+              Use the designated signature key, signature algorithm and
+              "signedData" to create a "JWS&nbsp;Signature" object (byte array).
             </t>
             <t>
               Return the string consisting of the concatenation of:
@@ -607,19 +607,21 @@
       </section>
       <section anchor="validate.signature" title="Validation of JWS Object">
         <t>
-          Validation of the JWS object using the previously extracted and decoded
-          object requires the following steps:
+          Validation of the detached JWS object (see Appendix F of <xref target="RFC7515"/>),
+          using the previously extracted and decoded objects requires the following steps:
           <list style="numbers">
             <t>
               Verify that the received "JWS&nbsp;Protected&nbsp;Header" contains
-              a JWS algorithm ("alg") and key identifiers (if not implicit) that
+              a JWS algorithm ("alg") and key identifiers that
               matches the needs of the application.
             </t>
             <t>
-              Retrieve the signature validation key. 
+              Retrieve the signature validation key. This part is application specific since
+              the key may be implicit, specified by a key ID ("kid") or be supplied
+              in a certificate path ("x5c").
             </t>
             <t>
-              Set local variable "signedData" to the UTF-8 encoded representation of the
+              Set a local variable "signedData" to the UTF-8 encoded representation of the
               concatenation of:
               <list style="empty">
                 <t>
@@ -637,7 +639,7 @@
             <t>
               Validate the signature using the algorithm retrieved in step 1,
               the signature validation key from step 2,
-              "signedData" from step 3 and the previously collected "JWS&nbsp;Signature" object. 
+              "signedData" from step 3 and the previously collected "JWS&nbsp;Signature" object (byte array). 
             </t>
           </list>
           If any of these steps fail, the service MUST reject the request with an
