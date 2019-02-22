@@ -42,15 +42,12 @@
 
     <abstract>
       <t>
-        The SHREQ specification describes how JWS <xref target="RFC7515"/>
-        combined with JCS <xref target="JCS"/>,
-        can be utilized to support HTTP <xref target="RFC7231"/> based applications
-        needing digitally signed requests.
-        SHREQ is specifically tailored for Web applications using JSON <xref target="RFC8259"/> as
-        data interchange format.
-        However, there is also a SHREQ scheme for HTTP requests that do not have a message body like "GET".
-        SHREQ was designed to be agnostic with respect to
-        REST <xref target="REST"/> concepts versus traditional GET/POST schemes.
+        The SHREQ specification describes how the JSON Web Signature (JWS)
+        specification combined with the JSON Canonicalization Scheme (JCS),
+        can be utilized to support HTTP based applications needing digitally signed requests.
+        SHREQ is specifically tailored for Web applications using JSON as data interchange format.
+        However, there is also a SHREQ scheme for HTTP requests that do not have a body ("payload") like GET.
+        SHREQ was designed to be agnostic with respect to REST concepts versus traditional GET/POST schemes.
       </t>
       <t>
         The intended audiences of this document are Web tool vendors, as
@@ -76,13 +73,13 @@
         SHREQ builds on a common security model where the following elements of an HTTP request are signed:
         <list style="symbols">
           <t>
-            HTTP URI <xref target="RFC3986"/>.
+            HTTP URI.
           </t>
           <t>
             HTTP method.
           </t>
           <t>
-            HTTP body (if applicable for the specific HTTP method).
+            HTTP body (if specified).
           </t>
           <t>
             Optional: Additional HTTP headers as defined by the actual ecosystem.
@@ -91,14 +88,14 @@
       </t>
       <t>
         One of the design goals was turning signed requests into self-contained objects.
-        To achieve this for HTTP methods having a body (see <xref target="req.operation.withbody"/>),
-        the JSON <xref target="RFC8259"/> formatted request data also carries the signature.
+        To achieve this for HTTP requests having a body (see <xref target="req.operation.withbody"/>),
+        JSON <xref target="RFC8259"/> formatted request data also carries the signature.
         This arrangement has certain implications:
         <list style="symbols">
           <t>
             Signed requests may be stored in databases or be embedded in other JSON objects.
             The latter includes supporting counter signatures.  The canonicalization
-            offered by JCS enables validating the integrity of request data at any time.
+            offered by JCS <xref target="JCS"/> enables validating the integrity of request data at any time.
           </t>
           <t>
             For general interoperability concerns as well as due to the reliance on JCS,
@@ -107,8 +104,8 @@
         </list>
       </t>
       <t>
-        For URI based HTTP methods (see <xref target="req.operation.urionly"/>), the
-        signature is provided in the URI itself.
+        For HTTP requests that do not have a body (see <xref target="req.operation.urionly"/>), the
+        signature is provided in the URI <xref target="RFC3986"/>.
       </t>
       <t>
         Both variants utilize JWS <xref target="RFC7515"/> in detached mode for holding the signature data.
@@ -130,7 +127,40 @@
       </t>
     </section>
 
-    <section anchor="req.operation.withbody" title="POST, PUT and PATCH Requests">
+    <section anchor="req.determine.type" title="Determining Request Type">
+      <t>
+        In this specification the distinction between HTTP requests having
+        a body or not is based on the presence of a "Content-Length" header.
+        Requests without a body object are in this specification referred
+        to as URI based requests.
+      </t>
+      <t>
+        This also implies that not all header combinations permitted by HTTP can
+        be used with this specification:
+        <list style="hanging">
+          <t hangText="&quot;Content-Length&quot;">
+            <vspace blankLines="0"/>
+            MUST NOT be used with URI based requests.  MUST be present for requests having a body
+            and have an argument holding the length of the body in bytes.
+          </t>
+          <t hangText="&quot;Content-Type&quot;">
+            <vspace blankLines="0"/>
+            MUST NOT be used with URI based requests.  MUST be present for requests having a body
+            and have the argument "application/json".
+          </t>
+          <t hangText="&quot;Content-Encoding&quot;">
+            <vspace blankLines="0"/>
+            MUST NOT be used with any requests targeting this specification.
+          </t>
+          <t hangText="&quot;Transfer-Encoding&quot;">
+            <vspace blankLines="0"/>
+            MUST NOT be used with any requests targeting this specification.
+          </t>
+        </list>
+      </t>
+    </section>
+
+    <section anchor="req.operation.withbody" title="Processing Requests having a Body">
       <t>
         Assume you have an unsigned HTTP request like the following:
       </t>
@@ -318,7 +348,11 @@
       </section>
     </section>
 
-    <section anchor="req.operation.urionly" title="GET and DELETE Requests">
+    <section anchor="req.operation.urionly" title="Processing URI Based Requests">
+      <t>
+        In this specification requests without an HTTP body are referred to
+        as URI based requests. Also see <xref target="req.determine.type"/>.
+      </t>
       <t>
         Assume you have an unsigned HTTP request like the following:
       </t>
@@ -653,6 +687,19 @@
       </section>
     </section>
 
+    <section anchor="overriding" title="Local Naming Conventions">
+      <t>
+        Although the "$req.*" property names are highly RECOMMENDED,
+        this specfication permits (=being considered as compatible),
+        the use of local naming conventions as long as the
+        specified procedures and formats are adhered to.
+      </t>
+      <t>
+        Local naming conventions MUST be properly communicated in
+        the community using them.
+      </t>
+    </section>
+
     <section anchor="IANA" title="IANA Considerations">
       <t>
         This document currently has no IANA actions but the reserved property names
@@ -875,11 +922,7 @@
     <section anchor="shreq.development" title="Development Portal">
       <t>
         The SHREQ specification is currently developed at:
-        <eref target="https://github.com/cyberphone/ietf-signed-http-requests">https://github.com/cyberphone/ietf-signed-http-requests</eref>.
-      </t>
-      <t>
-        SHREQ source code and test data is available at:
-        <eref target="https://github.com/cyberphone/shreq">https://github.com/cyberphone/shreq</eref>
+        <eref target="https://cyberphone.github.io/ietf-signed-http-requests">https://cyberphone.github.io/ietf-signed-http-requests</eref>.
       </t>
       <t>
         <vspace blankLines="3"/>
