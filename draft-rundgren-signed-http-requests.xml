@@ -218,19 +218,23 @@
       <section anchor="req.creation.withbody" title="Request Creation">
         <t>
           Precondition: the application data to be submitted with the request already exists in
-          a format serializable as a JSON Object, from now on referred to as "Message".
+          a format serializable as a JSON Object, from now on referred to as "message".
         </t>
         <t>
           In order to create a valid signed request, the following steps (and ordering)
           MUST be adhered to:
           <list style="numbers">
             <t>
-              Add a property "$req.uri" to "Message" where the argument
-              is a JSON String holding the complete target URI.
+              Store the target HTTP method in a variable "targetMethod".
             </t>
             <t>
-              Add a property "$req.mtd" to "Message" where the argument
-              is a JSON String holding the selected HTTP method in uppercase.
+              Store the target URI in a variable "targetURI" after having normalized it as described in <xref target="normalize.uri"/>.
+            </t>
+            <t>
+              Add a property "$req.uri" to "message" where the argument is a JSON String holding "targetURI">.
+            </t>
+            <t>
+              Add a property "$req.mtd" to "message" where the argument is a JSON String holding "targetMethod".
               <vspace blankLines="1"/>
               Note: for the HTTP method "POST", this step is optional because "POST" is the default.
             </t>
@@ -242,7 +246,7 @@
                   Create a header object as described in <xref target="header.creation"/>.
                 </t>
                 <t>
-                  Add a property "$req.hdr" to "Message" where the argument
+                  Add a property "$req.hdr" to "message" where the argument
                   is the JSON Object created in the preceding step.
                 </t>
               </list>
@@ -257,17 +261,17 @@
               Create a JWS string object as described in <xref target="create.signature"/>.
             </t>
             <t>
-              Add a property "$req.jws" to "Message" where the argument
+              Add a property "$req.jws" to "message" where the argument
               is a JSON String holding the result of the preceding step.
             </t>
             <t>
-              Serialize "Message" into an UTF-8 encoded byte array called "requestData".
+              Serialize "message" into an UTF-8 encoded byte array called "requestData".
             </t>
             <t>
-              Submit an HTTP <xref target="RFC7231"/> compliant request to the target URI including the following information:
+              Submit an HTTP <xref target="RFC7231"/> compliant request to the "targetURI" including the following information:
               <list style="symbols">
                 <t>
-                  Selected HTTP method.
+                  HTTP method set to "targetMethod".
                 </t>
                 <t>
                   HTTP Header "Content-Length" with the argument set to the length of "requestData".
@@ -294,6 +298,12 @@
           In order to validate a request the following steps MUST be performed:
           <list style="numbers">
             <t>
+              Store the HTTP method of the request in a variable "targetMethod".
+            </t>
+            <t>
+              Store the from the request recreated target URI in a variable "targetURI" after having normalized it as described in <xref target="normalize.uri"/>.
+            </t>
+            <t>
               If the HTTP header "Content-Type" is missing or differs from "application/json"
               the service MUST reject the request with an HTTP 400 code (Malformed request).
             </t>
@@ -307,33 +317,33 @@
             </t>
             <t>
               Parse the byte array created in the preceding step with a JSON parser and return the result
-              in an object from now on referred to as "Message".
+              in an object from now on referred to as "message".
               If there are parsing errors the service MUST reject the request with an
               HTTP 400 code (Malformed request).
             </t>
             <t>
-              Using "Message", the "$req.uri" property is read.
-              If "$req.uri" is missing or does not match the anticipated value or is not a JSON String the service MUST reject the request with an
+              Using "message", the "$req.uri" property is read.
+              If "$req.uri" is missing or does not match "targetURI" or is not a JSON String the service MUST reject the request with an
               HTTP 400 code (Malformed request).
             </t>
             <t>
-              Using "Message", the "$req.mtd" property is read.
+              Using "message", the "$req.mtd" property is read.
               if "$req.mtd" is missing the HTTP method is assumed to be "POST" else it is assumed to be the read value.
-              If the computed method does not match the anticipated value is not a JSON String the service MUST reject the request with an
+              If the computed method does not match "targetMethod" or is not a JSON String the service MUST reject the request with an
               HTTP 400 code (Malformed request).
             </t>
             <t>
-              Using "Message", the "$req.jws" property is read.
+              Using "message", the "$req.jws" property is read.
               If "$req.jws" is missing or is not a JSON String the service MUST reject the request with an
               HTTP 400 code (Malformed request).
               Decode the read string as described in <xref target="jws.string.decoding"/>.
             </t>
             <t>
-              If the optional "$req.hdr" property is present in "Message", extract the argument
+              If the optional "$req.hdr" property is present in "message", extract the argument
               and process it as described in <xref target="validate.header"/>.
             </t>
             <t>
-              Remove the "$req.jws" property from "Message".
+              Remove the "$req.jws" property from "message".
             </t>
             <t>
               Create a "JWS&nbsp;Payload" <xref target="RFC7515"/> object as described in <xref target="signable.json"/>.
@@ -398,8 +408,13 @@
           described in this section MUST be adhered to:
           <list style="numbers">
             <t>
-              Create a "JWS&nbsp;Payload" as described in <xref target="signable.uri"/>
-              using the target URI and HTTP method as input.
+              Store the target HTTP method in a variable "targetMethod".
+            </t>
+            <t>
+              Store the target URI in a variable "targetURI" after having normalized it as described in <xref target="normalize.uri"/>.
+            </t>
+            <t>
+              Create a "JWS&nbsp;Payload" as described in <xref target="signable.uri"/>.
             </t>
             <t>
               Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/> as described in <xref target="create.jwsprotheader"/>.
@@ -436,7 +451,7 @@
               Submit an HTTP <xref target="RFC7231"/> compliant request to the target URI including the following information:
               <list style="symbols">
                 <t>
-                  Selected HTTP method.
+                  HTTP method set to "targetMethod".
                 </t>
                 <t>
                   All HTTP headers (if any) specified in step 3.
@@ -456,18 +471,22 @@
           the following steps MUST be performed in order to validate a URI based HTTP request:
           <list style="numbers">
             <t>
-              Recreate the full URI and HTTP method from the received request.
-              Save these items as "TargetURI" and "TargetMethod" respectively.
+              Store the HTTP method of the request in a variable "targetMethod".
             </t>
             <t>
-              Extract the JWS string from the "$req.jws" element which MUST reside in the query string of "TargetURI".
+              Store the from the request recreated target URI in a variable "targetURI" after having normalized it as described in <xref target="normalize.uri"/>.
+            </t>
+            <t>
+              Extract the JWS string from the "$req.jws" element which MUST reside in the query string of "targetURI".
               If the JWS string is missing the service MUST reject the request
               with an HTTP 400 code (Malformed request).
               Decode the argument to "$req.jws" as described in <xref target="jws.string.decoding"/>.
             </t>
             <t>
-              Remove the "$req.jws" query string component (including the preceding &amp; or ? character)
-              from "TargetURI".
+              Remove the "$req.jws" query string component from "targetURI".
+              Note that if there is a query component after "$req.jws", the
+              delimiter succeeding the "$req.jws" component is removed,
+              else the preceding delimiter is removed.  
             </t>
             <t>
               if the "JWS&nbsp;Protected&nbsp;Header" object contains a "$req.hdr" property,
@@ -486,8 +505,7 @@
               </list>
             </t>
             <t>
-              Create a "JWS&nbsp;Payload" object as described in <xref target="signable.uri"/>
-              using "TargetURI" and "TargetMethod" method as input.
+              Create a "JWS&nbsp;Payload" object as described in <xref target="signable.uri"/>.
             </t>
             <t>
               Perform signature validation as described in <xref target="validate.signature"/>.
@@ -504,15 +522,15 @@
       </t>
       <section anchor="signable.json" title="Create Signable JSON Data">
         <t>
-          Unsigned request data is now supposed to reside in "Message".
+          Unsigned request data is now supposed to reside in "message".
           To facilitate resilience against (legitimate) variances in JSON processing
           between different platforms and systems,
-          "Message" needs to be canonicalized and serialized into a UTF-8 encoded byte array.
+          "message" needs to be canonicalized and serialized into a UTF-8 encoded byte array.
           If the used JSON tools offer intrinsic support for JCS <xref target="JCS"/>, this is
           typically a single operation, else the followings steps are performed:
           <list style="numbers">
             <t>
-              Serialize "Message" using standard JSON tools for the platform.
+              Serialize "message" using standard JSON tools for the platform.
             </t>
             <t>
               Create a canonical and UTF-8 encoded form of the data created in the preceding step,
@@ -527,8 +545,8 @@
           For URI based requests, the steps to create signable URI data are as follows:
           <list style="numbers">
             <t>
-              The signable URI data consists of the selected HTTP method in uppercase and the
-              target URI, separated by a comma character.  Applied to the sample in
+              The signable URI data consists of the "targetMethod" and the
+              "targetURI", separated by a comma character.  Applied to the sample in
               <xref target="req.operation.urionly"/> that would yield the following string:
               <list style="empty">
                 <t>
@@ -697,6 +715,17 @@
           ]]
         </t>
       </section>
+      <section anchor="normalize.uri" title="Normalize URI">
+        <t>
+          [[
+          <list style="empty">
+            <t>
+              To be written...
+            </t>
+          </list>
+          ]]
+        </t>
+      </section>
     </section>
 
     <section anchor="overriding" title="Local Naming Conventions">
@@ -734,12 +763,12 @@
           <t hangText="$req.uri">
             &nbsp;
             <vspace blankLines="0"/>
-            Property holding the target URI.
+            Property holding a normalized target URI.
           </t>
           <t hangText="$req.mtd">
             &nbsp;
             <vspace blankLines="0"/>
-            Property holding the HTTP method in uppercase.
+            Property holding an HTTP method name.
           </t>
           <t hangText="$req.hdr">
             &nbsp;
