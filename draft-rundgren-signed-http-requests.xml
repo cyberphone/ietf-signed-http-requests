@@ -88,8 +88,8 @@
       </t>
       <t>
         One of the design goals was turning signed requests into self-contained objects.
-        To achieve this for HTTP requests having a body (see <xref target="req.operation.withbody"/>),
-        JSON <xref target="RFC8259"/> formatted request data also carries the signature.
+        To achieve this for HTTP requests having a JSON <xref target="RFC8259"/> body
+        (see <xref target="req.operation.withbody"/>), the request data also carries the signature.
         This arrangement has certain implications:
         <list style="symbols">
           <t>
@@ -104,7 +104,7 @@
         </list>
       </t>
       <t>
-        For HTTP requests that do not have a body (see <xref target="req.operation.urionly"/>), the
+        For HTTP requests that do not have a JSON body (see <xref target="req.operation.urionly"/>), the
         signature is provided in the URI <xref target="RFC3986"/>.
       </t>
       <t>
@@ -130,7 +130,7 @@
     <section anchor="req.determine.type" title="Determining Request Type">
       <t>
         In this specification the distinction between HTTP requests having
-        a body or not is based on the presence of a "Content-Length" header.
+        a JSON body or not is based on the presence of a "Content-Length" header.
         Requests without a body object are in this specification referred
         to as URI based requests.
       </t>
@@ -160,7 +160,7 @@
       </t>
     </section>
 
-    <section anchor="req.operation.withbody" title="Processing Requests having a Body">
+    <section anchor="req.operation.withbody" title="Processing JSON Based Requests">
       <t>
         Assume you have an unsigned HTTP request like the following:
       </t>
@@ -502,7 +502,7 @@
         SHREQ is a modular system using shared procedures described
         in the following subsections.
       </t>
-      <section anchor="signable.json" title="Creation of Signable JSON Data">
+      <section anchor="signable.json" title="Create Signable JSON Data">
         <t>
           Unsigned request data is now supposed to reside in "Message".
           To facilitate resilience against (legitimate) variances in JSON processing
@@ -522,7 +522,7 @@
           The output from JCS is intended to be used as a "JWS&nbsp;Payload" <xref target="RFC7515"/> object.
         </t>
       </section>
-      <section anchor="signable.uri" title="Creation of Signable URI Data">
+      <section anchor="signable.uri" title="Create Signable URI Data">
         <t>
           For URI based requests, the steps to create signable URI data are as follows:
           <list style="numbers">
@@ -551,18 +551,24 @@
           The output from the last step is assigned to a "JWS&nbsp;Payload" <xref target="RFC7515"/> object.
         </t>
       </section>
-      <section anchor="header.creation" title="Creation of HTTP Header Object">
+      <section anchor="header.creation" title="Create HTTP Header Object">
         <t>
-          Cool.
+          [[
+          <list style="empty">
+            <t>
+              To be written...
+            </t>
+          </list>
+          ]]
         </t>
       </section>
-      <section anchor="create.jwsprotheader" title="Creation of JWS Protected Header">
+      <section anchor="create.jwsprotheader" title="Create JWS Protected Header">
         <t>
           Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>
           JSON object with algorithm and key data adapted for the application.
         </t>
       </section>
-      <section anchor="create.signature" title="Creation of JWS String">
+      <section anchor="create.signature" title="Create JWS String">
         <t>
           To create a detached JWS object (see Appendix F of <xref target="RFC7515"/>),
           perform the following steps:
@@ -611,7 +617,7 @@
           </list>
         </t>
       </section>
-      <section anchor="jws.string.decoding" title="Decoding of JWS String">
+      <section anchor="jws.string.decoding" title="Decode JWS String">
         <t>
           The following processing steps presume that there is an input string holding
           a detached JWS compact object, here called "jwsString":
@@ -639,7 +645,7 @@
           If any of the steps fails, the service MUST reject the request with an HTTP 400 code (Malformed request). 
         </t>
       </section>
-      <section anchor="validate.signature" title="Validation of JWS Object">
+      <section anchor="validate.signature" title="Validate JWS Object">
         <t>
           Validation of the detached JWS object (see Appendix F of <xref target="RFC7515"/>),
           using the previously extracted and decoded objects requires the following steps:
@@ -680,9 +686,15 @@
           HTTP 401 code (Unauthorized). 
         </t>
       </section>
-      <section anchor="validate.header" title="Validation of HTTP Header Object">
+      <section anchor="validate.header" title="Validate HTTP Header Object">
         <t>
-          Cool.
+          [[
+          <list style="empty">
+            <t>
+              To be written...
+            </t>
+          </list>
+          ]]
         </t>
       </section>
     </section>
@@ -699,7 +711,21 @@
         the community using them.
       </t>
     </section>
-
+ 
+    <section anchor="mime.mulipart" title="MIME Multipart Requests">
+      <t>
+        [[
+        <list style="empty">
+          <t>
+            It should be possible to extending the JSON based request
+            to also support attachments.  This is currently out of scope
+            for this specification.
+          </t>
+        </list>
+        ]]
+      </t>
+    </section>
+ 
     <section anchor="IANA" title="IANA Considerations">
       <t>
         This document currently has no IANA actions but the reserved property names
