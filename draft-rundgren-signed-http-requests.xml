@@ -715,7 +715,7 @@
           ]]
         </t>
       </section>
-      <section anchor="normalize.uri" title="Normalize URI">
+      <section anchor="normalize.uri" title="Normalize Target URI">
         <t>
           [[
           <list style="empty">
