@@ -246,22 +246,22 @@ Table of Contents
    <a href="#section-1">1</a>.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   <a href="#page-3">3</a>
    <a href="#section-2">2</a>.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   <a href="#page-4">4</a>
    <a href="#section-3">3</a>.  Determining Request Type  . . . . . . . . . . . . . . . . . .   <a href="#page-4">4</a>
-   <a href="#section-4">4</a>.  Processing JSON Based Requests  . . . . . . . . . . . . . . .   <a href="#page-4">4</a>
+   <a href="#section-4">4</a>.  Processing of JSON Based Requests . . . . . . . . . . . . . .   <a href="#page-4">4</a>
      <a href="#section-4.1">4.1</a>.  Request Creation  . . . . . . . . . . . . . . . . . . . .   <a href="#page-5">5</a>
      <a href="#section-4.2">4.2</a>.  Request Validation  . . . . . . . . . . . . . . . . . . .   <a href="#page-6">6</a>
-   <a href="#section-5">5</a>.  Processing URI Based Requests . . . . . . . . . . . . . . . .   <a href="#page-8">8</a>
+   <a href="#section-5">5</a>.  Processing of URI Based Requests  . . . . . . . . . . . . . .   <a href="#page-8">8</a>
      <a href="#section-5.1">5.1</a>.  Request Creation  . . . . . . . . . . . . . . . . . . . .   <a href="#page-8">8</a>
      <a href="#section-5.2">5.2</a>.  Request Validation  . . . . . . . . . . . . . . . . . . .   <a href="#page-9">9</a>
    <a href="#section-6">6</a>.  Common Operations . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-10">10</a>
      <a href="#section-6.1">6.1</a>.  Create Signable JSON Data . . . . . . . . . . . . . . . .  <a href="#page-10">10</a>
      <a href="#section-6.2">6.2</a>.  Create Signable URI Data  . . . . . . . . . . . . . . . .  <a href="#page-11">11</a>
-     <a href="#section-6.3">6.3</a>.  Create HTTP Header Object . . . . . . . . . . . . . . . .  <a href="#page-11">11</a>
+     <a href="#section-6.3">6.3</a>.  Create Header Digest  . . . . . . . . . . . . . . . . . .  <a href="#page-11">11</a>
      <a href="#section-6.4">6.4</a>.  Create JWS Protected Header . . . . . . . . . . . . . . .  <a href="#page-11">11</a>
      <a href="#section-6.5">6.5</a>.  Create JWS String . . . . . . . . . . . . . . . . . . . .  <a href="#page-11">11</a>
      <a href="#section-6.6">6.6</a>.  Decode JWS String . . . . . . . . . . . . . . . . . . . .  <a href="#page-12">12</a>
-     <a href="#section-6.7">6.7</a>.  Validate JWS Object . . . . . . . . . . . . . . . . . . .  <a href="#page-13">13</a>
-     <a href="#section-6.8">6.8</a>.  Validate HTTP Header Object . . . . . . . . . . . . . . .  <a href="#page-13">13</a>
-     <a href="#section-6.9">6.9</a>.  Normalize Target URI  . . . . . . . . . . . . . . . . . .  <a href="#page-13">13</a>
+     <a href="#section-6.7">6.7</a>.  Normalize Target URI  . . . . . . . . . . . . . . . . . .  <a href="#page-13">13</a>
+     <a href="#section-6.8">6.8</a>.  Validate Header Digest  . . . . . . . . . . . . . . . . .  <a href="#page-13">13</a>
+     <a href="#section-6.9">6.9</a>.  Validate Signature  . . . . . . . . . . . . . . . . . . .  <a href="#page-13">13</a>
    <a href="#section-7">7</a>.  Local Naming Conventions  . . . . . . . . . . . . . . . . . .  <a href="#page-14">14</a>
    <a href="#section-8">8</a>.  MIME Multipart Requests . . . . . . . . . . . . . . . . . . .  <a href="#page-14">14</a>
    <a href="#section-9">9</a>.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  <a href="#page-14">14</a>
@@ -379,7 +379,7 @@ Table of Contents
    "Transfer-Encoding"
       MUST NOT be used with any requests targeting this specification.
 
-<span class="h2"><a class="selflink" name="section-4" href="#section-4">4</a>.  Processing JSON Based Requests</span>
+<span class="h2"><a class="selflink" name="section-4" href="#section-4">4</a>.  Processing of JSON Based Requests</span>
 
    Assume you have an unsigned HTTP request like the following:
 
@@ -443,7 +443,7 @@ Table of Contents
    1.   Store the target HTTP method in a variable "targetMethod".
 
    2.   Store the target URI in a variable "targetURI" after having
-        normalized it as described in <a href="#section-6.9">Section 6.9</a>.
+        normalized it as described in <a href="#section-6.7">Section 6.7</a>.
 
    3.   Add a property "$req.uri" to "message" where the argument is a
         JSON String holding "targetURI"&gt;.
@@ -493,7 +493,7 @@ Table of Contents
         *  HTTP Header "Content-Type" with the argument set to
            "application/json".
 
-        *  All HTTP headers (if any) specified in step 3.
+        *  All HTTP headers (if any) specified in step 5.
 
         *  Other HTTP headers (if any) needed by the application.
 
@@ -516,7 +516,7 @@ Table of Contents
 
    2.   Store the from the request recreated target URI in a variable
         "targetURI" after having normalized it as described in
-        <a href="#section-6.9">Section 6.9</a>.
+        <a href="#section-6.7">Section 6.7</a>.
 
    3.   If the HTTP header "Content-Type" is missing or differs from
         "application/json" the service MUST reject the request with an
@@ -539,9 +539,13 @@ Table of Contents
         the service MUST reject the request with an HTTP 400 code
         (Malformed request).
 
+        Note: in some proxy arrangements it may be difficult retrieving
+        the proper value of "targetURI".  In such cases the comparison
+        with "$req.uri" MAY be disabled.
+
    8.   Using "message", the "$req.mtd" property is read.  if "$req.mtd"
         is missing the HTTP method is assumed to be "POST" else it is
-        assumed to be the read value.  If the computed method does not
+        assumed to be the read value.  If the derived method does not
         match "targetMethod" or is not a JSON String the service MUST
         reject the request with an HTTP 400 code (Malformed request).
 
@@ -558,10 +562,6 @@ Table of Contents
    12.  Create a "JWS Payload" [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>] object as described in
         <a href="#section-6.1">Section 6.1</a>.
 
-   13.  Perform signature validation as described in <a href="#section-6.7">Section 6.7</a>.
-
-
-
 
 
 
@@ -570,11 +570,13 @@ Table of Contents
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>     February 2019</span>
 
 
+   13.  Perform signature validation as described in <a href="#section-6.9">Section 6.9</a>.
+
    Note: validation of application specific data can be performed
-   anytime after step 4.  The action(s) to perform after a possible
+   anytime after step 6.  The action(s) to perform after a possible
    failure is out of scope for this specification.
 
-<span class="h2"><a class="selflink" name="section-5" href="#section-5">5</a>.  Processing URI Based Requests</span>
+<span class="h2"><a class="selflink" name="section-5" href="#section-5">5</a>.  Processing of URI Based Requests</span>
 
    In this specification requests without an HTTP body are referred to
    as URI based requests.  Also see <a href="#section-3">Section 3</a>.
@@ -612,12 +614,10 @@ Table of Contents
    1.  Store the target HTTP method in a variable "targetMethod".
 
    2.  Store the target URI in a variable "targetURI" after having
-       normalized it as described in <a href="#section-6.9">Section 6.9</a>.
+       normalized it as described in <a href="#section-6.7">Section 6.7</a>.
 
    3.  Create a "JWS Payload" as described in <a href="#section-6.2">Section 6.2</a>.
 
-   4.  Create a "JWS Protected Header" [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>] as described in
-       <a href="#section-6.4">Section 6.4</a>.
 
 
 
@@ -625,6 +625,9 @@ Table of Contents
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-9" id="page-9" href="#page-9" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>     February 2019</span>
 
+
+   4.  Create a "JWS Protected Header" [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>] as described in
+       <a href="#section-6.4">Section 6.4</a>.
 
    5.  If HTTP headers also need to be signed the following steps are
        performed:
@@ -668,11 +671,8 @@ Table of Contents
 
    2.  Store the from the request recreated target URI in a variable
        "targetURI" after having normalized it as described in
-       <a href="#section-6.9">Section 6.9</a>.
+       <a href="#section-6.7">Section 6.7</a>.
 
-   3.  Extract the JWS string from the "$req.jws" element which MUST
-       reside in the query string of "targetURI".  If the JWS string is
-       missing the service MUST reject the request with an HTTP 400 code
 
 
 
@@ -682,13 +682,16 @@ Table of Contents
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>     February 2019</span>
 
 
+   3.  Extract the JWS string from the "$req.jws" element which MUST
+       reside in the query string of "targetURI".  If the JWS string is
+       missing the service MUST reject the request with an HTTP 400 code
        (Malformed request).  Decode the argument to "$req.jws" as
        described in <a href="#section-6.6">Section 6.6</a>.
 
    4.  Remove the "$req.jws" query string component from "targetURI".
-       Note that if there is a query component after "$req.jws", the
-       delimiter succeeding the "$req.jws" component is removed, else
-       the preceding delimiter is removed.
+       Note that if the "$req.jws" query component is the last part of
+       "targetURI", the delimiter immediately preceding the "$req.jws"
+       component is removed, else the succeeding delimiter is removed.
 
    5.  if the "JWS Protected Header" object contains a "$req.hdr"
        property, perform the following steps:
@@ -705,7 +708,7 @@ Table of Contents
 
    6.  Create a "JWS Payload" object as described in <a href="#section-6.2">Section 6.2</a>.
 
-   7.  Perform signature validation as described in <a href="#section-6.7">Section 6.7</a>.
+   7.  Perform signature validation as described in <a href="#section-6.9">Section 6.9</a>.
 
 <span class="h2"><a class="selflink" name="section-6" href="#section-6">6</a>.  Common Operations</span>
 
@@ -728,15 +731,15 @@ Table of Contents
        the preceding step, through an external software solution
        supporting JCS.
 
-   The output from JCS is intended to be used as a "JWS Payload"
-   [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>] object.
-
 
 
 <span class="grey">Rundgren                 Expires August 27, 2019               [Page 10]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-11" id="page-11" href="#page-11" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>     February 2019</span>
 
+
+   The output from JCS is intended to be used as a "JWS Payload"
+   [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>] object.
 
 <span class="h3"><a class="selflink" name="section-6.2" href="#section-6.2">6.2</a>.  Create Signable URI Data</span>
 
@@ -759,7 +762,7 @@ Table of Contents
    The output from the last step is assigned to a "JWS Payload"
    [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>] object.
 
-<span class="h3"><a class="selflink" name="section-6.3" href="#section-6.3">6.3</a>.  Create HTTP Header Object</span>
+<span class="h3"><a class="selflink" name="section-6.3" href="#section-6.3">6.3</a>.  Create Header Digest</span>
 
    [[
 
@@ -783,9 +786,6 @@ Table of Contents
    2.  Base64Url-encode the output from the preceding step into a local
        variable "jwsProtectedHeaderB64U".
 
-   3.  Set local variable "signedData" to the UTF-8 encoded
-       representation of the concatenation of:
-
 
 
 
@@ -793,6 +793,9 @@ Table of Contents
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-12" id="page-12" href="#page-12" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>     February 2019</span>
 
+
+   3.  Set local variable "signedData" to the UTF-8 encoded
+       representation of the concatenation of:
 
           The previously defined variable "jwsProtectedHeaderB64U".
 
@@ -842,15 +845,28 @@ Table of Contents
 
 
 
-
-
-
 <span class="grey">Rundgren                 Expires August 27, 2019               [Page 12]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-13" id="page-13" href="#page-13" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>     February 2019</span>
 
 
-<span class="h3"><a class="selflink" name="section-6.7" href="#section-6.7">6.7</a>.  Validate JWS Object</span>
+<span class="h3"><a class="selflink" name="section-6.7" href="#section-6.7">6.7</a>.  Normalize Target URI</span>
+
+   [[
+
+      To be written...
+
+   ]]
+
+<span class="h3"><a class="selflink" name="section-6.8" href="#section-6.8">6.8</a>.  Validate Header Digest</span>
+
+   [[
+
+      To be written...
+
+   ]]
+
+<span class="h3"><a class="selflink" name="section-6.9" href="#section-6.9">6.9</a>.  Validate Signature</span>
 
    Validation of the detached JWS object (see <a href="http://tools.ietf.org/html//rfc7515#appendix-F">Appendix&nbsp;F of [RFC7515]</a>),
    using the previously extracted and decoded objects requires the
@@ -881,22 +897,6 @@ Table of Contents
 
    If any of these steps fail, the service MUST reject the request with
    an HTTP 401 code (Unauthorized).
-
-<span class="h3"><a class="selflink" name="section-6.8" href="#section-6.8">6.8</a>.  Validate HTTP Header Object</span>
-
-   [[
-
-      To be written...
-
-   ]]
-
-<span class="h3"><a class="selflink" name="section-6.9" href="#section-6.9">6.9</a>.  Normalize Target URI</span>
-
-   [[
-
-      To be written...
-
-   ]]
 
 
 

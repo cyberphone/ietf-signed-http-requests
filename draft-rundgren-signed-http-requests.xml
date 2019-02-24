@@ -37,7 +37,7 @@
     <workgroup></workgroup>
 
     <keyword>
-      HTTP, REST, JSON, Canonicalization, Signatures
+      HTTP, URI, REST, JSON, JWS, Canonicalization, Signatures, Digests
     </keyword>
 
     <abstract>
@@ -160,7 +160,7 @@
       </t>
     </section>
 
-    <section anchor="req.operation.withbody" title="Processing JSON Based Requests">
+    <section anchor="req.operation.withbody" title="Processing of JSON Based Requests">
       <t>
         Assume you have an unsigned HTTP request like the following:
       </t>
@@ -280,7 +280,7 @@
                   HTTP Header "Content-Type" with the argument set to "application/json".
                 </t>
                 <t>
-                  All HTTP headers (if any) specified in step 3.
+                  All HTTP headers (if any) specified in step 5.
                 </t>
                 <t>
                   Other HTTP headers (if any) needed by the application.
@@ -325,11 +325,14 @@
               Using "message", the "$req.uri" property is read.
               If "$req.uri" is missing or does not match "targetURI" or is not a JSON String the service MUST reject the request with an
               HTTP 400 code (Malformed request).
+              <vspace blankLines="1"/>
+              Note: in some proxy arrangements it may be difficult retrieving the proper value of "targetURI".
+              In such cases the comparison with "$req.uri" MAY be disabled.
             </t>
             <t>
               Using "message", the "$req.mtd" property is read.
               if "$req.mtd" is missing the HTTP method is assumed to be "POST" else it is assumed to be the read value.
-              If the computed method does not match "targetMethod" or is not a JSON String the service MUST reject the request with an
+              If the derived method does not match "targetMethod" or is not a JSON String the service MUST reject the request with an
               HTTP 400 code (Malformed request).
             </t>
             <t>
@@ -352,13 +355,13 @@
               Perform signature validation as described in <xref target="validate.signature"/>.
             </t>
           </list>
-          Note: validation of application specific data can be performed anytime after step 4.
+          Note: validation of application specific data can be performed anytime after step 6.
           The action(s) to perform after a possible failure is out of scope for this specification.
         </t>
       </section>
     </section>
 
-    <section anchor="req.operation.urionly" title="Processing URI Based Requests">
+    <section anchor="req.operation.urionly" title="Processing of URI Based Requests">
       <t>
         In this specification requests without an HTTP body are referred to
         as URI based requests. Also see <xref target="req.determine.type"/>.
@@ -484,9 +487,9 @@
             </t>
             <t>
               Remove the "$req.jws" query string component from "targetURI".
-              Note that if there is a query component after "$req.jws", the
-              delimiter succeeding the "$req.jws" component is removed,
-              else the preceding delimiter is removed.  
+              Note that if the "$req.jws" query component is the last part of "targetURI", the
+              delimiter immediately preceding the "$req.jws" component is removed,
+              else the succeeding delimiter is removed.
             </t>
             <t>
               if the "JWS&nbsp;Protected&nbsp;Header" object contains a "$req.hdr" property,
@@ -569,7 +572,7 @@
           The output from the last step is assigned to a "JWS&nbsp;Payload" <xref target="RFC7515"/> object.
         </t>
       </section>
-      <section anchor="header.creation" title="Create HTTP Header Object">
+      <section anchor="header.creation" title="Create Header Digest">
         <t>
           [[
           <list style="empty">
@@ -663,7 +666,29 @@
           If any of the steps fails, the service MUST reject the request with an HTTP 400 code (Malformed request). 
         </t>
       </section>
-      <section anchor="validate.signature" title="Validate JWS Object">
+      <section anchor="normalize.uri" title="Normalize Target URI">
+        <t>
+          [[
+          <list style="empty">
+            <t>
+              To be written...
+            </t>
+          </list>
+          ]]
+        </t>
+      </section>
+      <section anchor="validate.header" title="Validate Header Digest">
+        <t>
+          [[
+          <list style="empty">
+            <t>
+              To be written...
+            </t>
+          </list>
+          ]]
+        </t>
+      </section>
+      <section anchor="validate.signature" title="Validate Signature">
         <t>
           Validation of the detached JWS object (see Appendix F of <xref target="RFC7515"/>),
           using the previously extracted and decoded objects requires the following steps:
@@ -702,28 +727,6 @@
           </list>
           If any of these steps fail, the service MUST reject the request with an
           HTTP 401 code (Unauthorized). 
-        </t>
-      </section>
-      <section anchor="validate.header" title="Validate HTTP Header Object">
-        <t>
-          [[
-          <list style="empty">
-            <t>
-              To be written...
-            </t>
-          </list>
-          ]]
-        </t>
-      </section>
-      <section anchor="normalize.uri" title="Normalize Target URI">
-        <t>
-          [[
-          <list style="empty">
-            <t>
-              To be written...
-            </t>
-          </list>
-          ]]
         </t>
       </section>
     </section>
