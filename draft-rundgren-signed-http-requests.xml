@@ -572,7 +572,7 @@
           The output from the last step is assigned to a "JWS&nbsp;Payload" <xref target="RFC7515"/> object.
         </t>
       </section>
-      <section anchor="header.creation" title="Create Header Digest">
+      <section anchor="header.creation" title="Create HTTP Header Digest">
         <t>
           [[
           <list style="empty">
@@ -677,7 +677,7 @@
           ]]
         </t>
       </section>
-      <section anchor="validate.header" title="Validate Header Digest">
+      <section anchor="validate.header" title="Validate HTTP Header Digest">
         <t>
           [[
           <list style="empty">
