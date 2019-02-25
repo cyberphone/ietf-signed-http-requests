@@ -1,3 +1,5 @@
+![SHREQ](https://cyberphone.github.io/doc/security/shreq.svg)
+
 # Signed HTTP Requests (SHREQ)
 
 Internet-Draft in progress.
