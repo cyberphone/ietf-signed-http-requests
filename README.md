@@ -10,3 +10,4 @@ Proposed [IETF-104 Presentation](https://cyberphone.github.io/ietf-signed-http-r
 
 [Code, testing, etc.](https://github.com/cyberphone/shreq)
 
+[Author contact information](https://github.com/cyberphone)
