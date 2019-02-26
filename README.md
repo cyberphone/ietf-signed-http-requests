@@ -6,7 +6,7 @@ Internet-Draft in progress.  Not yet published...
 
 ["Editor's copy"](https://cyberphone.github.io/ietf-signed-http-requests/shreq.html)
 
-[IETF-104 Presentation](https://cyberphone.github.io/ietf-signed-http-requests/hotrfc-shreq.pdf)
+Proposed [IETF-104 Presentation](https://cyberphone.github.io/ietf-signed-http-requests/hotrfc-shreq.pdf)
 
 [Code, testing, etc.](https://github.com/cyberphone/shreq)
 
