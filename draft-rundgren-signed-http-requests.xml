@@ -172,7 +172,7 @@
           the error code with a short "text/plain" explanation in the HTTP Body like:
         </t>
         <t>
-          <figure align="center"><artwork><![CDATA[  - Missing ".secinf" element
+          <figure align="left"><artwork><![CDATA[  - Missing ".secinf" element
   - Invalid "alg": es256
   - Unknown key
   - Signature validation error
@@ -203,10 +203,10 @@
 
     <section anchor="req.operation.withbody" title="Processing of JSON Based Requests">
       <t>
-        Assume you have an unsigned HTTP request like the following:
+        Assume there is an unsigned HTTP request like the following:
       </t>
       <t>
-        <figure align="center"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
+        <figure align="left"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
   Host: example.com
   Content-Type: application/json
   Content-Length: 1234
@@ -222,7 +222,7 @@
         Adding a signature to the request above would require the following enhancements to the JSON payload:
       </t>
       <t>
-        <figure align="center"><artwork><![CDATA[  {
+        <figure align="left"><artwork><![CDATA[  {
     "something": "data",
 
          Additional application specific properties
@@ -239,18 +239,22 @@
         Notes:
         <list style="symbols">
           <t>
-            The argument to "jws" (a detached compact JWS) was truncated for brevity.
-          </t>
-          <t>
             This specification presumes that request data is expressed as a JSON Object.
           </t>
           <t>
-            The "mtd" property is actually redundant since the HTTP method "POST"
-            is the default (for this specification) for JSON based requests.
+            The "uri" property holds a normalized target URI.
+          </t>
+          <t>
+            The "mtd" property holds the expected HTTP method. In the example it is actually
+            redundant since the absence of a "mtd" property defaults to "POST" for JSON based requests
+            in this specification.
           </t>
           <t>
             The "iat" property holds the time stamp in UNIX "epoch" format.
           </t>
+          <t>
+            The argument to "jws" (a detached compact JWS) was truncated for brevity.
+          </t> 
         </list>
       </t>
       <t>
@@ -372,7 +376,7 @@
               the service MUST reject the request (see <xref target="return.codes"/>).
             </t>
             <t>
-              Using "message", retieve a JSON Object called ".secinf".
+              Using "message", retrieve a JSON Object called ".secinf".
               If ".secinf" is missing or is not a JSON Object the service MUST reject the request (see <xref target="return.codes"/>).
             </t>
             <t>
@@ -420,10 +424,10 @@
         as URI based requests. Also see <xref target="req.determine.type"/>.
       </t>
       <t>
-        Assume you have an unsigned HTTP request like the following:
+        Assume there is an unsigned HTTP request like the following:
       </t>
       <t>
-        <figure align="center"><artwork><![CDATA[  GET /lookup?id=435 HTTP/1.1
+        <figure align="left"><artwork><![CDATA[  GET /lookup?id=435 HTTP/1.1
   Host: example.com]]></artwork></figure>
       </t>
       <t>
@@ -436,7 +440,7 @@
       </t>
       <t>
         Adding a signature to this request according to this specfication
-        would require the following enhancement to the URI:
+        would return the following URI:
         <list style="empty">
           <t>
             https://example.com/lookup?id=435&amp;.secinf=eyJhiJ.eyJfgw.VHVIt
@@ -456,12 +460,11 @@
       </t>
       <t>
         The middle component of the JWS string ("JWS Payload"),
-        contains a Base64Url encoded JSON Object holding
-        the request data to be signed which applied to the sample would yield
-        the following (after Base64Url decoding):
+        contains Base64Url encoded request data which applied to the sample would
+        (after Base64Url decoding) yield the following JSON Object:
       </t>
       <t>
-        <figure align="center"><artwork><![CDATA[  {
+        <figure align="left"><artwork><![CDATA[  {
     "hnu": "tzIRr4Qi1uWBnuIhbEie9-MYY94FCKgPFN4BmXtoCCE",
     "mtd": "GET",
     "iat": 1551863696
@@ -475,8 +478,9 @@
             target URI after it has been hashed by the hash algorithm associated with the JWS signature.
           </t>
           <t>
-            The "mtd" property is actually redundant since the HTTP method "GET"
-            is the default (for this specification) for URI based requests.
+            The "mtd" property holds the expected HTTP method. In the example it is actually
+            redundant since the absence of a "mtd" property defaults to "GET" for URI based requests
+            in this specification.
           </t>
           <t>
             The "iat" property holds the time stamp in UNIX "epoch" format.
@@ -672,7 +676,7 @@
           Below is a minimal example:
         </t>
         <t>
-          <figure align="center"><artwork><![CDATA[  {
+          <figure align="left"><artwork><![CDATA[  {
     "alg": "ES256"
   }]]></artwork></figure>
         </t>
@@ -740,8 +744,13 @@
           a JWS compact object, here called "jwsString":
           <list style="numbers">
             <t>
-              Verify that "jwsString" has the syntax "header.payload.signature", where
-              the length of the "payload" element is zero for JSON based requests and
+              Verify that "jwsString" has the syntax
+              <list style="empty">
+                <t>
+                  "header.payload.signature"
+                </t>
+              </list>
+              where the length of the "payload" element is zero for JSON based requests and
               non-zero for URI based requests. That is, JSON based
               requests use the detached JWS format described in Appendix F of <xref target="RFC7515"/>.
             </t>
@@ -756,17 +765,17 @@
               assume that the resulting JSON Object holds a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>.
             </t>
             <t>
-              For URI based requests only: based64Url-decode the "payload" portion of "jwsString"
+              For URI based requests only:
+              <vspace blankLines="0"/>
+              base64Url-decode the "payload" portion of "jwsString"
               into the variable "JWS&nbsp;Payload" <xref target="RFC7515"/>. 
             </t>
             <t>
-              Base64Url-decode the "signature" portion of "jwsString" into a byte array.
-            </t>
-            <t>
-              Use the output from the preceding step to create a "JWS&nbsp;Signature" <xref target="RFC7515"/> object.
+              Base64Url-decode the "signature" portion of "jwsString" into a byte array
+              representing a "JWS&nbsp;Signature" <xref target="RFC7515"/>.
             </t>
           </list>
-          If any of the steps fails, the service MUST reject the request with an HTTP 400 code (Bad request). 
+          If any of the steps fails, the service MUST reject the request (see <xref target="return.codes"/>).
         </t>
       </section>
       <section anchor="normalize.uri" title="Normalize Target URI">
@@ -828,8 +837,7 @@
               "signedData" from step 3 and the previously collected "JWS&nbsp;Signature" object (byte array). 
             </t>
           </list>
-          If any of these steps fail, the service MUST reject the request with an
-          HTTP 401 code (Unauthorized). 
+          If any of the steps fails, the service MUST reject the request (see <xref target="return.codes"/>).
         </t>
       </section>
       <section anchor="time.stamps" title="Time Stamps">
@@ -1066,7 +1074,7 @@
           use a scheme where a dedicated HTTP header holds
           a detached JWS signature covering a clear text JSON
           message in the HTTP body:
-          <figure align="center"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
+          <figure align="left"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
   Host: example.com
   Content-Type: application/json
   x-jws-signature: eyJhbGciOiJSUzI1N..SD7xMbpL-2QgwUsAlMGzw
@@ -1095,7 +1103,7 @@
         <t>
           The current version (Draft 06) of the financial API <xref target="FAPI"/> use
           a scheme where the payload is signed using JWS in Base64Url <xref target="RFC4648"/> mode:
-          <figure align="center"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
+          <figure align="left"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
   Host: example.com
   Content-Type: application/jws
   Content-Length: 1288
