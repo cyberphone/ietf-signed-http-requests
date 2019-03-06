@@ -128,37 +128,77 @@
       </t>
     </section>
 
-    <section anchor="req.determine.type" title="Determining Request Type">
+    <section anchor="req.processing" title="HTTP Processing">
       <t>
-        In this specification the distinction between HTTP requests having
-        a JSON body or not is based on the presence of a "Content-Length" header.
-        Requests without a body object are in this specification referred
-        to as URI based requests.
+        The following subsections describe HTTP specifics associated with this specification.
       </t>
-      <t>
-        This also implies that not all header combinations permitted by HTTP can
-        be used with this specification:
-        <list style="hanging">
-          <t hangText="&quot;Content-Length&quot;">
-            <vspace blankLines="0"/>
-            MUST NOT be used with URI based requests.  MUST be present for requests having a body
-            and have an argument holding the length of the body in bytes.
-          </t>
-          <t hangText="&quot;Content-Type&quot;">
-            <vspace blankLines="0"/>
-            MUST NOT be used with URI based requests.  MUST be present for requests having a body
-            and have the argument "application/json".
-          </t>
-          <t hangText="&quot;Content-Encoding&quot;">
-            <vspace blankLines="0"/>
-            MUST NOT be used with any requests targeting this specification.
-          </t>
-          <t hangText="&quot;Transfer-Encoding&quot;">
-            <vspace blankLines="0"/>
-            MUST NOT be used with any requests targeting this specification.
-          </t>
-        </list>
-      </t>
+      <section anchor="req.determine.type" title="Determining Request Type">
+        <t>
+          In this specification the distinction between HTTP requests having
+          a JSON body or not is based on the presence of a "Content-Length" header.
+          Requests without a body object are in this specification referred
+          to as URI based requests.
+        </t>
+        <t>
+          This also implies that not all header combinations permitted by HTTP can
+          be used with this specification:
+          <list style="hanging">
+            <t hangText="&quot;Content-Length&quot;">
+              <vspace blankLines="0"/>
+              MUST NOT be used with URI based requests.  MUST be present for requests having a body
+              and have an argument holding the length of the body in bytes.
+            </t>
+            <t hangText="&quot;Content-Type&quot;">
+              <vspace blankLines="0"/>
+              MUST NOT be used with URI based requests.  MUST be present for requests having a body
+              and have the argument "application/json".
+            </t>
+            <t hangText="&quot;Content-Encoding&quot;">
+              <vspace blankLines="0"/>
+              MUST NOT be used with any requests targeting this specification.
+            </t>
+            <t hangText="&quot;Transfer-Encoding&quot;">
+              <vspace blankLines="0"/>
+              MUST NOT be used with any requests targeting this specification.
+            </t>
+          </list>
+        </t>
+      </section>
+      <section anchor="return.codes" title="Return Codes">
+        <t>
+          This specification utilizes a single HTTP return code 400 (Bad request)
+          for indicating syntax or security errors.  Since the number of possible
+          error conditions is significant, it is RECOMMENDED to accompany
+          the error code with a short "text/plain" explanation in the HTTP Body like:
+        </t>
+        <t>
+          <figure align="center"><artwork><![CDATA[  - Missing ".secinf" element
+  - Invalid "alg": es256
+  - Unknown key
+  - Signature validation error
+  - Malformed "jws" element
+  - Base64Url processing failure
+  - Missing header variable "x-debug"]]></artwork></figure>
+        </t>
+        <t>
+          Communities using this specification MAY customize error codes if needed.
+          However, in practice, it usually turns out to be of little use
+          compared to a text message and a generic "hard&nbsp;error" code since
+          neither users nor machines can do very much on their own
+          to fix errors that are outside of normal processing.
+        </t>
+        <t>
+          Application level errors are dealt with in an application specific manner.
+          As an example a bank application which finds out that the customer do not have
+          enough money to perform a transaction would presumably not return
+          an HTTP error code but rather a specifically crafted error message
+          to be displayed to the user.
+        </t>
+        <t>
+          Return codes for successful operation is application specific but are
+          typically 200 (OK) or 201 (Created).
+        </t>
+      </section>
     </section>
 
     <section anchor="req.operation.withbody" title="Processing of JSON Based Requests">
@@ -166,8 +206,7 @@
         Assume you have an unsigned HTTP request like the following:
       </t>
       <t>
-        <figure align="center">
-          <artwork><![CDATA[  POST /transact/pay HTTP/1.1
+        <figure align="center"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
   Host: example.com
   Content-Type: application/json
   Content-Length: 1234
@@ -177,8 +216,7 @@
 
          Additional application specific properties
 
-  }]]></artwork>
-        </figure>
+  }]]></artwork></figure>
       </t>
       <t>
         Adding a signature to the request above would require the following enhancements to the JSON payload:
@@ -192,6 +230,7 @@
     ".secinf": {
       "uri": "https://example.com/transact/pay",
       "mtd": "POST",
+      "iat": 1551709923,
       "jws": "eyJhbGciOiJIUzI1NiJ9..VHVItCBCb849imarDtjw4"
     }
   }]]></artwork></figure>
@@ -200,13 +239,17 @@
         Notes:
         <list style="symbols">
           <t>
-            The argument to "jws" (a detached JWS) was truncated for brevity.
+            The argument to "jws" (a detached compact JWS) was truncated for brevity.
           </t>
           <t>
             This specification presumes that request data is expressed as a JSON Object.
           </t>
           <t>
-            The "mtd" property is actually redundant since the HTTP method "POST" is the default.
+            The "mtd" property is actually redundant since the HTTP method "POST"
+            is the default (for this specification) for JSON based requests.
+          </t>
+          <t>
+            The "iat" property holds the time stamp in UNIX "epoch" format.
           </t>
         </list>
       </t>
@@ -229,10 +272,10 @@
               Store the target URI in a variable "targetURI" after having normalized it as described in <xref target="normalize.uri"/>.
             </t>
             <t>
-              Add a JSON object called ".secinf" to "message".
+              Add a JSON Object called ".secinf" to "message".
             </t>
             <t>
-              Add an property "uri" to ".secinf" where the argument is a JSON String holding "targetURI".
+              Add a property "uri" to ".secinf" where the argument is a JSON String holding "targetURI".
             </t>
             <t>
               Add a property "mtd" to ".secinf" where the argument is a JSON String holding "targetMethod".
@@ -312,11 +355,11 @@
             </t>
             <t>
               If the HTTP header "Content-Type" is missing or differs from "application/json"
-              the service MUST reject the request with an HTTP 400 code (Malformed request).
+              the service MUST reject the request (see <xref target="return.codes"/>).
             </t>
             <t>
               If the HTTP header "Content-Length" is missing or malformed
-              the service MUST reject the request with an HTTP 400 code (Malformed request).
+              the service MUST reject the request (see <xref target="return.codes"/>).
               Save the length data.
             </t>
             <t>
@@ -325,32 +368,30 @@
             <t>
               Parse the byte array created in the preceding step with a JSON parser and return the result
               in an object from now on referred to as "message".
-              If there are parsing errors the service MUST reject the request with an
-              HTTP 400 code (Malformed request).
+              If there are parsing errors or if "message" is not a JSON Object
+              the service MUST reject the request (see <xref target="return.codes"/>).
             </t>
             <t>
               Using "message", retieve a JSON Object called ".secinf".
-              If ".secinf" is missing or is not a JSON Object the service MUST reject the request with an
-              HTTP 400 code (Malformed request).
+              If ".secinf" is missing or is not a JSON Object the service MUST reject the request (see <xref target="return.codes"/>).
             </t>
             <t>
-              Using ".secinf", the "uri" property is read.
-              If "uri" is missing or does not match "targetURI" or is not a JSON String the service MUST reject the request with an
-              HTTP 400 code (Malformed request).
+              Using ".secinf", the property "uri" is read.
+              If "uri" is missing or does not match "targetURI" or is not a JSON String the service MUST
+              reject the request (see <xref target="return.codes"/>).
               <vspace blankLines="1"/>
               Note: in some proxy arrangements it may be difficult retrieving the proper value of "targetURI".
               In such cases the comparison with "uri" MAY be disabled.
             </t>
             <t>
-              Using ".secinf", the "mtd" property is read.
+              Using ".secinf", the property "mtd" is read.
               if "mtd" is missing the HTTP method is assumed to be "POST" else it is assumed to be the read value.
-              If the derived method does not match "targetMethod" or is not a JSON String the service MUST reject the request with an
-              HTTP 400 code (Malformed request).
+              If the derived method does not match "targetMethod" or is not a JSON String the service MUST
+              reject the request (see <xref target="return.codes"/>).
             </t>
             <t>
-              Using ".secinf", the "jws" property is read.
-              If "jws" is missing or is not a JSON String the service MUST reject the request with an
-              HTTP 400 code (Malformed request).
+              Using ".secinf", the property "jws" is read.
+              If "jws" is missing or is not a JSON String the service MUST reject the request (see <xref target="return.codes"/>).
               Decode the read string as described in <xref target="jws.string.decoding"/>.
             </t>
             <t>
@@ -383,31 +424,62 @@
       </t>
       <t>
         <figure align="center"><artwork><![CDATA[  GET /lookup?id=435 HTTP/1.1
-  Host: example.com]]></artwork>
-        </figure>
+  Host: example.com]]></artwork></figure>
       </t>
       <t>
-        Adding a signature to this request would require the following enhancements to the URI:
+        The full URI would be as follows:
+        <list style="empty">
+          <t>
+            https://example.com/lookup?id=435
+          </t>
+        </list>
       </t>
       <t>
-        <figure align="center"><artwork><![CDATA[  GET /lookup?id=435&.secinf=eyJhiJ.eyJfgw.VHVIt HTTP/1.1
-  Host: example.com]]></artwork>
-        </figure>
+        Adding a signature to this request according to this specfication
+        would require the following enhancement to the URI:
+        <list style="empty">
+          <t>
+            https://example.com/lookup?id=435&amp;.secinf=eyJhiJ.eyJfgw.VHVIt
+          </t>
+        </list>
       </t>
       <t>
         Notes:
         <list style="symbols">
           <t>
-            The full URI to the sample above is as follows:
-            <list style="empty">
-              <t>
-                https://example.com/lookup?id=435&amp;.secinf=eyJhiJ.eyJfgw.VHVIt
-              </t>
-            </list>
-            This represents a complete serializable signed request object.
+            The revised URI represents a complete serializable signed request object.
           </t>
           <t>
-            The argument to "$req.jws" (a detached JWS) was truncated for brevity.
+            The argument to ".secinf" (a standard compact JWS) was truncated for brevity.
+          </t>
+        </list>
+      </t>
+      <t>
+        The middle component of the JWS string ("JWS Payload"),
+        contains a Base64Url encoded JSON Object holding
+        the request data to be signed which applied to the sample would yield
+        the following (after Base64Url decoding):
+      </t>
+      <t>
+        <figure align="center"><artwork><![CDATA[  {
+    "hnu": "tzIRr4Qi1uWBnuIhbEie9-MYY94FCKgPFN4BmXtoCCE",
+    "mtd": "GET",
+    "iat": 1551863696
+  }]]></artwork></figure>
+      </t>
+      <t>
+        Notes:
+        <list style="symbols">
+          <t>
+            The property "hnu" holds the Base64Url encoded value of the normalized
+            target URI after it has been hashed by the hash algorithm associated with the JWS signature.
+          </t>
+          <t>
+            The "mtd" property is actually redundant since the HTTP method "GET"
+            is the default (for this specification) for URI based requests.
+          </t>
+          <t>
+            The "iat" property holds the time stamp in UNIX "epoch" format.
           </t>
         </list>
       </t>
@@ -492,7 +564,7 @@
             <t>
               Extract the JWS string from the "$req.jws" element which MUST reside in the query string of "targetURI".
               If the JWS string is missing the service MUST reject the request
-              with an HTTP 400 code (Malformed request).
+              with an HTTP 400 code (Bad request).
               Decode the argument to "$req.jws" as described in <xref target="jws.string.decoding"/>.
             </t>
             <t>
@@ -510,7 +582,7 @@
                   property holding a JSON Array with JSON String elements where
                   one of the elements MUST be "$req.hdr".
                   If there is a mismatch the service MUST reject the request
-                  with an HTTP 400 code (Malformed request).
+                  with an HTTP 400 code (Bad request).
                 </t>
                 <t>
                   Extract the argument to "$req.hdr" from the "JWS&nbsp;Protected&nbsp;Header" and process it as described in <xref target="validate.header"/>.
@@ -596,22 +668,30 @@
       <section anchor="create.jwsprotheader" title="Create JWS Protected Header">
         <t>
           Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>
-          JSON object with algorithm and key data adapted for the application.
+          JSON Object with algorithm and key data adapted for the application.
+          Below is a minimal example:
+        </t>
+        <t>
+          <figure align="center"><artwork><![CDATA[  {
+    "alg": "ES256"
+  }]]></artwork></figure>
         </t>
       </section>
       <section anchor="create.signature" title="Create JWS String">
         <t>
-          To create a detached JWS object (see Appendix F of <xref target="RFC7515"/>),
-          perform the following steps:
+          To create a compact JWS object (a string), perform the following steps:
           <list style="numbers">
             <t>
-              Serialize the previously defined "JWS Protected Header" object into a UTF-8 encoded byte array.
+              Serialize the previously defined "JWS&nbsp;Protected&nbsp;Header" object into a UTF-8 encoded byte array.
             </t>
             <t>
               Base64Url-encode the output from the preceding step into a local variable "jwsProtectedHeaderB64U".
             </t>
             <t>
-              Set local variable "signedData" to the UTF-8 encoded representation of the
+              Base64Url-encode the previously defined variable "JWS&nbsp;Payload" into a local variable "jwsPayloadB64U".
+            </t>
+            <t>
+              Set a local variable "signedData" to the UTF-8 encoded representation of the
               concatenation of:
               <list style="empty">
                 <t>
@@ -621,8 +701,7 @@
                   A point character (".").
                 </t>
                 <t>
-                  The previously defined variable "JWS&nbsp;Payload",
-                  here encoded in Base64Url <xref target="RFC4648"/>.
+                  The previously defined variable "jwsPayloadB64U".
                 </t>
               </list>
             </t>
@@ -637,7 +716,14 @@
                   The previously defined variable "jwsProtectedHeaderB64U".
                 </t>
                 <t>
-                  Two point characters ("..").
+                  A point character (".").
+                </t>
+                <t>
+                  For URI based requests only: "jwsPayloadB64U".  That is, JSON based
+                  requests use the detached JWS format described in Appendix F of <xref target="RFC7515"/>.
+                </t>
+                <t>
+                  A point character (".").
                 </t>
                 <t>
                   The previously defined variable "JWS&nbsp;Signature",
@@ -651,10 +737,13 @@
       <section anchor="jws.string.decoding" title="Decode JWS String">
         <t>
           The following processing steps presume that there is an input string holding
-          a detached JWS compact object, here called "jwsString":
+          a JWS compact object, here called "jwsString":
           <list style="numbers">
             <t>
-              Verify that "jwsString" has the syntax "header..signature".
+              Verify that "jwsString" has the syntax "header.payload.signature", where
+              the length of the "payload" element is zero for JSON based requests and
+              non-zero for URI based requests. That is, JSON based
+              requests use the detached JWS format described in Appendix F of <xref target="RFC7515"/>.
             </t>
             <t>
               Assign the "header" portion of "jwsString" to a variable "jwsProtectedHeaderB64U".
@@ -664,7 +753,11 @@
             </t>
             <t>
               Parse the output from the preceding step with a JSON parser and
-              assume that the result is a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/> object.
+              assume that the resulting JSON Object holds a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>.
+            </t>
+            <t>
+              For URI based requests only: based64Url-decode the "payload" portion of "jwsString"
+              into the variable "JWS&nbsp;Payload" <xref target="RFC7515"/>. 
             </t>
             <t>
               Base64Url-decode the "signature" portion of "jwsString" into a byte array.
@@ -673,7 +766,7 @@
               Use the output from the preceding step to create a "JWS&nbsp;Signature" <xref target="RFC7515"/> object.
             </t>
           </list>
-          If any of the steps fails, the service MUST reject the request with an HTTP 400 code (Malformed request). 
+          If any of the steps fails, the service MUST reject the request with an HTTP 400 code (Bad request). 
         </t>
       </section>
       <section anchor="normalize.uri" title="Normalize Target URI">
@@ -700,7 +793,7 @@
       </section>
       <section anchor="validate.signature" title="Validate Signature">
         <t>
-          Validation of the detached JWS object (see Appendix F of <xref target="RFC7515"/>),
+          Validation of the JWS <xref target="RFC7515"/> object,
           using the previously extracted and decoded objects requires the following steps:
           <list style="numbers">
             <t>
@@ -715,17 +808,17 @@
             </t>
             <t>
               Set a local variable "signedData" to the UTF-8 encoded representation of the
-              concatenation of:
+              string created by concatenating the following elements:
               <list style="empty">
                 <t>
-                  The previously defined variable "jwsProtectedHeaderB64U".
+                  The previously collected variable "jwsProtectedHeaderB64U".
                 </t>
                 <t>
                   A point character (".").
                 </t>
                 <t>
-                  The previously defined variable "JWS Payload",
-                  here encoded in Base64Url <xref target="RFC4648"/>.
+                  The previously collected variable "JWS Payload",
+                  but here encoded in Base64Url <xref target="RFC4648"/>.
                 </t>
               </list>
             </t>
@@ -741,13 +834,14 @@
       </section>
       <section anchor="time.stamps" title="Time Stamps">
         <t>
-          [[
-          <list style="empty">
-            <t>
-              To be written...
-            </t>
-          </list>
-          ]]
+          Time stamps have the same name, format and function as described in Section 4.1.6 of <xref target="RFC7519"/>.
+          However, in this specification they are REQUIRED, and stored in the ".secinf" object.
+        </t>
+        <t>
+          The policy with respect to difference between current time and received time stamps
+          is out of scope for this specification.  However, for security reasons it is
+          generally a good idea limiting deviations to a few minutes as well as using
+          network based clock synchronization in both ends.
         </t>
       </section>
       <section anchor="hash.alg.override" title="Hash Algorithm Override">
@@ -808,7 +902,7 @@
           <t hangText="$req.hdr">
             &nbsp;
             <vspace blankLines="0"/>
-            Property holding a JSON object containing a list of HTTP headers and a consolidated hash of the headers and their the arguments.
+            Property holding a JSON Object containing a list of HTTP headers and a consolidated hash of the headers and their the arguments.
           </t>
           <t hangText="$req.jws">
             &nbsp;
@@ -840,6 +934,7 @@
       <?rfc include='reference.RFC.4648'?>
       <?rfc include='reference.RFC.8259'?>
       <?rfc include='reference.RFC.7515'?>
+      <?rfc include='reference.RFC.7519'?>
       <?rfc include='reference.RFC.8174'?>
       <?rfc include='reference.RFC.7493'?>
       <?rfc include='reference.RFC.7231'?>
