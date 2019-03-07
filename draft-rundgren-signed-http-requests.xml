@@ -106,7 +106,8 @@
       </t>
       <t>
         For HTTP requests that do not have a JSON body (see <xref target="req.operation.urionly"/>), the
-        signature is provided in the URI <xref target="RFC3986"/>.
+        signature and additional request data is added the URI <xref target="RFC3986"/> itself,
+        making such requests self-contained and serializable as well.
       </t>
       <t>
         Both variants utilize JWS <xref target="RFC7515"/> for holding the signature data.
@@ -169,20 +170,18 @@
           This specification utilizes a single HTTP return code 400 (Bad request)
           for indicating syntax or security errors.  Since the number of possible
           error conditions is significant, it is RECOMMENDED to accompany
-          the error code with a short "text/plain" explanation in the HTTP Body like:
+          the error code with a short explanation in "text/plain" format in the HTTP Body like:
         </t>
         <t>
           <figure align="left"><artwork><![CDATA[  - Missing ".secinf" element
   - Invalid "alg": es256
-  - Unknown key
-  - Signature validation error
-  - Malformed "jws" element
-  - Base64Url processing failure
-  - Missing header variable "x-debug"]]></artwork></figure>
+  - Unknown "kid": example.com:rsa:2018.1
+  - com.example.jose.Core.validate(2653): Signature validation error
+  - Missing header variable "x-testing"]]></artwork></figure>
         </t>
         <t>
           Communities using this specification MAY customize error codes if needed.
-          However, in practice, it usually turns out to be of little use
+          However, in practice, it usually turns out to be of little value
           compared to a text message and a generic "hard&nbsp;error" code since
           neither users nor machines can do very much on their own
           to fix errors that are outside of normal processing.
@@ -190,7 +189,7 @@
         <t>
           Application level errors are dealt with in an application specific manner.
           As an example a bank application which finds out that the customer do not have
-          enough money to perform a transaction would presumably not return
+          enough funds to perform a transaction would presumably not return
           an HTTP error code but rather a specifically crafted error message
           to be displayed to the user.
         </t>
@@ -290,6 +289,10 @@
               If there is a need to include additional HTTP headers in the signed request data,
               perform the following steps:
               <list style="symbols">
+                <t>
+                  Derive (or define) the hash algorithm to use as described in <xref target="hash.algorithms"/>.
+                  Save the algorithm in a variable "hashAlgorithm".
+                </t>
                 <t>
                   Create a header object as described in <xref target="header.creation"/>.
                 </t>
@@ -394,14 +397,24 @@
               reject the request (see <xref target="return.codes"/>).
             </t>
             <t>
+              If the optional "hdr" property is present in ".secinf", extract the argument
+              and process it as described in <xref target="validate.header"/>.
+              <list style="symbols">
+                <t>
+                  Derive (or define) the hash algorithm to use as described in <xref target="header.creation"/>.
+                  Save the algorithm in a variable "hashAlgorithm".
+                </t>
+                <t>
+                  Create a header object as described in <xref target="header.creation"/>.
+                </t>
+              </list>
+            </t>
+            <t>
               Using ".secinf", the property "jws" is read.
               If "jws" is missing or is not a JSON String the service MUST reject the request (see <xref target="return.codes"/>).
               Decode the read string as described in <xref target="jws.string.decoding"/>.
             </t>
-            <t>
-              If the optional "hdr" property is present in ".secinf", extract the argument
-              and process it as described in <xref target="validate.header"/>.
-            </t>
+
             <t>
               Remove the "jws" property from ".secinf".
             </t>
@@ -501,6 +514,22 @@
             </t>
             <t>
               Store the target URI in a variable "targetURI" after having normalized it as described in <xref target="normalize.uri"/>.
+            </t>
+            <t>
+              Create an empty JSON Object from now on referred to as ".secinf".
+            </t>
+            <t>
+              Derive (or define) the hash algorithm to use as described in <xref target="hash.algorithms"/>.
+              Save the algorithm in a variable "hashAlgorithm".
+            </t>
+            <t>
+              Add a property "hnu" (Hashed Normalized URI) to ".secinf" where the argument is a JSON String
+              holding the outcome of the process described in  in <xref target="signable.uri"/>.
+            </t>
+            <t>
+              Add a property "mtd" to ".secinf" where the argument is a JSON String holding "targetMethod".
+              <vspace blankLines="1"/>
+              Note: for the HTTP method "GET", this step is optional because "GET" is the default.
             </t>
             <t>
               Create a "JWS&nbsp;Payload" as described in <xref target="signable.uri"/>.
@@ -843,24 +872,37 @@
       <section anchor="time.stamps" title="Time Stamps">
         <t>
           Time stamps have the same name, format and function as described in Section 4.1.6 of <xref target="RFC7519"/>.
-          However, in this specification they are REQUIRED, and stored in the ".secinf" object.
+          However, in this specification they are REQUIRED, and stored in the ".secinf" JSON Object.
         </t>
         <t>
-          The policy with respect to difference between current time and received time stamps
+          The policy with respect to the difference between the current time and received time stamps
           is out of scope for this specification.  However, for security reasons it is
           generally a good idea limiting deviations to a few minutes as well as using
           network based clock synchronization in both ends.
         </t>
       </section>
-      <section anchor="hash.alg.override" title="Hash Algorithm Override">
+      <section anchor="hash.algorithms" title="Hash Algorithms">
         <t>
-          [[
+          Inclusion of HTTP header elements as well as the "hnu" property of URI based
+          requests depends on digests produced by a hash algorithm.  The default is
+          using the hash algorithm associated with the JWS signature algorithm ("alg").
+          That is, "ES256" and "HS384" imply the hash algorithm SHA256 and SHA384 respectively.
+        </t>
+        <t>
+          In case this is not desired, this specification permits overriding the default
+          by including a "hao" (Hash Algorithm Override) property in the ".secinf" JSON Object.
+          The currently recognized arguments to "hao" are:
           <list style="empty">
             <t>
-              To be written...
+              "S256" for SHA256 <xref target="SHS"/>
+            </t>
+            <t>
+              "S384" for SHA384 <xref target="SHS"/>
+            </t>
+            <t>
+              "S512" for SHA512 <xref target="SHS"/>
             </t>
           </list>
-          ]]
         </t>
       </section>
     </section>
@@ -930,7 +972,7 @@
 
     <section anchor="Acknowledgements" title="Acknowledgements">
       <t>
-        TBD.
+        Parts of this specification were derived from the HTTP signature <xref target="HTTPSIG"/> draft.
       </t>
     </section>
   </middle>
@@ -954,6 +996,18 @@
           </author>
           <date/>
         </front>
+      </reference>
+      <reference anchor="SHS" target="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf">
+        <front>
+          <title>Secure Hash Standard (SHS)</title>
+          <author>
+            <organization>
+              National Institute of Standards and Technology
+            </organization>
+          </author>
+          <date month="August" year="2015" />
+        </front>
+        <seriesInfo name="FIPS" value="PUB 180-4" />
       </reference>
       <reference anchor="JCS" target="https://tools.ietf.org/html/draft-rundgren-json-canonicalization-scheme-05">
         <front>
