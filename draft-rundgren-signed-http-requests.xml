@@ -278,12 +278,13 @@
               Add a JSON Object called ".secinf" to "message".
             </t>
             <t>
-              Add a property "uri" to ".secinf" where the argument is a JSON String holding "targetURI".
+              Add a property "uri" to ".secinf" where the argument is a JSON String holding a copy of "targetURI".
             </t>
             <t>
-              Add a property "mtd" to ".secinf" where the argument is a JSON String holding "targetMethod".
+              Add a property "mtd" to ".secinf" where the argument is a JSON String holding a copy of "targetMethod".
               <vspace blankLines="1"/>
-              Note: for the HTTP method "POST", this step is optional because "POST" is the default.
+              Note: for the HTTP method "POST", this step is optional because "POST" is the default
+              for JSON based requests.
             </t>
             <t>
               If there is a need to include additional HTTP headers in the signed request data,
@@ -337,13 +338,13 @@
                   HTTP Header "Content-Type" with the argument set to "application/json".
                 </t>
                 <t>
-                  All HTTP headers (if any) specified in step 5.
+                  All HTTP headers (if any) specified in step 7.
                 </t>
                 <t>
                   Other HTTP headers (if any) needed by the application.
                 </t>
                 <t>
-                  An HTTP Body containing "requestData".
+                  An HTTP Body containing a copy of "requestData".
                 </t>
               </list>
             </t>
@@ -383,6 +384,11 @@
               If ".secinf" is missing or is not a JSON Object the service MUST reject the request (see <xref target="return.codes"/>).
             </t>
             <t>
+              Using ".secinf", the property "jws" is read.
+              If "jws" is missing or is not a JSON String the service MUST reject the request (see <xref target="return.codes"/>).
+              Decode the read string as described in <xref target="jws.string.decoding"/>.
+            </t>
+            <t>
               Using ".secinf", the property "uri" is read.
               If "uri" is missing or does not match "targetURI" or is not a JSON String the service MUST
               reject the request (see <xref target="return.codes"/>).
@@ -397,36 +403,38 @@
               reject the request (see <xref target="return.codes"/>).
             </t>
             <t>
-              If the optional "hdr" property is present in ".secinf", extract the argument
-              and process it as described in <xref target="validate.header"/>.
+              If the optional "hdr" property is present in ".secinf" perform the following steps:
               <list style="symbols">
                 <t>
-                  Derive (or define) the hash algorithm to use as described in <xref target="header.creation"/>.
+                  Derive the hash algorithm to use as described in <xref target="hash.algorithms"/>.
                   Save the algorithm in a variable "hashAlgorithm".
                 </t>
                 <t>
-                  Create a header object as described in <xref target="header.creation"/>.
+                  Process the argument of "hdr" as described in <xref target="validate.header"/>.
                 </t>
               </list>
             </t>
             <t>
-              Using ".secinf", the property "jws" is read.
-              If "jws" is missing or is not a JSON String the service MUST reject the request (see <xref target="return.codes"/>).
-              Decode the read string as described in <xref target="jws.string.decoding"/>.
+              Using ".secinf", the property "iat" (see <xref target="time.stamps"/>) is read.
+              if "iat" is missing or is not a JSON Number the service MUST
+              reject the request (see <xref target="return.codes"/>).
+              <vspace blankLines="1"/>
+              Note: if the application data already contains a suitable time stamp
+              property, this step MAY be excluded.
             </t>
-
             <t>
               Remove the "jws" property from ".secinf".
             </t>
             <t>
-              Create a "JWS&nbsp;Payload" <xref target="RFC7515"/> object as described in <xref target="signable.json"/>.
+              Create a "JWS&nbsp;Payload" <xref target="RFC7515"/> as described in <xref target="signable.json"/>.
             </t>
             <t>
               Perform signature validation as described in <xref target="validate.signature"/>.
             </t>
           </list>
           Note: validation of application specific data can be performed anytime after step 6.
-          The action(s) to perform after a possible failure is out of scope for this specification.
+          The action(s) to perform after a possible failure is out of scope for this specification
+          (see <xref target="return.codes"/>).
         </t>
       </section>
     </section>
@@ -456,7 +464,7 @@
         would return the following URI:
         <list style="empty">
           <t>
-            https://example.com/lookup?id=435&amp;.secinf=eyJhiJ.eyJfgw.VHVIt
+            https://example.com/lookup?id=435&amp;.jws=eyJhhiJ.eyJ7fgw.VHVIt
           </t>
         </list>
       </t>
@@ -467,18 +475,18 @@
             The revised URI represents a complete serializable signed request object.
           </t>
           <t>
-            The argument to ".secinf" (a standard compact JWS) was truncated for brevity.
+            The argument to ".jws" (a standard compact JWS) was truncated for brevity.
           </t>
         </list>
       </t>
       <t>
         The middle component of the JWS string ("JWS Payload"),
-        contains Base64Url encoded request data which applied to the sample would
-        (after Base64Url decoding) yield the following JSON Object:
+        contains Base64Url encoded signed data related to the request. It should
+        (after Base64Url decoding) yield a JSON Object like the following:
       </t>
       <t>
         <figure align="left"><artwork><![CDATA[  {
-    "hnu": "tzIRr4Qi1uWBnuIhbEie9-MYY94FCKgPFN4BmXtoCCE",
+    "htu": "tzIRr4Qi1uWBnuIhbEie9-MYY94FCKgPFN4BmXtoCCE",
     "mtd": "GET",
     "iat": 1551863696
   }]]></artwork></figure>
@@ -487,7 +495,7 @@
         Notes:
         <list style="symbols">
           <t>
-            The property "hnu" holds the Base64Url encoded value of the normalized
+            The property "htu" holds the Base64Url encoded value of the normalized
             target URI after it has been hashed by the hash algorithm associated with the JWS signature.
           </t>
           <t>
@@ -506,8 +514,8 @@
       </t>
       <section anchor="req.creation.urionly" title="Request Creation">
         <t>
-          In order to create a valid request, the steps (and ordering)
-          described in this section MUST be adhered to:
+          In order to create a valid signed URI request, the following steps
+          (and ordering) MUST be adhered to:
           <list style="numbers">
             <t>
               Store the target HTTP method in a variable "targetMethod".
@@ -523,45 +531,44 @@
               Save the algorithm in a variable "hashAlgorithm".
             </t>
             <t>
-              Add a property "hnu" (Hashed Normalized URI) to ".secinf" where the argument is a JSON String
-              holding the outcome of the process described in  in <xref target="signable.uri"/>.
+              Add a property "htu" (Hashed Target URI) to ".secinf" where the argument is a JSON String
+              holding the outcome of the process described in <xref target="signable.uri"/>.
             </t>
             <t>
-              Add a property "mtd" to ".secinf" where the argument is a JSON String holding "targetMethod".
+              Add a property "mtd" to ".secinf" where the argument is a JSON String holding a copy of "targetMethod".
               <vspace blankLines="1"/>
-              Note: for the HTTP method "GET", this step is optional because "GET" is the default.
+              Note: for the HTTP method "GET", this step is optional because "GET" is the default
+              for URI based requests.
             </t>
             <t>
-              Create a "JWS&nbsp;Payload" as described in <xref target="signable.uri"/>.
-            </t>
-            <t>
-              Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/> as described in <xref target="create.jwsprotheader"/>.
-            </t>
-            <t>
-              If HTTP headers also need to be signed the following steps are performed:
+              If there is a need to include additional HTTP headers in the signed request data,
+              perform the following steps:
               <list style="symbols">
                 <t>
-                  Create an HTTP header object as described in <xref target="header.creation"/>.
+                  Create a header object as described in <xref target="header.creation"/>.
                 </t>
                 <t>
-                  Add the following elements to the "JWS&nbsp;Protected&nbsp;Header" object:
-                  <list style="empty">
-                    <t>
-                      "crit": ["$req.hdr"]
-                    </t>
-                    <t>
-                      "$req.hdr": { ... }
-                    </t>
-                  </list>
-                  "{ ... }" denotes the HTTP header object.
+                  Add a property "hdr" to ".secinf" where the argument
+                  is the JSON Object created in the preceding step.
                 </t>
               </list>
+            </t>
+            <t>
+              Add a time stamp property (see <xref target="time.stamps"/>) to ".secinf".
+            </t>
+            <t>
+              Serialize the ".secinf" JSON Object into a UTF-8 byte array 
+              representing a "JWS&nbsp;Payload" <xref target="RFC7515"/>.
+            </t>
+            <t>
+              Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/> 
+              as described in <xref target="create.jwsprotheader"/>.
             </t>
             <t>
               Create a JWS string object as described in <xref target="create.signature"/>.
             </t>
             <t>
-              Create a query string component by concatenating "$req.jws=" with the JWS string created in the preceding step.
+              Create a query string component by concatenating ".jws=" with the JWS string created in the preceding step.
               This component is appended to the original unsigned request URI prepended by
               &amp; or ? depending on if it is the only query component or not.
             </t>
@@ -572,7 +579,7 @@
                   HTTP method set to "targetMethod".
                 </t>
                 <t>
-                  All HTTP headers (if any) specified in step 3.
+                  All HTTP headers (if any) specified in step 7.
                 </t>
                 <t>
                   Other HTTP headers (if any) needed by the application.
@@ -595,40 +602,68 @@
               Store the from the request recreated target URI in a variable "targetURI" after having normalized it as described in <xref target="normalize.uri"/>.
             </t>
             <t>
-              Extract the JWS string from the "$req.jws" element which MUST reside in the query string of "targetURI".
-              If the JWS string is missing the service MUST reject the request
-              with an HTTP 400 code (Bad request).
-              Decode the argument to "$req.jws" as described in <xref target="jws.string.decoding"/>.
+              Extract the JWS string from the ".jws" element which MUST reside in the query string of "targetURI".
+              If the JWS string is missing the service MUST
+              reject the request (see <xref target="return.codes"/>).
             </t>
             <t>
-              Remove the "$req.jws" query string component from "targetURI".
-              Note that if the "$req.jws" query component is the last part of "targetURI", the
-              delimiter immediately preceding the "$req.jws" component is removed,
+              Decode the argument of the preceding step as described in <xref target="jws.string.decoding"/>.
+            </t>
+            <t>
+              Remove the ".jws" query string component from "targetURI".
+              Note that if the ".jws" query component is the last part of "targetURI", the
+              delimiter immediately preceding the ".jws" component is removed,
               else the succeeding delimiter is removed.
             </t>
             <t>
-              if the "JWS&nbsp;Protected&nbsp;Header" object contains a "$req.hdr" property,
-              perform the following steps:
+              Parse "JWS&nbsp;Payload" (created in step 4) with a JSON parser
+              and from now on refer to the result as ".secinf".
+              If ".secinf" is not a JSON Object the service MUST
+              reject the request (see <xref target="return.codes"/>).
+            </t>
+            <t>
+              Derive the hash algorithm to use as described in <xref target="hash.algorithms"/>.
+              Save the algorithm in a variable "hashAlgorithm".
+            </t>
+            <t>
+              Using ".secinf" the property "htu" is read.
+              If "htu" is missing or is not a JSON String the service MUST
+              reject the request (see <xref target="return.codes"/>).
+            </t>
+            <t>
+              Perform the operation described in <xref target="signable.uri"/> and compare the
+              outcome with the argument to "htu".  If these value do not match the service MUST
+              reject the request (see <xref target="return.codes"/>).
+              <vspace blankLines="1"/>
+              Note: in some proxy arrangements it may be difficult retrieving the proper value of "targetURI".
+              In such cases the comparison with "htu" MAY be disabled.
+            </t>
+            <t>
+              Using ".secinf", the property "mtd" is read.
+              if "mtd" is missing the HTTP method is assumed to be "GET" else it is assumed to be the read value.
+              If the derived method does not match "targetMethod" or is not a JSON String the service MUST
+              reject the request (see <xref target="return.codes"/>).
+            </t>
+            <t>
+              If the optional "hdr" property is present in ".secinf" perform the following step:
               <list style="symbols">
                 <t>
-                  Verify that the "JWS&nbsp;Protected&nbsp;Header" object contains a JWS "crit"
-                  property holding a JSON Array with JSON String elements where
-                  one of the elements MUST be "$req.hdr".
-                  If there is a mismatch the service MUST reject the request
-                  with an HTTP 400 code (Bad request).
-                </t>
-                <t>
-                  Extract the argument to "$req.hdr" from the "JWS&nbsp;Protected&nbsp;Header" and process it as described in <xref target="validate.header"/>.
+                  Process the argument of "hdr" as described in <xref target="validate.header"/>.
                 </t>
               </list>
             </t>
             <t>
-              Create a "JWS&nbsp;Payload" object as described in <xref target="signable.uri"/>.
+              Using ".secinf", the property "iat" (see <xref target="time.stamps"/>) is read.
+              if "iat" is missing or is not a JSON Number the service MUST
+              reject the request (see <xref target="return.codes"/>).
             </t>
             <t>
               Perform signature validation as described in <xref target="validate.signature"/>.
             </t>
           </list>
+          Note: validation of application specific data can be performed anytime.
+          The action(s) to perform after a possible failure is out of scope for this specification
+          (see <xref target="return.codes"/>).
         </t>
       </section>
     </section>
@@ -655,7 +690,7 @@
               through an external software solution supporting JCS.
             </t>
           </list>
-          The output from JCS is intended to be used as a "JWS&nbsp;Payload" <xref target="RFC7515"/> object.
+          The output from JCS now represents a "JWS&nbsp;Payload" <xref target="RFC7515"/>.
         </t>
       </section>
       <section anchor="signable.uri" title="Create Signable URI Data">
@@ -791,13 +826,14 @@
             </t>
             <t>
               Parse the output from the preceding step with a JSON parser and
-              assume that the resulting JSON Object holds a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>.
+              assume that the result (which MUST be a JSON Object)
+              represents a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>.
             </t>
             <t>
               For URI based requests only:
               <vspace blankLines="0"/>
-              base64Url-decode the "payload" portion of "jwsString"
-              into the variable "JWS&nbsp;Payload" <xref target="RFC7515"/>. 
+              base64Url-decode the "payload" portion of "jwsString" into a byte array
+              representing a "JWS&nbsp;Payload" <xref target="RFC7515"/>. 
             </t>
             <t>
               Base64Url-decode the "signature" portion of "jwsString" into a byte array
@@ -871,8 +907,8 @@
       </section>
       <section anchor="time.stamps" title="Time Stamps">
         <t>
-          Time stamps have the same name, format and function as described in Section 4.1.6 of <xref target="RFC7519"/>.
-          However, in this specification they are REQUIRED, and stored in the ".secinf" JSON Object.
+          Time stamps have the same name ("iat"), format and function as described in Section 4.1.6 of <xref target="RFC7519"/>.
+          However, in this specification time stamps are REQUIRED, and stored in the ".secinf" JSON Object.
         </t>
         <t>
           The policy with respect to the difference between the current time and received time stamps
@@ -883,10 +919,11 @@
       </section>
       <section anchor="hash.algorithms" title="Hash Algorithms">
         <t>
-          Inclusion of HTTP header elements as well as the "hnu" property of URI based
+          Inclusion of HTTP header elements as well as the "htu" property of URI based
           requests depends on digests produced by a hash algorithm.  The default is
-          using the hash algorithm associated with the JWS signature algorithm ("alg").
-          That is, "ES256" and "HS384" imply the hash algorithm SHA256 and SHA384 respectively.
+          using the hash algorithm associated with the JWS signature algorithm ("alg")
+          featured in the "JWS&nbsp;Protected&nbsp;Header".
+          That is, "ES256" and "HS384" imply the hash algorithms SHA256 and SHA384 respectively.
         </t>
         <t>
           In case this is not desired, this specification permits overriding the default
@@ -909,7 +946,8 @@
 
     <section anchor="overriding" title="Local Naming Conventions">
       <t>
-        Although the "$req.*" property names are highly RECOMMENDED,
+        Although the ".secinf" JSON property name and
+        ".jws" query component name are highly RECOMMENDED,
         this specfication permits (=being considered as compatible),
         the use of local naming conventions as long as the
         specified procedures and formats are adhered to.
@@ -936,28 +974,18 @@
  
     <section anchor="IANA" title="IANA Considerations">
       <t>
-        This document currently has no IANA actions but the reserved property names
+        This document currently has no IANA actions but the reserved names
         below could be candidates for IANA registration:
         <list style="hanging">
-          <t hangText="$req.uri">
+          <t hangText=".secinf">
             &nbsp;
             <vspace blankLines="0"/>
-            Property holding a normalized target URI.
+            JSON property holding the security related data of this specification.
           </t>
-          <t hangText="$req.mtd">
+          <t hangText=".jws">
             &nbsp;
             <vspace blankLines="0"/>
-            Property holding an HTTP method name.
-          </t>
-          <t hangText="$req.hdr">
-            &nbsp;
-            <vspace blankLines="0"/>
-            Property holding a JSON Object containing a list of HTTP headers and a consolidated hash of the headers and their the arguments.
-          </t>
-          <t hangText="$req.jws">
-            &nbsp;
-            <vspace blankLines="0"/>
-            Property holding a detached JWS signature.
+            HTTP query component holding the security related data of this specification.
           </t>
         </list>
       </t>
@@ -965,8 +993,34 @@
 
     <section anchor="Security" title="Security Considerations">
       <t>
-        Systems implementing this application note are subject
-        to the same security considerations as JCS and JWS.
+        The purpose of this specification is adding an integrity
+        and authorization layer to HTTP requests.  This part is subject
+        to the same security considerations as the underpinning
+        JCS and JWS schemes.
+      </t>
+      <t>
+        For most applications HTTPS <xref target="RFC7231"/> would be the logical choice, not
+        only for protecting application data from snooping, but
+        also to not unessecary reveal data about signature keys.
+      </t>
+      <t>
+        In a cloud scenario with Web servers open for access by
+        any party new security challenges are introduced.  Cryptographic
+        solutions protect data but may also add vulnerabilities to
+        denial-of-service attacks since they often need substantial
+        processing.
+      </t>
+      <t>
+        Protecting against replay attacks is important because replay
+        may actually be a legitimate facility for systems repeating
+        a request due to a communication failure.  This cannot be
+        entirely solved by time stamps and cryptography; you usually
+        need unique transactions IDs and data base support as well.
+        For reliable operation there must be common rules within a
+        community using such features.
+        The REST <xref target="REST"/> paradigm also requires such
+        measures due to the idempotent operation specified for
+        "PUT", "GET" and "DELETE.
       </t>
     </section>
 
