@@ -670,7 +670,7 @@
 
     <section anchor="common.ops" title="Common Operations">
       <t>
-        SHREQ is a modular system using shared procedures described
+        This specification builds on a modular scheme using common procedures described
         in the following subsections.
       </t>
       <section anchor="signable.json" title="Create Signable JSON Data">
@@ -690,7 +690,7 @@
               through an external software solution supporting JCS.
             </t>
           </list>
-          The output from JCS now represents a "JWS&nbsp;Payload" <xref target="RFC7515"/>.
+          The output from JCS represents a "JWS&nbsp;Payload" <xref target="RFC7515"/>.
         </t>
       </section>
       <section anchor="signable.uri" title="Create Signable URI Data">
@@ -1141,14 +1141,108 @@
 
     <section anchor="testing" title="Test Vectors">
       <t>
-        [[
-        <list style="empty">
-          <t>
-            To be supplied
-          </t>
-        </list>
-        ]]
+jj
       </t>
+      <section anchor="testvector.1" title="Type=URI, Method=GET, Algorithm=HS256">
+        <t>
+          Target URI:
+          <figure align="left"><artwork><![CDATA[  https://example.com/users/456?.jws=eyJhbGciOiJIUzI1NiJ9.eyJodHUi
+  OiJmaVZpNGpZaER0N1ZDdVFJS1VJZFdJTkVXZm9oX05YSGZMVFpORWVTYXZZIiwi
+  aWF0IjoxNTUxOTUxOTAwfQ.Wll5cFEE9sidHs01sADus8kbHNHAC5DCzyytYoAtT
+  2g]]></artwork></figure>
+          Decoded JWS Payload:
+          <figure align="left"><artwork><![CDATA[  {
+    "htu": "fiVi4jYhDt7VCuQIKUIdWINEWfoh_NXHfLTZNEeSavY",
+    "iat": 1551951900
+  }]]></artwork></figure>
+          Symmetric signature validation key, here in hexadecimal notation:
+          <figure align="left"><artwork><![CDATA[  7fdd851a3b9d2dafc5f0d00030e22b9343900cd42ede4948568a4a2ee655291a]]></artwork></figure>
+        </t>
+      </section>
+      <section anchor="testvector.2" title="Type=JSON, Method=POST, Algorithm=ES256">
+        <t>
+          Target URI:
+          <figure align="left"><artwork><![CDATA[  https://example.com/users]]></artwork></figure>
+          JSON Body:
+          <figure align="left"><artwork><![CDATA[  {
+    "name": "John Doe",
+    "profession": "Hacker",
+    ".secinf": {
+      "uri": "https://example.com/users",
+      "iat": 1551951900
+    },
+    "jws": "eyJhbGciOiJFUzI1NiJ9..pXsiuN6xq3sYw8xGLo_K2_Pwb1yGMqhp
+  umXmKD7J7idNNPm3s8bBIB4MW6-8NflwGKndDhHRgVq4PjzTyOw89w"
+  }]]></artwork></figure>
+          Public signature validation key, here in PEM format:
+          <figure align="left"><artwork><![CDATA[  -----BEGIN PUBLIC KEY-----
+  MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEcensDzcMEkgiePz6DXB7cDuwFems
+  hAFR90UNVQFCg8TGryvN7p7AbT55VxIXvYnvuAqIPQgefOnAdpTu3qdV5g==
+  -----END PUBLIC KEY-----]]></artwork></figure>
+        </t>
+      </section>
+      <section anchor="testvector.3" title="Type=JSON, Method=PUT, Algorithm=ES256">
+        <t>
+          Target URI:
+          <figure align="left"><artwork><![CDATA[  https://example.com/users/456]]></artwork></figure>
+          JSON Body:
+          <figure align="left"><artwork><![CDATA[  {
+    "name": "Jane Smith",
+    "profession": "System Analyst",
+    ".secinf": {
+      "uri": "https://example.com/users/456",
+      "mtd": "PUT",
+      "iat": 1551951900
+    },
+    "jws": "eyJhbGciOiJFUzI1NiJ9..I3zI49egx45DUyy93SfUXKbEsVyvwGcv
+  CF0u8_GIUXbJOsshVmstUJNPD2k_slP8qN18tKZL-h1ElYaXcGkL-g"
+  }]]></artwork></figure>
+          Public signature validation key, here in PEM format:
+          <figure align="left"><artwork><![CDATA[  -----BEGIN PUBLIC KEY-----
+  MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEcensDzcMEkgiePz6DXB7cDuwFems
+  hAFR90UNVQFCg8TGryvN7p7AbT55VxIXvYnvuAqIPQgefOnAdpTu3qdV5g==
+  -----END PUBLIC KEY-----]]></artwork></figure>
+        </t>
+      </section>
+      <section anchor="testvector.4" title="Type=URI, Method=DELETE, Algorithm=RS256">
+        <t>
+          Target URI:
+          <figure align="left"><artwork><![CDATA[  https://example.com/users/456?.jws=eyJhbGciOiJSUzI1NiJ9.eyJodHUi
+  OiI5R3FtRDBSRWRqSDFZNklvSXR3UjdKRURuU0pjVzNuSnhoM085eHQ3Zk1RQ1cy
+  N3FtOEQyWUNtN1h4RzRwU1hwOGJFM3lTT3RzWlhIR0VJSWw1M05jQSIsIm10ZCI6
+  IkRFTEVURSIsImlhdCI6MTU1MTk1MTkwMCwiaGFvIjoiUzUxMiIsImhkciI6WyIz
+  ZXBrQno4RUJwMUxYX01EdFd1WnFWZjFLYjJyalFNZzE5RjVvT2Fhbk91SVFpS1Z1
+  SHBrSG5WdWFLMlZZbVZ2bEpOSGxEY2NEeHFxVGQxNFU5VXg5USIsIngtZGVidWci
+  XX0.YRTEbCrOy11c10HcPSDX_DCtl56S5qmcYWFcuG6wqsgg7vnCr22vCDhE1xJL
+  xeM2hp_-gSmdxykJ-Q060xetax-nMmXUhrDtcRoeCfO12-xDTymZTJXtb11SX6Pn
+  mt9CnM4ZOVrJVro7eLW8hCc4p5As7zDS2arNM_-IsWiNJ1T25EDb8ZS7kLLSA6Im
+  lo31o8815kC0oHNI0q-lZeaOX3DhnL1tMJKZQzrItXvmZ0oqJ3kL8bxF6aglOFC0
+  zOYUU2kciIf55jVcfBgwupecFw-rN56QEg8PzA8YA-nGPWHBpxJUWWseY4qXZudR
+  cQQZtms7Yc1yK7z3fNhht6Oh1A]]></artwork></figure>
+          Decoded JWS Payload:
+          <figure align="left"><artwork><![CDATA[  {
+    "htu": "9GqmD0REdjH1Y6IoItwR7JEDnSJcW3nJxh3O9xt7fMQCW27qm8D2YC
+  m7XxG4pSXp8bE3ySOtsZXHGEIIl53NcA",
+    "mtd": "DELETE",
+    "iat": 1551951900,
+    "hao": "S512",
+    "hdr": ["3epkBz8EBp1LX_MDtWuZqVf1Kb2rjQMg19F5oOaanOuIQiKVuHpkH
+  nVuaK2VYmVvlJNHlDccDxqqTd14U9Ux9Q", "x-debug"]
+  }]]></artwork></figure>
+          Required HTTP Headers:
+          <figure align="left"><artwork><![CDATA[  x-debug: full]]></artwork></figure>
+          Public signature validation key, here in PEM format:
+          <figure align="left"><artwork><![CDATA[  -----BEGIN PUBLIC KEY-----
+  MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhFWEXArvaZEpSP5qNX7x
+  4C4Hl28GJQTNvnDwkfqiWs63kXbdyPeS06bz6GnY3tfQ/093nGauWsimqKBmGAGM
+  PtsV83Qxw1OIeO4ujbIIb9pema0qtVqs0MWlHxklZGFkYfAmbuEUFxYDeLDHe0bk
+  kXbSlB7/t8pCSvc8HLgHjEQjYOlFRwjR0D+uLo+xgsCbpmCtYkB5lcT/zFgpRgY4
+  zJNLSv7GZiz2S4Fc5ArGjd34lL47+L8bozuYjqNOv9sqX0Zgll5XaJ1ndvr7UqZu
+  1xQFgm38reoM3IarBP/SkEFbt/v9iak602VO3k28fQhMaocP7JWR2YLT3kZM0+WT
+  FwIDAQAB
+  -----END PUBLIC KEY-----]]></artwork></figure>
+        </t>
+      </section>
     </section>
     
     <section anchor="other.solutions" title="Other Signed HTTP Request Solutions">
