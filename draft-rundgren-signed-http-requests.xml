@@ -1152,45 +1152,50 @@
           <figure align="left"><artwork><![CDATA[  https://example.com/users/456?.jws=eyJhbGciOiJIUzI1NiJ9.eyJodHUi
   OiJmaVZpNGpZaER0N1ZDdVFJS1VJZFdJTkVXZm9oX05YSGZMVFpORWVTYXZZIiwi
   aWF0IjoxNTUxOTUxOTAwfQ.Wll5cFEE9sidHs01sADus8kbHNHAC5DCzyytYoAtT
-  2g]]></artwork>
-          </figure>
+  2g]]></artwork></figure>
         </t>
         <t>
           Decoded JWS Payload:
         </t>
         <t>
-          <figure align="left">
-            <artwork><![CDATA[  {
+          <figure align="left"><artwork><![CDATA[  {
     "htu": "fiVi4jYhDt7VCuQIKUIdWINEWfoh_NXHfLTZNEeSavY",
     "iat": 1551951900
-  }]]></artwork>
-          </figure>
+  }]]></artwork></figure>
         </t>
         <t>
           Symmetric signature validation key, here in hexadecimal notation:
         </t>
         <t>
-        <figure align="left">
-          <artwork><![CDATA[  7fdd851a3b9d2dafc5f0d00030e22b9343900cd42ede4948568a4a2ee655291a]]></artwork>
-        </figure>
+          <figure align="left"><artwork><![CDATA[  7fdd851a3b9d2dafc5f0d00030e22b9343900cd42ede4948568a4a2ee655291a]]></artwork></figure>
         </t>
       </section>
       <section anchor="testvector.2" title="Type=JSON, Method=POST, Algorithm=ES256">
         <t>
           Target URI:
+        </t>
+        <t>
           <figure align="left"><artwork><![CDATA[  https://example.com/users]]></artwork></figure>
+        </t>
+        <t>
           JSON Body:
+        </t>
+        <t>
           <figure align="left"><artwork><![CDATA[  {
     "name": "John Doe",
-    "profession": "Hacker",
+    "profession": "Unknown",
     ".secinf": {
       "uri": "https://example.com/users",
       "iat": 1551951900,
-      "jws": "eyJhbGciOiJFUzI1NiJ9..PnAbadQV534eOYcD1hKhrNY4uU4KaE
-  HvhmWjsaHnLE0lkQA6Lyi3IfzzgMZurMXCpR2c9DcvX9Bmgtt2-KDNiw"
+      "jws": "eyJhbGciOiJFUzI1NiJ9..GE4lWKwGQPPKTDhNU6ZGCzQpJN_lpS
+  PzZ2mQdHg5jnQLjP2TZSSd-We8moKi2oLReD-QFmd1YY9DcRpt3NQrVw"
     }
   }]]></artwork></figure>
+        </t>
+        <t>
           Public signature validation key, here in PEM format:
+        </t>
+        <t>
           <figure align="left"><artwork><![CDATA[  -----BEGIN PUBLIC KEY-----
   MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEcensDzcMEkgiePz6DXB7cDuwFems
   hAFR90UNVQFCg8TGryvN7p7AbT55VxIXvYnvuAqIPQgefOnAdpTu3qdV5g==
@@ -1200,20 +1205,30 @@
       <section anchor="testvector.3" title="Type=JSON, Method=PUT, Algorithm=ES256">
         <t>
           Target URI:
+        </t>
+        <t>
           <figure align="left"><artwork><![CDATA[  https://example.com/users/456]]></artwork></figure>
+        </t>
+        <t>
           JSON Body:
+        </t>
+        <t>
           <figure align="left"><artwork><![CDATA[  {
     "name": "Jane Smith",
-    "profession": "System Analyst",
+    "profession": "Hacker",
     ".secinf": {
       "uri": "https://example.com/users/456",
       "mtd": "PUT",
       "iat": 1551951900,
-      "jws": "eyJhbGciOiJFUzI1NiJ9..6lagjCfbi88xewAQqYlbl23nm2joF4
-  Yqvwr9kxv4-6K0d9Q9OGe7R1JkgXsJgCTD13enTt2suqTQ7QaxcAlXQQ"
+      "jws": "eyJhbGciOiJFUzI1NiJ9..XMdcL9cVW9rYRKoLNUEQfLYLIJ57WR
+  sVZ-wwSWqXUaOQngARpFL78Vt7Tfel_-XYyV4JEgaHFteH4BT08isftQ"
     }
   }]]></artwork></figure>
+        </t>
+        <t>
           Public signature validation key, here in PEM format:
+        </t>
+        <t>
           <figure align="left"><artwork><![CDATA[  -----BEGIN PUBLIC KEY-----
   MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEcensDzcMEkgiePz6DXB7cDuwFems
   hAFR90UNVQFCg8TGryvN7p7AbT55VxIXvYnvuAqIPQgefOnAdpTu3qdV5g==
@@ -1223,6 +1238,8 @@
       <section anchor="testvector.4" title="Type=URI, Method=DELETE, Algorithm=RS256">
         <t>
           Target URI:
+        </t>
+        <t>
           <figure align="left"><artwork><![CDATA[  https://example.com/users/456?.jws=eyJhbGciOiJSUzI1NiJ9.eyJodHUi
   OiI5R3FtRDBSRWRqSDFZNklvSXR3UjdKRURuU0pjVzNuSnhoM085eHQ3Zk1RQ1cy
   N3FtOEQyWUNtN1h4RzRwU1hwOGJFM3lTT3RzWlhIR0VJSWw1M05jQSIsIm10ZCI6
@@ -1235,7 +1252,11 @@
   lo31o8815kC0oHNI0q-lZeaOX3DhnL1tMJKZQzrItXvmZ0oqJ3kL8bxF6aglOFC0
   zOYUU2kciIf55jVcfBgwupecFw-rN56QEg8PzA8YA-nGPWHBpxJUWWseY4qXZudR
   cQQZtms7Yc1yK7z3fNhht6Oh1A]]></artwork></figure>
+        </t>
+        <t>
           Decoded JWS Payload:
+        </t>
+        <t>
           <figure align="left"><artwork><![CDATA[  {
     "htu": "9GqmD0REdjH1Y6IoItwR7JEDnSJcW3nJxh3O9xt7fMQCW27qm8D2YC
   m7XxG4pSXp8bE3ySOtsZXHGEIIl53NcA",
@@ -1245,11 +1266,20 @@
     "hdr": ["3epkBz8EBp1LX_MDtWuZqVf1Kb2rjQMg19F5oOaanOuIQiKVuHpkH
   nVuaK2VYmVvlJNHlDccDxqqTd14U9Ux9Q", "x-debug"]
   }]]></artwork></figure>
+        </t>
+        <t>
           Note the overridden hash algorithm.
-          <vspace blankLines="1"/>
+        </t>
+        <t>
           Required HTTP Headers:
+        </t>
+        <t>
           <figure align="left"><artwork><![CDATA[  x-debug: full]]></artwork></figure>
+        </t>
+        <t>
           Public signature validation key, here in PEM format:
+        </t>
+        <t>
           <figure align="left"><artwork><![CDATA[  -----BEGIN PUBLIC KEY-----
   MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhFWEXArvaZEpSP5qNX7x
   4C4Hl28GJQTNvnDwkfqiWs63kXbdyPeS06bz6GnY3tfQ/093nGauWsimqKBmGAGM
