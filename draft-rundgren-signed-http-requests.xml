@@ -106,8 +106,8 @@
       </t>
       <t>
         For HTTP requests that do not have a JSON body (see <xref target="req.operation.urionly"/>), the
-        signature and additional request data is added the URI <xref target="RFC3986"/> itself,
-        making such requests self-contained and serializable as well.
+        signature and additional request data is added to the original URI <xref target="RFC3986"/>,
+        making signed URI based requests self-contained and serializable as well.
       </t>
       <t>
         Both variants utilize JWS <xref target="RFC7515"/> for holding the signature data.
@@ -923,7 +923,8 @@
           requests depends on digests produced by a hash algorithm.  The default is
           using the hash algorithm associated with the JWS signature algorithm ("alg")
           featured in the "JWS&nbsp;Protected&nbsp;Header".
-          That is, "ES256" and "HS384" imply the hash algorithms SHA256 and SHA384 respectively.
+          That is, the JWA <xref target="RFC7518"/> algorithms "ES256" and "HS384"
+          imply the hash algorithms SHA-256 and SHA-384 respectively.
         </t>
         <t>
           In case this is not desired, this specification permits overriding the default
@@ -931,13 +932,13 @@
           The currently recognized arguments to "hao" are:
           <list style="empty">
             <t>
-              "S256" for SHA256 <xref target="SHS"/>
+              "S256" for SHA-256 <xref target="SHS"/>
             </t>
             <t>
-              "S384" for SHA384 <xref target="SHS"/>
+              "S384" for SHA-384 <xref target="SHS"/>
             </t>
             <t>
-              "S512" for SHA512 <xref target="SHS"/>
+              "S512" for SHA-512 <xref target="SHS"/>
             </t>
           </list>
         </t>
@@ -948,7 +949,7 @@
       <t>
         Although the ".secinf" JSON property name and
         ".jws" query component name are highly RECOMMENDED,
-        this specfication permits (=being considered as compatible),
+        this specification permits (=being considered as compatible),
         the use of local naming conventions as long as the
         specified procedures and formats are adhered to.
       </t>
@@ -1042,6 +1043,7 @@
       <?rfc include='reference.RFC.8174'?>
       <?rfc include='reference.RFC.7493'?>
       <?rfc include='reference.RFC.7231'?>
+      <?rfc include='reference.RFC.7518'?>
       <reference anchor="UNICODE" target="https://www.unicode.org/versions/Unicode10.0.0/">
         <front>
           <title>The Unicode Standard, Version 10.0.0</title>
@@ -1141,7 +1143,9 @@
 
     <section anchor="testing" title="Test Vectors">
       <t>
-jj
+        The following test vectors "activate" all parts of the specification.
+        After removing the line breaks needed for publishing, the test vectors are
+        supposed to be fully validatable.
       </t>
       <section anchor="testvector.1" title="Type=URI, Method=GET, Algorithm=HS256">
         <t>
@@ -1169,10 +1173,10 @@ jj
     "profession": "Hacker",
     ".secinf": {
       "uri": "https://example.com/users",
-      "iat": 1551951900
-    },
-    "jws": "eyJhbGciOiJFUzI1NiJ9..pXsiuN6xq3sYw8xGLo_K2_Pwb1yGMqhp
-  umXmKD7J7idNNPm3s8bBIB4MW6-8NflwGKndDhHRgVq4PjzTyOw89w"
+      "iat": 1551951900,
+      "jws": "eyJhbGciOiJFUzI1NiJ9..PnAbadQV534eOYcD1hKhrNY4uU4KaE
+  HvhmWjsaHnLE0lkQA6Lyi3IfzzgMZurMXCpR2c9DcvX9Bmgtt2-KDNiw"
+    }
   }]]></artwork></figure>
           Public signature validation key, here in PEM format:
           <figure align="left"><artwork><![CDATA[  -----BEGIN PUBLIC KEY-----
@@ -1192,10 +1196,10 @@ jj
     ".secinf": {
       "uri": "https://example.com/users/456",
       "mtd": "PUT",
-      "iat": 1551951900
-    },
-    "jws": "eyJhbGciOiJFUzI1NiJ9..I3zI49egx45DUyy93SfUXKbEsVyvwGcv
-  CF0u8_GIUXbJOsshVmstUJNPD2k_slP8qN18tKZL-h1ElYaXcGkL-g"
+      "iat": 1551951900,
+      "jws": "eyJhbGciOiJFUzI1NiJ9..6lagjCfbi88xewAQqYlbl23nm2joF4
+  Yqvwr9kxv4-6K0d9Q9OGe7R1JkgXsJgCTD13enTt2suqTQ7QaxcAlXQQ"
+    }
   }]]></artwork></figure>
           Public signature validation key, here in PEM format:
           <figure align="left"><artwork><![CDATA[  -----BEGIN PUBLIC KEY-----
@@ -1229,6 +1233,8 @@ jj
     "hdr": ["3epkBz8EBp1LX_MDtWuZqVf1Kb2rjQMg19F5oOaanOuIQiKVuHpkH
   nVuaK2VYmVvlJNHlDccDxqqTd14U9Ux9Q", "x-debug"]
   }]]></artwork></figure>
+          Note the overridden hash algorithm.
+          <vspace blankLines="1"/>
           Required HTTP Headers:
           <figure align="left"><artwork><![CDATA[  x-debug: full]]></artwork></figure>
           Public signature validation key, here in PEM format:
@@ -1252,7 +1258,7 @@ jj
       </t>
       <section anchor="other.aws" title="Amazon Web Services">
         <t>
-          Amazon Web Sevices provides a system for their clients using
+          AWS provides a system for their clients using
           HTTP headers holding security constructs while the
           digested HTTP body may hold any valid media type.
           For more information see the <xref target="AWS"/>.
@@ -1304,7 +1310,7 @@ jj
       <section anchor="other.fapi" title="Financial API">
         <t>
           The current version (Draft 06) of the financial API <xref target="FAPI"/> use
-          a scheme where the payload is signed using JWS in Base64Url <xref target="RFC4648"/> mode:
+          a scheme where the payload is signed using JWS in Base64Url mode:
           <figure align="left"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
   Host: example.com
   Content-Type: application/jws
