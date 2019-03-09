@@ -454,20 +454,16 @@
       </t>
       <t>
         The full URI would be as follows:
-        <list style="empty">
-          <t>
-            https://example.com/lookup?id=435
-          </t>
-        </list>
+      </t>
+      <t>
+        <figure align="left"><artwork><![CDATA[  https://example.com/lookup?id=435]]></artwork></figure>
       </t>
       <t>
         Adding a signature to this request according to this specfication
         would return the following URI:
-        <list style="empty">
-          <t>
-            https://example.com/lookup?id=435&amp;.jws=eyJhhiJ.eyJ7fgw.VHVIt
-          </t>
-        </list>
+      </t>
+      <t>
+        <figure align="left"><artwork><![CDATA[  https://example.com/lookup?id=435&.jws=eyJhhiJ.eyJ7fgw.VHVIt]]></artwork></figure>
       </t>
       <t>
         Notes:
@@ -1151,17 +1147,32 @@
       <section anchor="testvector.1" title="Type=URI, Method=GET, Algorithm=HS256">
         <t>
           Target URI:
+        </t>
+        <t>
           <figure align="left"><artwork><![CDATA[  https://example.com/users/456?.jws=eyJhbGciOiJIUzI1NiJ9.eyJodHUi
   OiJmaVZpNGpZaER0N1ZDdVFJS1VJZFdJTkVXZm9oX05YSGZMVFpORWVTYXZZIiwi
   aWF0IjoxNTUxOTUxOTAwfQ.Wll5cFEE9sidHs01sADus8kbHNHAC5DCzyytYoAtT
-  2g]]></artwork></figure>
+  2g]]></artwork>
+          </figure>
+        </t>
+        <t>
           Decoded JWS Payload:
-          <figure align="left"><artwork><![CDATA[  {
+        </t>
+        <t>
+          <figure align="left">
+            <artwork><![CDATA[  {
     "htu": "fiVi4jYhDt7VCuQIKUIdWINEWfoh_NXHfLTZNEeSavY",
     "iat": 1551951900
-  }]]></artwork></figure>
+  }]]></artwork>
+          </figure>
+        </t>
+        <t>
           Symmetric signature validation key, here in hexadecimal notation:
-          <figure align="left"><artwork><![CDATA[  7fdd851a3b9d2dafc5f0d00030e22b9343900cd42ede4948568a4a2ee655291a]]></artwork></figure>
+        </t>
+        <t>
+        <figure align="left">
+          <artwork><![CDATA[  7fdd851a3b9d2dafc5f0d00030e22b9343900cd42ede4948568a4a2ee655291a]]></artwork>
+        </figure>
         </t>
       </section>
       <section anchor="testvector.2" title="Type=JSON, Method=POST, Algorithm=ES256">
@@ -1283,6 +1294,8 @@
           use a scheme where a dedicated HTTP header holds
           a detached JWS signature covering a clear text JSON
           message in the HTTP body:
+        </t>
+        <t>
           <figure align="left"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
   Host: example.com
   Content-Type: application/json
@@ -1312,6 +1325,8 @@
         <t>
           The current version (Draft 06) of the financial API <xref target="FAPI"/> use
           a scheme where the payload is signed using JWS in Base64Url mode:
+        </t>
+        <t>
           <figure align="left"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
   Host: example.com
   Content-Type: application/jws
