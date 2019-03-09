@@ -238,7 +238,8 @@
         Notes:
         <list style="symbols">
           <t>
-            This specification presumes that request data is expressed as a JSON Object.
+            This specification presumes that request data featured in an HTTP body
+            is expressed as a JSON Object.
           </t>
           <t>
             The "uri" property holds a normalized target URI.
@@ -249,7 +250,7 @@
             in this specification.
           </t>
           <t>
-            The "iat" property holds the time stamp in UNIX "epoch" format.
+            The "iat" property holds a time stamp in UNIX "epoch" format.
           </t>
           <t>
             The argument to "jws" (a detached compact JWS) was truncated for brevity.
@@ -495,7 +496,7 @@
         Notes:
         <list style="symbols">
           <t>
-            The property "htu" holds the Base64Url encoded value of the normalized
+            The property "htu" holds a Base64Url encoded value of the normalized
             target URI after it has been hashed by the hash algorithm associated with the JWS signature.
           </t>
           <t>
@@ -504,7 +505,7 @@
             in this specification.
           </t>
           <t>
-            The "iat" property holds the time stamp in UNIX "epoch" format.
+            The "iat" property holds a time stamp in UNIX "epoch" format.
           </t>
         </list>
       </t>
