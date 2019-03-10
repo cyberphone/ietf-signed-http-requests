@@ -300,10 +300,6 @@
                 <t>
                   Create a header object as described in <xref target="header.creation"/>.
                 </t>
-                <t>
-                  Add a property "hdr" to ".secinf" where the argument
-                  is the JSON Object created in the preceding step.
-                </t>
               </list>
             </t>
             <t>
@@ -543,16 +539,7 @@
             </t>
             <t>
               If there is a need to include additional HTTP headers in the signed request data,
-              perform the following steps:
-              <list style="symbols">
-                <t>
-                  Create a header object as described in <xref target="header.creation"/>.
-                </t>
-                <t>
-                  Add a property "hdr" to ".secinf" where the argument
-                  is the JSON Object created in the preceding step.
-                </t>
-              </list>
+              create a header object as described in <xref target="header.creation"/>.
             </t>
             <t>
               Add a time stamp property (see <xref target="time.stamps"/>) to ".secinf".
@@ -646,12 +633,8 @@
               reject the request (see <xref target="return.codes"/>).
             </t>
             <t>
-              If the optional "hdr" property is present in ".secinf" perform the following step:
-              <list style="symbols">
-                <t>
-                  Process the argument of "hdr" as described in <xref target="validate.header"/>.
-                </t>
-              </list>
+              If the optional "hdr" property is present in ".secinf",
+              process the argument of "hdr" as described in <xref target="validate.header"/>.
             </t>
             <t>
               Using ".secinf", the property "iat" (see <xref target="time.stamps"/>) is read.
@@ -820,13 +803,9 @@
           <list style="numbers">
             <t>
               Verify that "jwsString" has the syntax
-              <list style="empty">
-                <t>
-                  "header.payload.signature"
-                </t>
-              </list>
-            </t>
-            <t>
+              <vspace blankLines="1"/>
+              "header.payload.signature"
+              <vspace blankLines="1"/>
               where the length of the "payload" element is zero for JSON based requests and
               non-zero for URI based requests. That is, JSON based
               requests use the detached JWS format described in Appendix F of <xref target="RFC7515"/>.
@@ -859,6 +838,17 @@
         </t>
       </section>
       <section anchor="normalize.uri" title="Normalize Target URI">
+        <t>
+          [[
+          <list style="empty">
+            <t>
+              To be written...
+            </t>
+          </list>
+          ]]
+        </t>
+      </section>
+      <section anchor="normalize.headers" title="Normalize Header Data">
         <t>
           [[
           <list style="empty">
