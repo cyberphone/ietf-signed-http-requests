@@ -322,7 +322,7 @@
               is a JSON String holding the result of the preceding step.
             </t>
             <t>
-              Serialize "message" into an UTF-8 encoded byte array called "requestData".
+              Serialize "message" into an UTF-8 <xref target="UNICODE"/> encoded byte array called "requestData".
             </t>
             <t>
               Submit an HTTP <xref target="RFC7231"/> compliant request to the "targetURI" including the following information:
@@ -545,7 +545,7 @@
               Add a time stamp property (see <xref target="time.stamps"/>) to ".secinf".
             </t>
             <t>
-              Serialize the ".secinf" JSON Object into a UTF-8 byte array 
+              Serialize the ".secinf" JSON Object into a UTF-8 <xref target="UNICODE"/> byte array 
               representing a "JWS&nbsp;Payload" <xref target="RFC7515"/>.
             </t>
             <t>
@@ -664,7 +664,7 @@
           Unsigned request data is now supposed to reside in "message".
           To facilitate resilience against (legitimate) variances in JSON processing
           between different platforms and systems,
-          "message" needs to be canonicalized and serialized into a UTF-8 encoded byte array.
+          "message" needs to be canonicalized and serialized into a UTF-8 <xref target="UNICODE"/> encoded byte array.
           If the used JSON tools offer intrinsic support for JCS <xref target="JCS"/>, this is
           typically a single operation, else the followings steps are performed:
           <list style="numbers">
@@ -743,7 +743,7 @@
                   Append header field value to "headerBlob".
                 </t>
                 <t>
-                  For all but the last entry, append a newline character to "headers".
+                  For all but the last entry, append a newline character to "headerBlob".
                 </t>
                 <t>
                   For all but the last entry, append a comma character to "headerList".
@@ -754,7 +754,7 @@
               Create a two element JSON Array object "headerData".
             </t>
             <t>
-              Run the previously defined "hashAlgorithm" over the UTF-8 representation of
+              Run the previously defined "hashAlgorithm" over the UTF-8 <xref target="UNICODE"/> representation of
               "headerBlob".
             </t>
             <t>
@@ -771,14 +771,16 @@
           </list>
         </t>
         <t>
-          The following example uses SHA-256 <xref target="SHS"/>.  Input data:
+          The following example shows input data to the process described in <xref target="normalize.headers"/>:
         </t>
         <t>
           <figure align="left"><artwork><![CDATA[  x-debug: full
-  cache-control: max-age=60, must-revalidate]]></artwork></figure>
+  Cache-Control: max-age=60, must-revalidate]]></artwork></figure>
         </t>
         <t>
-          Result:
+          Applying the process described in this subsection
+          to the result of the preceding step and using the SHA-256 <xref target="SHS"/>
+          hash algorithm should generate the following ".secinf" data:
         </t>
         <t>
           <figure align="left"><artwork><![CDATA[  "hdr": ["Ljzuq8C9PScbvLpBxG8GNOs-WQUd7gl7R64izahhe-0", 
@@ -802,7 +804,7 @@
           To create a compact JWS object (a string), perform the following steps:
           <list style="numbers">
             <t>
-              Serialize the previously defined "JWS&nbsp;Protected&nbsp;Header" object into a UTF-8 encoded byte array.
+              Serialize the previously defined "JWS&nbsp;Protected&nbsp;Header" object into a UTF-8 <xref target="UNICODE"/> encoded byte array.
             </t>
             <t>
               Base64Url-encode the output from the preceding step into a local variable "jwsProtectedHeaderB64U".
@@ -836,14 +838,14 @@
                   The previously defined variable "jwsProtectedHeaderB64U".
                 </t>
                 <t>
-                  A point character (".").
+                  A period character ('.').
                 </t>
                 <t>
                   For URI based requests only: "jwsPayloadB64U".  That is, JSON based
                   requests use the detached JWS format described in Appendix F of <xref target="RFC7515"/>.
                 </t>
                 <t>
-                  A point character (".").
+                  A period character ('.').
                 </t>
                 <t>
                   The previously defined variable "JWS&nbsp;Signature",
@@ -892,7 +894,7 @@
           </list>
         </t>
         <t>
-          If any of the steps fails, the service MUST reject the request (see <xref target="return.codes"/>).
+          If any of the steps above fail, the service MUST reject the request (see <xref target="return.codes"/>).
         </t>
       </section>
       <section anchor="normalize.uri" title="Normalize Target URI">
@@ -920,10 +922,10 @@
             </t>
             <t>
               Leading and trailing optional whitespace (OWS) in the header field
-              value MUST be omitted (as specified in Section 3.2.4 of <xref target="RFC7230"/>).
+              value MUST be omitted (as specified in HTTP <xref target="RFC7230"/>, Section 3.2.4).
               If there are multiple instances of the same header field, all header field
               values associated with the header field MUST be concatenated, separated by a
-              ASCII comma and an ASCII space `, `, and used in the order in which
+              ASCII comma and an ASCII space (', '), and used in the order in which
               they will appear in the transmitted HTTP message. Any other modification to
               the header field value MUST NOT be made.
             </t>
@@ -969,14 +971,15 @@
               in a certificate path ("x5c").
             </t>
             <t>
-              Set a local variable "signedData" to the UTF-8 encoded representation of the
+              Set a local variable "signedData" to the UTF-8 <xref target="UNICODE"/>
+              encoded representation of the
               string created by concatenating the following elements:
               <list style="symbols">
                 <t>
                   The previously collected variable "jwsProtectedHeaderB64U".
                 </t>
                 <t>
-                  A point character (".").
+                  A period character ('.').
                 </t>
                 <t>
                   The previously collected variable "JWS Payload",
@@ -992,12 +995,12 @@
           </list>
         </t>
         <t>
-          If any of the steps fails, the service MUST reject the request (see <xref target="return.codes"/>).
+          If any of the steps above fail, the service MUST reject the request (see <xref target="return.codes"/>).
         </t>
       </section>
       <section anchor="time.stamps" title="Time Stamps">
         <t>
-          Time stamps have the same name ("iat"), format and function as described in Section 4.1.6 of <xref target="RFC7519"/>.
+          Time stamps have the same name ("iat"), format and function as described in JWT <xref target="RFC7519"/>, Section 4.1.6.
           However, in this specification time stamps are REQUIRED, and stored in the ".secinf" JSON Object.
         </t>
         <t>

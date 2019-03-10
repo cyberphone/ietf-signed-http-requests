@@ -180,8 +180,8 @@
 <pre>
 Network Working Group                                        A. Rundgren
 Internet-Draft                                               Independent
-Intended status: Standards Track                           March 8, 2019
-Expires: September 9, 2019
+Intended status: Standards Track                          March 10, 2019
+Expires: September 11, 2019
 
 
                       <span class="h1">Signed HTTP Requests (SHREQ)</span>
@@ -216,7 +216,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 9, 2019.
+   This Internet-Draft will expire on September 11, 2019.
 
 Copyright Notice
 
@@ -229,7 +229,7 @@ Copyright Notice
 
 
 
-<span class="grey">Rundgren                Expires September 9, 2019               [Page 1]</span></pre>
+<span class="grey">Rundgren               Expires September 11, 2019               [Page 1]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-2" id="page-2" href="#page-2" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -252,48 +252,49 @@ Table of Contents
      <a href="#section-4.1">4.1</a>.  Request Creation  . . . . . . . . . . . . . . . . . . . .   <a href="#page-6">6</a>
      <a href="#section-4.2">4.2</a>.  Request Validation  . . . . . . . . . . . . . . . . . . .   <a href="#page-8">8</a>
    <a href="#section-5">5</a>.  Processing of URI Based Requests  . . . . . . . . . . . . . .   <a href="#page-9">9</a>
-     <a href="#section-5.1">5.1</a>.  Request Creation  . . . . . . . . . . . . . . . . . . . .  <a href="#page-11">11</a>
-     <a href="#section-5.2">5.2</a>.  Request Validation  . . . . . . . . . . . . . . . . . . .  <a href="#page-12">12</a>
+     <a href="#section-5.1">5.1</a>.  Request Creation  . . . . . . . . . . . . . . . . . . . .  <a href="#page-10">10</a>
+     <a href="#section-5.2">5.2</a>.  Request Validation  . . . . . . . . . . . . . . . . . . .  <a href="#page-11">11</a>
    <a href="#section-6">6</a>.  Common Operations . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-13">13</a>
      <a href="#section-6.1">6.1</a>.  Create Signable JSON Data . . . . . . . . . . . . . . . .  <a href="#page-13">13</a>
-     <a href="#section-6.2">6.2</a>.  Create Signable URI Data  . . . . . . . . . . . . . . . .  <a href="#page-14">14</a>
+     <a href="#section-6.2">6.2</a>.  Create Signable URI Data  . . . . . . . . . . . . . . . .  <a href="#page-13">13</a>
      <a href="#section-6.3">6.3</a>.  Create HTTP Header Digest . . . . . . . . . . . . . . . .  <a href="#page-14">14</a>
-     <a href="#section-6.4">6.4</a>.  Create JWS Protected Header . . . . . . . . . . . . . . .  <a href="#page-14">14</a>
+     <a href="#section-6.4">6.4</a>.  Create JWS Protected Header . . . . . . . . . . . . . . .  <a href="#page-15">15</a>
      <a href="#section-6.5">6.5</a>.  Create JWS String . . . . . . . . . . . . . . . . . . . .  <a href="#page-15">15</a>
-     <a href="#section-6.6">6.6</a>.  Decode JWS String . . . . . . . . . . . . . . . . . . . .  <a href="#page-15">15</a>
-     <a href="#section-6.7">6.7</a>.  Normalize Target URI  . . . . . . . . . . . . . . . . . .  <a href="#page-16">16</a>
-     <a href="#section-6.8">6.8</a>.  Validate HTTP Header Digest . . . . . . . . . . . . . . .  <a href="#page-16">16</a>
-     <a href="#section-6.9">6.9</a>.  Validate Signature  . . . . . . . . . . . . . . . . . . .  <a href="#page-16">16</a>
-     <a href="#section-6.10">6.10</a>. Time Stamps . . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-17">17</a>
-     <a href="#section-6.11">6.11</a>. Hash Algorithms . . . . . . . . . . . . . . . . . . . . .  <a href="#page-17">17</a>
-   <a href="#section-7">7</a>.  Local Naming Conventions  . . . . . . . . . . . . . . . . . .  <a href="#page-18">18</a>
-   <a href="#section-8">8</a>.  MIME Multipart Requests . . . . . . . . . . . . . . . . . . .  <a href="#page-18">18</a>
-   <a href="#section-9">9</a>.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  <a href="#page-18">18</a>
-   <a href="#section-10">10</a>. Security Considerations . . . . . . . . . . . . . . . . . . .  <a href="#page-19">19</a>
-   <a href="#section-11">11</a>. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-19">19</a>
-   <a href="#section-12">12</a>. References  . . . . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-19">19</a>
-     <a href="#section-12.1">12.1</a>.  Normative References . . . . . . . . . . . . . . . . . .  <a href="#page-19">19</a>
-     <a href="#section-12.2">12.2</a>.  Informal References  . . . . . . . . . . . . . . . . . .  <a href="#page-21">21</a>
-   <a href="#appendix-A">Appendix A</a>.  Test Vectors . . . . . . . . . . . . . . . . . . . .  <a href="#page-21">21</a>
-     <a href="#appendix-A.1">A.1</a>.  Type=URI, Method=GET, Algorithm=HS256 . . . . . . . . . .  <a href="#page-21">21</a>
-     <a href="#appendix-A.2">A.2</a>.  Type=JSON, Method=POST, Algorithm=ES256 . . . . . . . . .  <a href="#page-22">22</a>
-     <a href="#appendix-A.3">A.3</a>.  Type=JSON, Method=PUT, Algorithm=ES256  . . . . . . . . .  <a href="#page-22">22</a>
-     <a href="#appendix-A.4">A.4</a>.  Type=URI, Method=DELETE, Algorithm=RS256  . . . . . . . .  <a href="#page-23">23</a>
-   <a href="#appendix-B">Appendix B</a>.  Other Signed HTTP Request Solutions  . . . . . . . .  <a href="#page-24">24</a>
-     <a href="#appendix-B.1">B.1</a>.  Amazon Web Services . . . . . . . . . . . . . . . . . . .  <a href="#page-24">24</a>
-     <a href="#appendix-B.2">B.2</a>.  HTTP Signatures . . . . . . . . . . . . . . . . . . . . .  <a href="#page-24">24</a>
+     <a href="#section-6.6">6.6</a>.  Decode JWS String . . . . . . . . . . . . . . . . . . . .  <a href="#page-16">16</a>
+     <a href="#section-6.7">6.7</a>.  Normalize Target URI  . . . . . . . . . . . . . . . . . .  <a href="#page-17">17</a>
+     <a href="#section-6.8">6.8</a>.  Normalize Header Data . . . . . . . . . . . . . . . . . .  <a href="#page-17">17</a>
+     <a href="#section-6.9">6.9</a>.  Validate HTTP Header Digest . . . . . . . . . . . . . . .  <a href="#page-17">17</a>
+     <a href="#section-6.10">6.10</a>. Validate Signature  . . . . . . . . . . . . . . . . . . .  <a href="#page-18">18</a>
+     <a href="#section-6.11">6.11</a>. Time Stamps . . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-18">18</a>
+     <a href="#section-6.12">6.12</a>. Hash Algorithms . . . . . . . . . . . . . . . . . . . . .  <a href="#page-19">19</a>
+   <a href="#section-7">7</a>.  Local Naming Conventions  . . . . . . . . . . . . . . . . . .  <a href="#page-19">19</a>
+   <a href="#section-8">8</a>.  MIME Multipart Requests . . . . . . . . . . . . . . . . . . .  <a href="#page-19">19</a>
+   <a href="#section-9">9</a>.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  <a href="#page-19">19</a>
+   <a href="#section-10">10</a>. Security Considerations . . . . . . . . . . . . . . . . . . .  <a href="#page-20">20</a>
+   <a href="#section-11">11</a>. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-20">20</a>
+   <a href="#section-12">12</a>. References  . . . . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-20">20</a>
+     <a href="#section-12.1">12.1</a>.  Normative References . . . . . . . . . . . . . . . . . .  <a href="#page-20">20</a>
+     <a href="#section-12.2">12.2</a>.  Informal References  . . . . . . . . . . . . . . . . . .  <a href="#page-22">22</a>
+   <a href="#appendix-A">Appendix A</a>.  Test Vectors . . . . . . . . . . . . . . . . . . . .  <a href="#page-22">22</a>
+     <a href="#appendix-A.1">A.1</a>.  Type=URI, Method=GET, Algorithm=HS256 . . . . . . . . . .  <a href="#page-22">22</a>
+     <a href="#appendix-A.2">A.2</a>.  Type=JSON, Method=POST, Algorithm=ES256 . . . . . . . . .  <a href="#page-23">23</a>
+     <a href="#appendix-A.3">A.3</a>.  Type=JSON, Method=PUT, Algorithm=ES256  . . . . . . . . .  <a href="#page-23">23</a>
+     <a href="#appendix-A.4">A.4</a>.  Type=URI, Method=DELETE, Algorithm=RS256  . . . . . . . .  <a href="#page-24">24</a>
+   <a href="#appendix-B">Appendix B</a>.  Other Signed HTTP Request Solutions  . . . . . . . .  <a href="#page-25">25</a>
+     <a href="#appendix-B.1">B.1</a>.  Amazon Web Services . . . . . . . . . . . . . . . . . . .  <a href="#page-25">25</a>
 
 
 
-<span class="grey">Rundgren                Expires September 9, 2019               [Page 2]</span></pre>
+<span class="grey">Rundgren               Expires September 11, 2019               [Page 2]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-3" id="page-3" href="#page-3" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
 
-     <a href="#appendix-B.3">B.3</a>.  Open Banking (UK) . . . . . . . . . . . . . . . . . . . .  <a href="#page-24">24</a>
-     <a href="#appendix-B.4">B.4</a>.  Financial API . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-25">25</a>
-   <a href="#appendix-C">Appendix C</a>.  Development Portal . . . . . . . . . . . . . . . . .  <a href="#page-25">25</a>
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-26">26</a>
+     <a href="#appendix-B.2">B.2</a>.  HTTP Signatures . . . . . . . . . . . . . . . . . . . . .  <a href="#page-25">25</a>
+     <a href="#appendix-B.3">B.3</a>.  Open Banking (UK) . . . . . . . . . . . . . . . . . . . .  <a href="#page-25">25</a>
+     <a href="#appendix-B.4">B.4</a>.  Financial API . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-26">26</a>
+   <a href="#appendix-C">Appendix C</a>.  Development Portal . . . . . . . . . . . . . . . . .  <a href="#page-26">26</a>
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-27">27</a>
 
 <span class="h2"><a class="selflink" name="section-1" href="#section-1">1</a>.  Introduction</span>
 
@@ -335,16 +336,18 @@ Table of Contents
       [<a href="http://tools.ietf.org/html//rfc7493" title="&quot;The I-JSON Message Format&quot;">RFC7493</a>] subset.
 
    For HTTP requests that do not have a JSON body (see <a href="#section-5">Section 5</a>), the
-   signature and additional request data is added the URI [<a href="http://tools.ietf.org/html//rfc3986" title="&quot;Uniform Resource Identifier (URI): Generic Syntax&quot;">RFC3986</a>]
-   itself, making such requests self-contained and serializable as well.
+   signature and additional request data is added to the original URI
 
 
 
 
-<span class="grey">Rundgren                Expires September 9, 2019               [Page 3]</span></pre>
+<span class="grey">Rundgren               Expires September 11, 2019               [Page 3]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-4" id="page-4" href="#page-4" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
+
+   [<a href="http://tools.ietf.org/html//rfc3986" title="&quot;Uniform Resource Identifier (URI): Generic Syntax&quot;">RFC3986</a>], making signed URI based requests self-contained and
+   serializable as well.
 
    Both variants utilize JWS [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>] for holding the signature data.
 
@@ -394,10 +397,7 @@ Table of Contents
 
 
 
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019               [Page 4]</span></pre>
+<span class="grey">Rundgren               Expires September 11, 2019               [Page 4]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-5" id="page-5" href="#page-5" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -453,7 +453,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren                Expires September 9, 2019               [Page 5]</span></pre>
+<span class="grey">Rundgren               Expires September 11, 2019               [Page 5]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-6" id="page-6" href="#page-6" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -473,8 +473,8 @@ Table of Contents
 
    Notes:
 
-   o  This specification presumes that request data is expressed as a
-      JSON Object.
+   o  This specification presumes that request data featured in an HTTP
+      body is expressed as a JSON Object.
 
    o  The "uri" property holds a normalized target URI.
 
@@ -482,7 +482,7 @@ Table of Contents
       it is actually redundant since the absence of a "mtd" property
       defaults to "POST" for JSON based requests in this specification.
 
-   o  The "iat" property holds the time stamp in UNIX "epoch" format.
+   o  The "iat" property holds a time stamp in UNIX "epoch" format.
 
    o  The argument to "jws" (a detached compact JWS) was truncated for
       brevity.
@@ -509,7 +509,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren                Expires September 9, 2019               [Page 6]</span></pre>
+<span class="grey">Rundgren               Expires September 11, 2019               [Page 6]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-7" id="page-7" href="#page-7" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -527,15 +527,12 @@ Table of Contents
         signed request data, perform the following steps:
 
         *  Derive (or define) the hash algorithm to use as described in
-           <a href="#section-6.11">Section 6.11</a>.  Save the algorithm in a variable
+           <a href="#section-6.12">Section 6.12</a>.  Save the algorithm in a variable
            "hashAlgorithm".
 
         *  Create a header object as described in <a href="#section-6.3">Section 6.3</a>.
 
-        *  Add a property "hdr" to ".secinf" where the argument is the
-           JSON Object created in the preceding step.
-
-   7.   Add a time stamp property (see <a href="#section-6.10">Section 6.10</a>) to ".secinf".
+   7.   Add a time stamp property (see <a href="#section-6.11">Section 6.11</a>) to ".secinf".
 
         Note: if the application data already contains a suitable time
         stamp property, this step MAY be excluded.
@@ -550,8 +547,8 @@ Table of Contents
    11.  Add a property "jws" to ".secinf" where the argument is a JSON
         String holding the result of the preceding step.
 
-   12.  Serialize "message" into an UTF-8 encoded byte array called
-        "requestData".
+   12.  Serialize "message" into an UTF-8 [<a href="#ref-UNICODE" title="&quot;The Unicode Standard, Version 10.0.0&quot;">UNICODE</a>] encoded byte array
+        called "requestData".
 
    13.  Submit an HTTP [<a href="http://tools.ietf.org/html//rfc7231" title="&quot;Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content&quot;">RFC7231</a>] compliant request to the "targetURI"
         including the following information:
@@ -561,19 +558,17 @@ Table of Contents
         *  HTTP Header "Content-Length" with the argument set to the
            length of "requestData".
 
-
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019               [Page 7]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-8" id="page-8" href="#page-8" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
-
         *  HTTP Header "Content-Type" with the argument set to
            "application/json".
 
         *  All HTTP headers (if any) specified in step 7.
+
+
+
+<span class="grey">Rundgren               Expires September 11, 2019               [Page 7]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-8" id="page-8" href="#page-8" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
 
         *  Other HTTP headers (if any) needed by the application.
 
@@ -616,16 +611,6 @@ Table of Contents
         request (see <a href="#section-3.2">Section 3.2</a>).  Decode the read string as described
         in <a href="#section-6.6">Section 6.6</a>.
 
-
-
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019               [Page 8]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-9" id="page-9" href="#page-9" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
-
    9.   Using ".secinf", the property "uri" is read.  If "uri" is
         missing or does not match "targetURI" or is not a JSON String
         the service MUST reject the request (see <a href="#section-3.2">Section 3.2</a>).
@@ -633,6 +618,13 @@ Table of Contents
         Note: in some proxy arrangements it may be difficult retrieving
         the proper value of "targetURI".  In such cases the comparison
         with "uri" MAY be disabled.
+
+
+
+<span class="grey">Rundgren               Expires September 11, 2019               [Page 8]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-9" id="page-9" href="#page-9" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
 
    10.  Using ".secinf", the property "mtd" is read.  if "mtd" is
         missing the HTTP method is assumed to be "POST" else it is
@@ -644,12 +636,12 @@ Table of Contents
         the following steps:
 
         *  Derive the hash algorithm to use as described in
-           <a href="#section-6.11">Section 6.11</a>.  Save the algorithm in a variable
+           <a href="#section-6.12">Section 6.12</a>.  Save the algorithm in a variable
            "hashAlgorithm".
 
-        *  Process the argument of "hdr" as described in <a href="#section-6.8">Section 6.8</a>.
+        *  Process the argument of "hdr" as described in <a href="#section-6.9">Section 6.9</a>.
 
-   12.  Using ".secinf", the property "iat" (see <a href="#section-6.10">Section 6.10</a>) is read.
+   12.  Using ".secinf", the property "iat" (see <a href="#section-6.11">Section 6.11</a>) is read.
         if "iat" is missing or is not a JSON Number the service MUST
         reject the request (see <a href="#section-3.2">Section 3.2</a>).
 
@@ -660,7 +652,7 @@ Table of Contents
 
    14.  Create a "JWS Payload" [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>] as described in <a href="#section-6.1">Section 6.1</a>.
 
-   15.  Perform signature validation as described in <a href="#section-6.9">Section 6.9</a>.
+   15.  Perform signature validation as described in <a href="#section-6.10">Section 6.10</a>.
 
    Note: validation of application specific data can be performed
    anytime after step 6.  The action(s) to perform after a possible
@@ -673,26 +665,24 @@ Table of Contents
 
    Assume there is an unsigned HTTP request like the following:
 
-
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019               [Page 9]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-10" id="page-10" href="#page-10" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
-
      GET /lookup?id=435 HTTP/1.1
      Host: example.com
 
    The full URI would be as follows:
 
-      https://example.com/lookup?id=435
+     https://example.com/lookup?id=435
 
    Adding a signature to this request according to this specfication
    would return the following URI:
 
-      https://example.com/lookup?id=435&amp;.jws=eyJhhiJ.eyJ7fgw.VHVIt
+
+
+<span class="grey">Rundgren               Expires September 11, 2019               [Page 9]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-10" id="page-10" href="#page-10" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
+
+     https://example.com/lookup?id=435&amp;.jws=eyJhhiJ.eyJ7fgw.VHVIt
 
    Notes:
 
@@ -714,7 +704,7 @@ Table of Contents
 
    Notes:
 
-   o  The property "htu" holds the Base64Url encoded value of the
+   o  The property "htu" holds a Base64Url encoded value of the
       normalized target URI after it has been hashed by the hash
       algorithm associated with the JWS signature.
 
@@ -722,21 +712,10 @@ Table of Contents
       it is actually redundant since the absence of a "mtd" property
       defaults to "GET" for URI based requests in this specification.
 
-   o  The "iat" property holds the time stamp in UNIX "epoch" format.
+   o  The "iat" property holds a time stamp in UNIX "epoch" format.
 
    The following subsections detail the operation for requests using an
    HTTP query string component for holding a signature.
-
-
-
-
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 10]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-11" id="page-11" href="#page-11" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
 <span class="h3"><a class="selflink" name="section-5.1" href="#section-5.1">5.1</a>.  Request Creation</span>
 
@@ -751,8 +730,16 @@ Table of Contents
    3.   Create an empty JSON Object from now on referred to as
         ".secinf".
 
+
+
+
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 10]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-11" id="page-11" href="#page-11" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
+
    4.   Derive (or define) the hash algorithm to use as described in
-        <a href="#section-6.11">Section 6.11</a>.  Save the algorithm in a variable "hashAlgorithm".
+        <a href="#section-6.12">Section 6.12</a>.  Save the algorithm in a variable "hashAlgorithm".
 
    5.   Add a property "htu" (Hashed Target URI) to ".secinf" where the
         argument is a JSON String holding the outcome of the process
@@ -765,17 +752,13 @@ Table of Contents
         "GET" is the default for URI based requests.
 
    7.   If there is a need to include additional HTTP headers in the
-        signed request data, perform the following steps:
+        signed request data, create a header object as described in
+        <a href="#section-6.3">Section 6.3</a>.
 
-        *  Create a header object as described in <a href="#section-6.3">Section 6.3</a>.
+   8.   Add a time stamp property (see <a href="#section-6.11">Section 6.11</a>) to ".secinf".
 
-        *  Add a property "hdr" to ".secinf" where the argument is the
-           JSON Object created in the preceding step.
-
-   8.   Add a time stamp property (see <a href="#section-6.10">Section 6.10</a>) to ".secinf".
-
-   9.   Serialize the ".secinf" JSON Object into a UTF-8 byte array
-        representing a "JWS Payload" [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>].
+   9.   Serialize the ".secinf" JSON Object into a UTF-8 [<a href="#ref-UNICODE" title="&quot;The Unicode Standard, Version 10.0.0&quot;">UNICODE</a>] byte
+        array representing a "JWS Payload" [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>].
 
    10.  Create a "JWS Protected Header" [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>] as described in
         <a href="#section-6.4">Section 6.4</a>.
@@ -786,13 +769,6 @@ Table of Contents
         the JWS string created in the preceding step.  This component is
         appended to the original unsigned request URI prepended by &amp; or
         ? depending on if it is the only query component or not.
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 11]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-12" id="page-12" href="#page-12" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
    13.  Submit an HTTP [<a href="http://tools.ietf.org/html//rfc7231" title="&quot;Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content&quot;">RFC7231</a>] compliant request to the target URI
         including the following information:
@@ -809,6 +785,14 @@ Table of Contents
    carried out before or after the steps outlined here), the following
    steps MUST be performed in order to validate a URI based HTTP
    request:
+
+
+
+
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 11]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-12" id="page-12" href="#page-12" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
 
    1.   Store the HTTP method of the request in a variable
         "targetMethod".
@@ -834,21 +818,12 @@ Table of Contents
         not a JSON Object the service MUST reject the request (see
         <a href="#section-3.2">Section 3.2</a>).
 
-   7.   Derive the hash algorithm to use as described in <a href="#section-6.11">Section 6.11</a>.
+   7.   Derive the hash algorithm to use as described in <a href="#section-6.12">Section 6.12</a>.
         Save the algorithm in a variable "hashAlgorithm".
 
    8.   Using ".secinf" the property "htu" is read.  If "htu" is missing
         or is not a JSON String the service MUST reject the request (see
         <a href="#section-3.2">Section 3.2</a>).
-
-
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 12]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-13" id="page-13" href="#page-13" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
    9.   Perform the operation described in <a href="#section-6.2">Section 6.2</a> and compare the
         outcome with the argument to "htu".  If these value do not match
@@ -864,16 +839,22 @@ Table of Contents
         match "targetMethod" or is not a JSON String the service MUST
         reject the request (see <a href="#section-3.2">Section 3.2</a>).
 
-   11.  If the optional "hdr" property is present in ".secinf" perform
-        the following step:
+   11.  If the optional "hdr" property is present in ".secinf", process
+        the argument of "hdr" as described in <a href="#section-6.9">Section 6.9</a>.
 
-        *  Process the argument of "hdr" as described in <a href="#section-6.8">Section 6.8</a>.
 
-   12.  Using ".secinf", the property "iat" (see <a href="#section-6.10">Section 6.10</a>) is read.
+
+
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 12]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-13" id="page-13" href="#page-13" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
+
+   12.  Using ".secinf", the property "iat" (see <a href="#section-6.11">Section 6.11</a>) is read.
         if "iat" is missing or is not a JSON Number the service MUST
         reject the request (see <a href="#section-3.2">Section 3.2</a>).
 
-   13.  Perform signature validation as described in <a href="#section-6.9">Section 6.9</a>.
+   13.  Perform signature validation as described in <a href="#section-6.10">Section 6.10</a>.
 
    Note: validation of application specific data can be performed
    anytime.  The action(s) to perform after a possible failure is out of
@@ -889,22 +870,12 @@ Table of Contents
    Unsigned request data is now supposed to reside in "message".  To
    facilitate resilience against (legitimate) variances in JSON
    processing between different platforms and systems, "message" needs
-   to be canonicalized and serialized into a UTF-8 encoded byte array.
-   If the used JSON tools offer intrinsic support for JCS [<a href="#ref-JCS" title="&quot;JSON Canonicalization Scheme - Work in progress&quot;">JCS</a>], this is
-   typically a single operation, else the followings steps are
-   performed:
+   to be canonicalized and serialized into a UTF-8 [<a href="#ref-UNICODE" title="&quot;The Unicode Standard, Version 10.0.0&quot;">UNICODE</a>] encoded
+   byte array.  If the used JSON tools offer intrinsic support for JCS
+   [<a href="#ref-JCS" title="&quot;JSON Canonicalization Scheme - Work in progress&quot;">JCS</a>], this is typically a single operation, else the followings
+   steps are performed:
 
    1.  Serialize "message" using standard JSON tools for the platform.
-
-
-
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 13]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-14" id="page-14" href="#page-14" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
    2.  Create a canonical and UTF-8 encoded form of the data created in
        the preceding step, through an external software solution
@@ -921,11 +892,25 @@ Table of Contents
        "targetURI", separated by a comma character.  Applied to the
        sample in <a href="#section-5">Section 5</a> that would yield the following string:
 
+   2.
+
           GET,https://example.com/lookup?id=435
 
-   2.  The resulting string is subsequently converted to UTF-8 [<a href="#ref-UNICODE" title="&quot;The Unicode Standard, Version 10.0.0&quot;">UNICODE</a>]
+
+
+
+
+
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 13]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-14" id="page-14" href="#page-14" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
+
+   3.  The resulting string is subsequently converted to UTF-8 [<a href="#ref-UNICODE" title="&quot;The Unicode Standard, Version 10.0.0&quot;">UNICODE</a>]
        which applied to the sample would yield the following byte array,
        here displayed in hexadecimal notation:
+
+   4.
 
           47 45 54 2c 68 74 74 70 73 3a 2f 2f 65 78 61 6d 70 6c 65 2e 63
           6f 6d 2f 6c 6f 6f 6b 75 70 3f 69 64 3d 34 33 35
@@ -935,11 +920,66 @@ Table of Contents
 
 <span class="h3"><a class="selflink" name="section-6.3" href="#section-6.3">6.3</a>.  Create HTTP Header Digest</span>
 
-   [[
+   To create a digest of headers to be included in a signed request,
+   perform the following operations:
 
-      To be written...
+   1.  Create an empty string "headerBlob".
 
-   ]]
+   2.  Create an empty string "headerList".
+
+   3.  Enumerate the "headerCollection" and perform the following steps
+       for each entry:
+
+       *  Append header field name to "headerList".
+
+       *  Append header field name to "headerBlob".
+
+       *  Append a semicolon (":") to to "headerBlob".
+
+       *  Append header field value to "headerBlob".
+
+       *  For all but the last entry, append a newline character to
+          "headerBlob".
+
+       *  For all but the last entry, append a comma character to
+          "headerList".
+
+   4.  Create a two element JSON Array object "headerData".
+
+   5.  Run the previously defined "hashAlgorithm" over the UTF-8
+       [<a href="#ref-UNICODE" title="&quot;The Unicode Standard, Version 10.0.0&quot;">UNICODE</a>] representation of "headerBlob".
+
+   6.  Base64Url-encode the result of the previous operation and assign
+       the result to the first entry in "headerData" in the form of a
+       JSON String.
+
+
+
+
+
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 14]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-15" id="page-15" href="#page-15" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
+
+   7.  Assign a copy of "headerList" to the second entry in "headerData"
+       in the form of a JSON String.
+
+   8.  Add a property "hdr" to ".secinf" using a copy of "headerData" as
+       argument.
+
+   The following example shows input data to the process described in
+   <a href="#section-6.8">Section 6.8</a>:
+
+     x-debug: full
+     Cache-Control: max-age=60, must-revalidate
+
+   Applying the process described in this subsection to the result of
+   the preceding step and using the SHA-256 [<a href="#ref-SHS" title="&quot;Secure Hash Standard (SHS)&quot;">SHS</a>] hash algorithm should
+   generate the following ".secinf" data:
+
+     "hdr": ["Ljzuq8C9PScbvLpBxG8GNOs-WQUd7gl7R64izahhe-0",
+             "x-debug,cache-control"]
 
 <span class="h3"><a class="selflink" name="section-6.4" href="#section-6.4">6.4</a>.  Create JWS Protected Header</span>
 
@@ -951,24 +991,13 @@ Table of Contents
        "alg": "ES256"
      }
 
-
-
-
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 14]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-15" id="page-15" href="#page-15" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
-
 <span class="h3"><a class="selflink" name="section-6.5" href="#section-6.5">6.5</a>.  Create JWS String</span>
 
    To create a compact JWS object (a string), perform the following
    steps:
 
    1.  Serialize the previously defined "JWS Protected Header" object
-       into a UTF-8 encoded byte array.
+       into a UTF-8 [<a href="#ref-UNICODE" title="&quot;The Unicode Standard, Version 10.0.0&quot;">UNICODE</a>] encoded byte array.
 
    2.  Base64Url-encode the output from the preceding step into a local
        variable "jwsProtectedHeaderB64U".
@@ -979,28 +1008,36 @@ Table of Contents
    4.  Set a local variable "signedData" to the UTF-8 encoded
        representation of the concatenation of:
 
-          The previously defined variable "jwsProtectedHeaderB64U".
+       *  The previously defined variable "jwsProtectedHeaderB64U".
 
-          A point character (".").
 
-          The previously defined variable "jwsPayloadB64U".
+
+
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 15]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-16" id="page-16" href="#page-16" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
+
+       *  A point character (".").
+
+       *  The previously defined variable "jwsPayloadB64U".
 
    5.  Use the designated signature key, signature algorithm and
        "signedData" to create a "JWS Signature" object (byte array).
 
    6.  Return the string consisting of the concatenation of:
 
-          The previously defined variable "jwsProtectedHeaderB64U".
+       *  The previously defined variable "jwsProtectedHeaderB64U".
 
-          A point character (".").
+       *  A period character ('.').
 
-          For URI based requests only: "jwsPayloadB64U".  That is, JSON
+       *  For URI based requests only: "jwsPayloadB64U".  That is, JSON
           based requests use the detached JWS format described in
           <a href="http://tools.ietf.org/html//rfc7515#appendix-F">Appendix&nbsp;F of [RFC7515]</a>.
 
-          A point character (".").
+       *  A period character ('.').
 
-          The previously defined variable "JWS Signature", here encoded
+       *  The previously defined variable "JWS Signature", here encoded
           in Base64Url [<a href="http://tools.ietf.org/html//rfc4648" title="&quot;The Base16, Base32, and Base64 Data Encodings&quot;">RFC4648</a>].
 
 <span class="h3"><a class="selflink" name="section-6.6" href="#section-6.6">6.6</a>.  Decode JWS String</span>
@@ -1010,15 +1047,7 @@ Table of Contents
 
    1.  Verify that "jwsString" has the syntax
 
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 15]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-16" id="page-16" href="#page-16" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
-
-          "header.payload.signature"
+       "header.payload.signature"
 
        where the length of the "payload" element is zero for JSON based
        requests and non-zero for URI based requests.  That is, JSON
@@ -1038,11 +1067,18 @@ Table of Contents
        base64Url-decode the "payload" portion of "jwsString" into a byte
        array representing a "JWS Payload" [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>].
 
+
+
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 16]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-17" id="page-17" href="#page-17" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
+
    6.  Base64Url-decode the "signature" portion of "jwsString" into a
        byte array representing a "JWS Signature" [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>].
 
-   If any of the steps fails, the service MUST reject the request (see
-   <a href="#section-3.2">Section 3.2</a>).
+   If any of the steps above fail, the service MUST reject the request
+   (see <a href="#section-3.2">Section 3.2</a>).
 
 <span class="h3"><a class="selflink" name="section-6.7" href="#section-6.7">6.7</a>.  Normalize Target URI</span>
 
@@ -1052,27 +1088,54 @@ Table of Contents
 
    ]]
 
-<span class="h3"><a class="selflink" name="section-6.8" href="#section-6.8">6.8</a>.  Validate HTTP Header Digest</span>
+<span class="h3"><a class="selflink" name="section-6.8" href="#section-6.8">6.8</a>.  Normalize Header Data</span>
+
+   Headers to be included in signed requests MUST be normalized.  This
+   subsection shows a common procedure for senders and receivers.
+
+   Collect received headers or headers to be submitted in an ordered
+   list of header field name and header field value pairs according to
+   the following:
+
+   o  Header field names MUST be lowercased.
+
+   o  Leading and trailing optional whitespace (OWS) in the header field
+      value MUST be omitted (as specified in HTTP <a href="http://tools.ietf.org/html//rfc7230#section-3.2.4">[RFC7230],
+      Section&nbsp;3.2.4</a>).  If there are multiple instances of the same
+      header field, all header field values associated with the header
+      field MUST be concatenated, separated by a ASCII comma and an
+      ASCII space (', '), and used in the order in which they will
+      appear in the transmitted HTTP message.  Any other modification to
+      the header field value MUST NOT be made.
+
+   This list is referred to as "headerCollection" in other places of
+   this specification.
+
+   [[
+
+      Example to be be written...
+
+   ]]
+
+<span class="h3"><a class="selflink" name="section-6.9" href="#section-6.9">6.9</a>.  Validate HTTP Header Digest</span>
 
    [[
 
       To be written...
 
+
+
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 17]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-18" id="page-18" href="#page-18" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
+
    ]]
 
-<span class="h3"><a class="selflink" name="section-6.9" href="#section-6.9">6.9</a>.  Validate Signature</span>
+<span class="h3"><a class="selflink" name="section-6.10" href="#section-6.10">6.10</a>.  Validate Signature</span>
 
    Validation of the JWS [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>] object, using the previously
    extracted and decoded objects requires the following steps:
-
-
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 16]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-17" id="page-17" href="#page-17" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
    1.  Verify that the received "JWS Protected Header" contains a JWS
        algorithm ("alg") and key identifiers that matches the needs of
@@ -1082,15 +1145,15 @@ Table of Contents
        specific since the key may be implicit, specified by a key ID
        ("kid") or be supplied in a certificate path ("x5c").
 
-   3.  Set a local variable "signedData" to the UTF-8 encoded
+   3.  Set a local variable "signedData" to the UTF-8 [<a href="#ref-UNICODE" title="&quot;The Unicode Standard, Version 10.0.0&quot;">UNICODE</a>] encoded
        representation of the string created by concatenating the
        following elements:
 
-          The previously collected variable "jwsProtectedHeaderB64U".
+       *  The previously collected variable "jwsProtectedHeaderB64U".
 
-          A point character (".").
+       *  A period character ('.').
 
-          The previously collected variable "JWS Payload", but here
+       *  The previously collected variable "JWS Payload", but here
           encoded in Base64Url [<a href="http://tools.ietf.org/html//rfc4648" title="&quot;The Base16, Base32, and Base64 Data Encodings&quot;">RFC4648</a>].
 
    4.  Validate the signature using the algorithm retrieved in step 1,
@@ -1098,13 +1161,13 @@ Table of Contents
        3 and the previously collected "JWS Signature" object (byte
        array).
 
-   If any of the steps fails, the service MUST reject the request (see
-   <a href="#section-3.2">Section 3.2</a>).
+   If any of the steps above fail, the service MUST reject the request
+   (see <a href="#section-3.2">Section 3.2</a>).
 
-<span class="h3"><a class="selflink" name="section-6.10" href="#section-6.10">6.10</a>.  Time Stamps</span>
+<span class="h3"><a class="selflink" name="section-6.11" href="#section-6.11">6.11</a>.  Time Stamps</span>
 
    Time stamps have the same name ("iat"), format and function as
-   described in <a href="http://tools.ietf.org/html//rfc7519#section-4.1.6">Section&nbsp;4.1.6 of [RFC7519]</a>.  However, in this
+   described in JWT <a href="http://tools.ietf.org/html//rfc7519#section-4.1.6">[RFC7519], Section&nbsp;4.1.6</a>.  However, in this
    specification time stamps are REQUIRED, and stored in the ".secinf"
    JSON Object.
 
@@ -1114,37 +1177,39 @@ Table of Contents
    deviations to a few minutes as well as using network based clock
    synchronization in both ends.
 
-<span class="h3"><a class="selflink" name="section-6.11" href="#section-6.11">6.11</a>.  Hash Algorithms</span>
+
+
+
+
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 18]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-19" id="page-19" href="#page-19" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
+
+<span class="h3"><a class="selflink" name="section-6.12" href="#section-6.12">6.12</a>.  Hash Algorithms</span>
 
    Inclusion of HTTP header elements as well as the "htu" property of
    URI based requests depends on digests produced by a hash algorithm.
    The default is using the hash algorithm associated with the JWS
    signature algorithm ("alg") featured in the "JWS Protected Header".
-   That is, "ES256" and "HS384" imply the hash algorithms SHA256 and
-   SHA384 respectively.
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 17]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-18" id="page-18" href="#page-18" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
+   That is, the JWA [<a href="http://tools.ietf.org/html//rfc7518" title="&quot;JSON Web Algorithms (JWA)&quot;">RFC7518</a>] algorithms "ES256" and "HS384" imply the
+   hash algorithms SHA-256 and SHA-384 respectively.
 
    In case this is not desired, this specification permits overriding
    the default by including a "hao" (Hash Algorithm Override) property
    in the ".secinf" JSON Object.  The currently recognized arguments to
    "hao" are:
 
-      "S256" for SHA256 [<a href="#ref-SHS" title="&quot;Secure Hash Standard (SHS)&quot;">SHS</a>]
+      "S256" for SHA-256 [<a href="#ref-SHS" title="&quot;Secure Hash Standard (SHS)&quot;">SHS</a>]
 
-      "S384" for SHA384 [<a href="#ref-SHS" title="&quot;Secure Hash Standard (SHS)&quot;">SHS</a>]
+      "S384" for SHA-384 [<a href="#ref-SHS" title="&quot;Secure Hash Standard (SHS)&quot;">SHS</a>]
 
-      "S512" for SHA512 [<a href="#ref-SHS" title="&quot;Secure Hash Standard (SHS)&quot;">SHS</a>]
+      "S512" for SHA-512 [<a href="#ref-SHS" title="&quot;Secure Hash Standard (SHS)&quot;">SHS</a>]
 
 <span class="h2"><a class="selflink" name="section-7" href="#section-7">7</a>.  Local Naming Conventions</span>
 
    Although the ".secinf" JSON property name and ".jws" query component
-   name are highly RECOMMENDED, this specfication permits (=being
+   name are highly RECOMMENDED, this specification permits (=being
    considered as compatible), the use of local naming conventions as
    long as the specified procedures and formats are adhered to.
 
@@ -1170,21 +1235,16 @@ Table of Contents
       JSON property holding the security related data of this
       specification.
 
+
+
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 19]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-20" id="page-20" href="#page-20" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
+
    .jws
       HTTP query component holding the security related data of this
       specification.
-
-
-
-
-
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 18]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-19" id="page-19" href="#page-19" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
 <span class="h2"><a class="selflink" name="section-10" href="#section-10">10</a>.  Security Considerations</span>
 
@@ -1233,12 +1293,8 @@ Table of Contents
 
 
 
-
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 19]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-20" id="page-20" href="#page-20" class="invisible"> </a>
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 20]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-21" id="page-21" href="#page-21" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
 
@@ -1250,6 +1306,11 @@ Table of Contents
    [<a name="ref-RFC4648" id="ref-RFC4648">RFC4648</a>]  Josefsson, S., "The Base16, Base32, and Base64 Data
               Encodings", <a href="http://tools.ietf.org/html//rfc4648">RFC 4648</a>, DOI 10.17487/RFC4648, October 2006,
               &lt;<a href="https://www.rfc-editor.org/info/rfc4648">https://www.rfc-editor.org/info/rfc4648</a>&gt;.
+
+   [<a name="ref-RFC7230" id="ref-RFC7230">RFC7230</a>]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
+              Protocol (HTTP/1.1): Message Syntax and Routing",
+              <a href="http://tools.ietf.org/html//rfc7230">RFC 7230</a>, DOI 10.17487/RFC7230, June 2014,
+              &lt;<a href="https://www.rfc-editor.org/info/rfc7230">https://www.rfc-editor.org/info/rfc7230</a>&gt;.
 
    [<a name="ref-RFC7231" id="ref-RFC7231">RFC7231</a>]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
               Protocol (HTTP/1.1): Semantics and Content", <a href="http://tools.ietf.org/html//rfc7231">RFC 7231</a>,
@@ -1263,6 +1324,10 @@ Table of Contents
    [<a name="ref-RFC7515" id="ref-RFC7515">RFC7515</a>]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web
               Signature (JWS)", <a href="http://tools.ietf.org/html//rfc7515">RFC 7515</a>, DOI 10.17487/RFC7515, May
               2015, &lt;<a href="https://www.rfc-editor.org/info/rfc7515">https://www.rfc-editor.org/info/rfc7515</a>&gt;.
+
+   [<a name="ref-RFC7518" id="ref-RFC7518">RFC7518</a>]  Jones, M., "JSON Web Algorithms (JWA)", <a href="http://tools.ietf.org/html//rfc7518">RFC 7518</a>,
+              DOI 10.17487/RFC7518, May 2015,
+              &lt;<a href="https://www.rfc-editor.org/info/rfc7518">https://www.rfc-editor.org/info/rfc7518</a>&gt;.
 
    [<a name="ref-RFC7519" id="ref-RFC7519">RFC7519</a>]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web Token
               (JWT)", <a href="http://tools.ietf.org/html//rfc7519">RFC 7519</a>, DOI 10.17487/RFC7519, May 2015,
@@ -1282,21 +1347,16 @@ Table of Contents
               &lt;<a href="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf">https://nvlpubs.nist.gov/nistpubs/FIPS/</a>
               <a href="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf">NIST.FIPS.180-4.pdf</a>&gt;.
 
+
+
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 21]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-22" id="page-22" href="#page-22" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
+
    [<a name="ref-UNICODE" id="ref-UNICODE">UNICODE</a>]  The Unicode Consortium, "The Unicode Standard, Version
               10.0.0",
               &lt;<a href="https://www.unicode.org/versions/Unicode10.0.0/">https://www.unicode.org/versions/Unicode10.0.0/</a>&gt;.
-
-
-
-
-
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 20]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-21" id="page-21" href="#page-21" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
 <span class="h3"><a class="selflink" name="section-12.2" href="#section-12.2">12.2</a>.  Informal References</span>
 
@@ -1326,7 +1386,9 @@ Table of Contents
 
 <span class="h2"><a class="selflink" name="appendix-A" href="#appendix-A">Appendix A</a>.  Test Vectors</span>
 
-   jj
+   The following test vectors "activate" all parts of the specification.
+   After removing the line breaks needed for publishing, the test
+   vectors are supposed to be fully validatable.
 
 <span class="h3"><a class="selflink" name="appendix-A.1" href="#appendix-A.1">A.1</a>.  Type=URI, Method=GET, Algorithm=HS256</span>
 
@@ -1339,20 +1401,21 @@ Table of Contents
 
    Decoded JWS Payload:
 
+
+
+
+
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 22]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-23" id="page-23" href="#page-23" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
+
      {
        "htu": "fiVi4jYhDt7VCuQIKUIdWINEWfoh_NXHfLTZNEeSavY",
        "iat": 1551951900
      }
 
    Symmetric signature validation key, here in hexadecimal notation:
-
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 21]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-22" id="page-22" href="#page-22" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
      7fdd851a3b9d2dafc5f0d00030e22b9343900cd42ede4948568a4a2ee655291a
 
@@ -1366,13 +1429,13 @@ Table of Contents
 
      {
        "name": "John Doe",
-       "profession": "Hacker",
+       "profession": "Unknown",
        ".secinf": {
          "uri": "https://example.com/users",
-         "iat": 1551951900
-       },
-       "jws": "eyJhbGciOiJFUzI1NiJ9..pXsiuN6xq3sYw8xGLo_K2_Pwb1yGMqhp
-     umXmKD7J7idNNPm3s8bBIB4MW6-8NflwGKndDhHRgVq4PjzTyOw89w"
+         "iat": 1551951900,
+         "jws": "eyJhbGciOiJFUzI1NiJ9..GE4lWKwGQPPKTDhNU6ZGCzQpJN_lpS
+     PzZ2mQdHg5jnQLjP2TZSSd-We8moKi2oLReD-QFmd1YY9DcRpt3NQrVw"
+       }
      }
 
    Public signature validation key, here in PEM format:
@@ -1390,25 +1453,30 @@ Table of Contents
 
    JSON Body:
 
+
+
+
+
+
+
+
+
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 23]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-24" id="page-24" href="#page-24" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
+
      {
        "name": "Jane Smith",
-       "profession": "System Analyst",
+       "profession": "Hacker",
        ".secinf": {
          "uri": "https://example.com/users/456",
          "mtd": "PUT",
-         "iat": 1551951900
-       },
-       "jws": "eyJhbGciOiJFUzI1NiJ9..I3zI49egx45DUyy93SfUXKbEsVyvwGcv
-     CF0u8_GIUXbJOsshVmstUJNPD2k_slP8qN18tKZL-h1ElYaXcGkL-g"
+         "iat": 1551951900,
+         "jws": "eyJhbGciOiJFUzI1NiJ9..XMdcL9cVW9rYRKoLNUEQfLYLIJ57WR
+     sVZ-wwSWqXUaOQngARpFL78Vt7Tfel_-XYyV4JEgaHFteH4BT08isftQ"
+       }
      }
-
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 22]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-23" id="page-23" href="#page-23" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
    Public signature validation key, here in PEM format:
 
@@ -1446,25 +1514,21 @@ Table of Contents
      nVuaK2VYmVvlJNHlDccDxqqTd14U9Ux9Q", "x-debug"]
      }
 
+
+
+
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 24]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-25" id="page-25" href="#page-25" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+
+
+   Note the overridden hash algorithm.
+
    Required HTTP Headers:
 
      x-debug: full
 
    Public signature validation key, here in PEM format:
-
-
-
-
-
-
-
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 23]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-24" id="page-24" href="#page-24" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
      -----BEGIN PUBLIC KEY-----
      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhFWEXArvaZEpSP5qNX7x
@@ -1483,11 +1547,10 @@ Table of Contents
 
 <span class="h3"><a class="selflink" name="appendix-B.1" href="#appendix-B.1">B.1</a>.  Amazon Web Services</span>
 
-   Amazon Web Sevices provides a system for their clients using HTTP
-   headers holding security constructs while the digested HTTP body may
-   hold any valid media type.  For more information see the [<a href="#ref-AWS" title="&quot;Signing AWS API Requests&quot;">AWS</a>].
-   Signatures may also be added to query strings in a similar fashion to
-   <a href="#section-5">Section 5</a>.
+   AWS provides a system for their clients using HTTP headers holding
+   security constructs while the digested HTTP body may hold any valid
+   media type.  For more information see the [<a href="#ref-AWS" title="&quot;Signing AWS API Requests&quot;">AWS</a>].  Signatures may also
+   be added to query strings in a similar fashion to <a href="#section-5">Section 5</a>.
 
 <span class="h3"><a class="selflink" name="appendix-B.2" href="#appendix-B.2">B.2</a>.  HTTP Signatures</span>
 
@@ -1510,15 +1573,8 @@ Table of Contents
 
 
 
-
-
-
-
-
-
-
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 24]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-25" id="page-25" href="#page-25" class="invisible"> </a>
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 25]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-26" id="page-26" href="#page-26" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
 
@@ -1544,8 +1600,7 @@ Table of Contents
 <span class="h3"><a class="selflink" name="appendix-B.4" href="#appendix-B.4">B.4</a>.  Financial API</span>
 
    The current version (Draft 06) of the financial API [<a href="#ref-FAPI" title="&quot;Financial-grade API&quot;">FAPI</a>] use a
-   scheme where the payload is signed using JWS in Base64Url [<a href="http://tools.ietf.org/html//rfc4648" title="&quot;The Base16, Base32, and Base64 Data Encodings&quot;">RFC4648</a>]
-   mode:
+   scheme where the payload is signed using JWS in Base64Url mode:
 
      POST /transact/pay HTTP/1.1
      Host: example.com
@@ -1573,8 +1628,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren                Expires September 9, 2019              [Page 25]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-26" id="page-26" href="#page-26" class="invisible"> </a>
+
+<span class="grey">Rundgren               Expires September 11, 2019              [Page 26]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-27" id="page-27" href="#page-27" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
 
@@ -1629,7 +1685,7 @@ Author's Address
 
 
 
-Rundgren                Expires September 9, 2019              [Page 26]
+Rundgren               Expires September 11, 2019              [Page 27]
 
 </pre><br />
     <span class="noprint"><small><small>Html markup produced by rfcmarkup 1.129b, available from
