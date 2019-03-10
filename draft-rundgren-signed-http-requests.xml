@@ -718,13 +718,71 @@
       </section>
       <section anchor="header.creation" title="Create HTTP Header Digest">
         <t>
-          [[
-          <list style="empty">
+          To create a digest of headers to be included in a signed request, perform the
+          following operations:
+          <list style="numbers">
             <t>
-              To be written...
+              Create an empty string "headerBlob".
+            </t>
+            <t>
+              Create an empty string "headerList".
+            </t>
+            <t>
+              Enumerate the "headerCollection" and perform the following steps for each entry:
+              <list style="symbols">
+                <t>
+                  Append header field name to "headerList".
+                </t>
+                <t>
+                  Append header field name to "headerBlob".
+                </t>
+                <t>
+                  Append a semicolon (":") to to "headerBlob".
+                </t>
+                <t>
+                  Append header field value to "headerBlob".
+                </t>
+                <t>
+                  For all but the last entry, append a newline character to "headers".
+                </t>
+                <t>
+                  For all but the last entry, append a comma character to "headerList".
+                </t>
+              </list>
+            </t>
+            <t>
+              Create a two element JSON Array object "headerData".
+            </t>
+            <t>
+              Run the previously defined "hashAlgorithm" over the UTF-8 representation of
+              "headerBlob".
+            </t>
+            <t>
+              Base64Url-encode the result of the previous operation and assign the result to the first
+              entry in "headerData" in the form of a JSON String.
+            </t>
+            <t>
+              Assign a copy of "headerList" to the second
+              entry in "headerData" in the form of a JSON String.
+            </t>
+            <t>
+              Add a property "hdr" to ".secinf" using a copy of "headerData" as argument.
             </t>
           </list>
-          ]]
+        </t>
+        <t>
+          The following example uses SHA-256 <xref target="SHS"/>.  Input data:
+        </t>
+        <t>
+          <figure align="left"><artwork><![CDATA[  x-debug: full
+  cache-control: max-age=60, must-revalidate]]></artwork></figure>
+        </t>
+        <t>
+          Result:
+        </t>
+        <t>
+          <figure align="left"><artwork><![CDATA[  "hdr": ["Ljzuq8C9PScbvLpBxG8GNOs-WQUd7gl7R64izahhe-0", 
+          "x-debug,cache-control"]]]></artwork></figure>
         </t>
       </section>
       <section anchor="create.jwsprotheader" title="Create JWS Protected Header">
@@ -850,10 +908,35 @@
       </section>
       <section anchor="normalize.headers" title="Normalize Header Data">
         <t>
+          Headers to be included in signed requests MUST be normalized.
+          This subsection shows a common procedure for senders and receivers.
+        </t>
+        <t>
+          Collect received headers or headers to be submitted in an ordered list
+          of header field name and header field value pairs according to the following:
+          <list style="symbols">
+            <t>
+              Header field names MUST be lowercased.
+            </t>
+            <t>
+              Leading and trailing optional whitespace (OWS) in the header field
+              value MUST be omitted (as specified in Section 3.2.4 of <xref target="RFC7230"/>).
+              If there are multiple instances of the same header field, all header field
+              values associated with the header field MUST be concatenated, separated by a
+              ASCII comma and an ASCII space `, `, and used in the order in which
+              they will appear in the transmitted HTTP message. Any other modification to
+              the header field value MUST NOT be made.
+            </t>
+          </list>
+        </t>
+        <t>
+          This list is referred to as "headerCollection" in other places of this specification.
+        </t>
+        <t>
           [[
           <list style="empty">
             <t>
-              To be written...
+              Example to be be written...
             </t>
           </list>
           ]]
@@ -1051,6 +1134,7 @@
       <?rfc include='reference.RFC.7519'?>
       <?rfc include='reference.RFC.8174'?>
       <?rfc include='reference.RFC.7493'?>
+      <?rfc include='reference.RFC.7230'?>
       <?rfc include='reference.RFC.7231'?>
       <?rfc include='reference.RFC.7518'?>
       <reference anchor="UNICODE" target="https://www.unicode.org/versions/Unicode10.0.0/">
