@@ -85,14 +85,16 @@
             Optional: Additional HTTP headers as defined by the actual ecosystem.
           </t>
         </list>
+      </t>
+      <t>
         In addition there is a mandatory time stamp.
       </t>
        <t>
         One of the design goals was turning signed requests into self-contained objects.
         To achieve this for HTTP requests having a JSON <xref target="RFC8259"/> body
         (see <xref target="req.operation.withbody"/>), the request data also carries the signature.
-        This arrangement has certain implications:
-        <list style="symbols">
+         This arrangement has certain implications:
+         <list style="symbols">
           <t>
             Signed requests may be stored in databases or be embedded in other JSON objects.
             The latter includes supporting counter signatures.  The canonicalization
@@ -433,6 +435,8 @@
               Perform signature validation as described in <xref target="validate.signature"/>.
             </t>
           </list>
+        </t>
+        <t>
           Note: validation of application specific data can be performed anytime after step 6.
           The action(s) to perform after a possible failure is out of scope for this specification
           (see <xref target="return.codes"/>).
@@ -658,6 +662,8 @@
               Perform signature validation as described in <xref target="validate.signature"/>.
             </t>
           </list>
+        </t>
+        <t>
           Note: validation of application specific data can be performed anytime.
           The action(s) to perform after a possible failure is out of scope for this specification
           (see <xref target="return.codes"/>).
@@ -687,6 +693,8 @@
               through an external software solution supporting JCS.
             </t>
           </list>
+        </t>
+        <t>
           The output from JCS represents a "JWS&nbsp;Payload" <xref target="RFC7515"/>.
         </t>
       </section>
@@ -698,6 +706,8 @@
               The signable URI data consists of the "targetMethod" and the
               "targetURI", separated by a comma character.  Applied to the sample in
               <xref target="req.operation.urionly"/> that would yield the following string:
+            </t>
+            <t>
               <list style="empty">
                 <t>
                   GET,https://example.com/lookup?id=435
@@ -708,6 +718,8 @@
               The resulting string is subsequently converted to UTF-8 <xref target="UNICODE"/> which
               applied to the sample would yield the following byte array, here displayed
               in hexadecimal notation:
+            </t>
+            <t>
               <list style="empty">
                 <t>
                   47 45 54 2c 68 74 74 70 73 3a 2f 2f 65 78 61 6d 70 6c 65 2e 63 6f
@@ -716,6 +728,8 @@
               </list>
             </t>
           </list>
+        </t>
+        <t>
           The output from the last step is assigned to a "JWS&nbsp;Payload" <xref target="RFC7515"/> object.
         </t>
       </section>
@@ -758,7 +772,7 @@
             <t>
               Set a local variable "signedData" to the UTF-8 encoded representation of the
               concatenation of:
-              <list style="empty">
+              <list style="symbols">
                 <t>
                   The previously defined variable "jwsProtectedHeaderB64U".
                 </t>
@@ -776,7 +790,7 @@
             </t>
             <t>
               Return the string consisting of the concatenation of:
-              <list style="empty">
+              <list style="symbols">
                 <t>
                   The previously defined variable "jwsProtectedHeaderB64U".
                 </t>
@@ -811,6 +825,8 @@
                   "header.payload.signature"
                 </t>
               </list>
+            </t>
+            <t>
               where the length of the "payload" element is zero for JSON based requests and
               non-zero for URI based requests. That is, JSON based
               requests use the detached JWS format described in Appendix F of <xref target="RFC7515"/>.
@@ -830,13 +846,15 @@
               For URI based requests only:
               <vspace blankLines="0"/>
               base64Url-decode the "payload" portion of "jwsString" into a byte array
-              representing a "JWS&nbsp;Payload" <xref target="RFC7515"/>. 
+              representing a "JWS&nbsp;Payload" <xref target="RFC7515"/>.
             </t>
             <t>
               Base64Url-decode the "signature" portion of "jwsString" into a byte array
               representing a "JWS&nbsp;Signature" <xref target="RFC7515"/>.
             </t>
           </list>
+        </t>
+        <t>
           If any of the steps fails, the service MUST reject the request (see <xref target="return.codes"/>).
         </t>
       </section>
@@ -880,7 +898,7 @@
             <t>
               Set a local variable "signedData" to the UTF-8 encoded representation of the
               string created by concatenating the following elements:
-              <list style="empty">
+              <list style="symbols">
                 <t>
                   The previously collected variable "jwsProtectedHeaderB64U".
                 </t>
@@ -896,9 +914,11 @@
             <t>
               Validate the signature using the algorithm retrieved in step 1,
               the signature validation key from step 2,
-              "signedData" from step 3 and the previously collected "JWS&nbsp;Signature" object (byte array). 
+              "signedData" from step 3 and the previously collected "JWS&nbsp;Signature" object (byte array).
             </t>
           </list>
+        </t>
+        <t>
           If any of the steps fails, the service MUST reject the request (see <xref target="return.codes"/>).
         </t>
       </section>
@@ -974,6 +994,8 @@
       <t>
         This document currently has no IANA actions but the reserved names
         below could be candidates for IANA registration:
+      </t>
+      <t>
         <list style="hanging">
           <t hangText=".secinf">
             &nbsp;
