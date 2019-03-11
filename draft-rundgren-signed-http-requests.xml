@@ -109,7 +109,8 @@
       <t>
         For HTTP requests that do not have a JSON body (see <xref target="req.operation.urionly"/>), the
         signature and additional request data is added to the original URI <xref target="RFC3986"/>,
-        making signed URI based requests self-contained and serializable as well.
+        making signed URI-only requests self-contained and serializable as well.
+        For simplicy such requests are (in this specification NB), referred to as URI based requests.
       </t>
       <t>
         Both variants utilize JWS <xref target="RFC7515"/> for holding the signature data.
@@ -167,6 +168,7 @@
           </list>
         </t>
       </section>
+
       <section anchor="return.codes" title="Return Codes">
         <t>
           This specification utilizes a single HTTP return code 400 (Bad request)
@@ -207,7 +209,7 @@
         Assume there is an unsigned HTTP request like the following:
       </t>
       <t>
-        <figure align="left"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
+        <figure align="left"><artwork><![CDATA[  POST /foo HTTP/1.1
   Host: example.com
   Content-Type: application/json
   Content-Length: 1234
@@ -229,7 +231,7 @@
          Additional application specific properties
 
     ".secinf": {
-      "uri": "https://example.com/transact/pay",
+      "uri": "https://example.com/foo",
       "mtd": "POST",
       "iat": 1551709923,
       "jws": "eyJhbGciOiJIUzI1NiJ9..VHVItCBCb849imarDtjw4"
@@ -262,6 +264,7 @@
       <t>
         The following subsections detail the operation for requests having an HTTP body.
       </t>
+
       <section anchor="req.creation.withbody" title="Request Creation">
         <t>
           Precondition: the application data to be submitted with the request already exists in
@@ -350,6 +353,7 @@
           </list>
         </t>
       </section>
+
       <section anchor="req.validation.withbody" title="Request Validation">
         <t>
           In order to validate a request the following steps MUST be performed:
@@ -442,28 +446,24 @@
 
     <section anchor="req.operation.urionly" title="Processing of URI Based Requests">
       <t>
-        In this specification requests without an HTTP body are referred to
-        as URI based requests. Also see <xref target="req.determine.type"/>.
-      </t>
-      <t>
         Assume there is an unsigned HTTP request like the following:
       </t>
       <t>
-        <figure align="left"><artwork><![CDATA[  GET /lookup?id=435 HTTP/1.1
+        <figure align="left"><artwork><![CDATA[  GET /users?id=435 HTTP/1.1
   Host: example.com]]></artwork></figure>
       </t>
       <t>
         The full URI would be as follows:
       </t>
       <t>
-        <figure align="left"><artwork><![CDATA[  https://example.com/lookup?id=435]]></artwork></figure>
+        <figure align="left"><artwork><![CDATA[  https://example.com/users?id=435]]></artwork></figure>
       </t>
       <t>
         Adding a signature to this request according to this specfication
         would return the following URI:
       </t>
       <t>
-        <figure align="left"><artwork><![CDATA[  https://example.com/lookup?id=435&.jws=eyJhhiJ.eyJ7fgw.VHVIt]]></artwork></figure>
+        <figure align="left"><artwork><![CDATA[  https://example.com/users?id=435&.jws=eyJhhiJ.eyJ7fgw.VHVIt]]></artwork></figure>
       </t>
       <t>
         Notes:
@@ -483,7 +483,7 @@
       </t>
       <t>
         <figure align="left"><artwork><![CDATA[  {
-    "htu": "tzIRr4Qi1uWBnuIhbEie9-MYY94FCKgPFN4BmXtoCCE",
+    "htu": "WUjqfXPztLzzXRCs6EcWCw-GC9hSL7hwCR1nG2FSvQ8",
     "mtd": "GET",
     "iat": 1551863696
   }]]></artwork></figure>
@@ -509,6 +509,7 @@
         The following subsections detail the operation for requests using an HTTP query string
         component for holding a signature.
       </t>
+
       <section anchor="req.creation.urionly" title="Request Creation">
         <t>
           In order to create a valid signed URI request, the following steps
@@ -577,6 +578,7 @@
           </list>
         </t>
       </section>
+
       <section anchor="req.validation.urionly" title="Request Validation">
         <t>
           In addition to normal validation of received data (which may be carried out
@@ -681,42 +683,30 @@
           The output from JCS represents a "JWS&nbsp;Payload" <xref target="RFC7515"/>.
         </t>
       </section>
+
       <section anchor="signable.uri" title="Create Signable URI Data">
         <t>
           For URI based requests, the steps to create signable URI data are as follows:
           <list style="numbers">
             <t>
-              The signable URI data consists of the "targetMethod" and the
-              "targetURI", separated by a comma character.  Applied to the sample in
-              <xref target="req.operation.urionly"/> that would yield the following string:
+              Convert "targetURI" into a UTF-8 <xref target="UNICODE"/> encoded byte array.
             </t>
             <t>
-              <list style="empty">
-                <t>
-                  GET,https://example.com/lookup?id=435
-                </t>
-              </list>
+              Create a digest of the result of the previous step using the previosly defined "hashAlgorithm".
             </t>
             <t>
-              The resulting string is subsequently converted to UTF-8 <xref target="UNICODE"/> which
-              applied to the sample would yield the following byte array, here displayed
-              in hexadecimal notation:
-            </t>
-            <t>
-              <list style="empty">
-                <t>
-                  47 45 54 2c 68 74 74 70 73 3a 2f 2f 65 78 61 6d 70 6c 65 2e 63 6f
-                  6d 2f 6c 6f 6f 6b 75 70 3f 69 64 3d 34 33 35
-                </t>
-              </list>
+              Add a "htu" (Hashed Target URI) property to the ".secinf" object, where the
+              argument is a JSON String holding the Base64Url encoded form of the result from the
+              preceding step.
             </t>
           </list>
         </t>
         <t>
-          The output from the last step is assigned to a "JWS&nbsp;Payload" <xref target="RFC7515"/> object.
+          The test vectors <xref target="test.vectors"/> provide a few examples.
         </t>
       </section>
-      <section anchor="header.creation" title="Create HTTP Header Digest">
+
+      <section anchor="header.creation" title="Create HTTP Header Object">
         <t>
           To create a digest of headers to be included in a signed request, perform the
           following operations:
@@ -728,6 +718,9 @@
               Create an empty string "headerList".
             </t>
             <t>
+              Create a collection of headers to be sent as described in <xref target="normalize.headers"/>.
+            </t>
+            <t>
               Enumerate the "headerCollection" and perform the following steps for each entry:
               <list style="symbols">
                 <t>
@@ -737,16 +730,16 @@
                   Append header field name to "headerBlob".
                 </t>
                 <t>
-                  Append a semicolon (":") to to "headerBlob".
+                  Append a semicolon (':') to to "headerBlob".
                 </t>
                 <t>
                   Append header field value to "headerBlob".
                 </t>
                 <t>
-                  For all but the last entry, append a newline character to "headerBlob".
+                  For all but the last entry, append a newline (U+000A) to "headerBlob".
                 </t>
                 <t>
-                  For all but the last entry, append a comma character to "headerList".
+                  For all but the last entry, append a comma (',') to "headerList".
                 </t>
               </list>
             </t>
@@ -754,7 +747,8 @@
               Create a two element JSON Array object "headerData".
             </t>
             <t>
-              Run the previously defined "hashAlgorithm" over the UTF-8 <xref target="UNICODE"/> representation of
+              Run the previously defined "hashAlgorithm" (see <xref target="hash.algorithms"/>)
+              over the UTF-8 <xref target="UNICODE"/> representation of
               "headerBlob".
             </t>
             <t>
@@ -771,15 +765,14 @@
           </list>
         </t>
         <t>
-          The following example shows input data to the process described in <xref target="normalize.headers"/>:
+          Below is an example of header input data:
         </t>
         <t>
           <figure align="left"><artwork><![CDATA[  x-debug: full
   Cache-Control: max-age=60, must-revalidate]]></artwork></figure>
         </t>
         <t>
-          Applying the process described in this subsection
-          to the result of the preceding step and using the SHA-256 <xref target="SHS"/>
+          Applying the process described in this subsection and using the SHA-256 <xref target="SHS"/>
           hash algorithm should generate the following ".secinf" data:
         </t>
         <t>
@@ -787,6 +780,7 @@
           "x-debug,cache-control"]]]></artwork></figure>
         </t>
       </section>
+
       <section anchor="create.jwsprotheader" title="Create JWS Protected Header">
         <t>
           Create a "JWS&nbsp;Protected&nbsp;Header" <xref target="RFC7515"/>
@@ -799,6 +793,7 @@
   }]]></artwork></figure>
         </t>
       </section>
+
       <section anchor="create.signature" title="Create JWS String">
         <t>
           To create a compact JWS object (a string), perform the following steps:
@@ -856,6 +851,7 @@
           </list>
         </t>
       </section>
+
       <section anchor="jws.string.decoding" title="Decode JWS String">
         <t>
           The following processing steps presume that there is an input string holding
@@ -897,6 +893,7 @@
           If any of the steps above fail, the service MUST reject the request (see <xref target="return.codes"/>).
         </t>
       </section>
+
       <section anchor="normalize.uri" title="Normalize Target URI">
         <t>
           [[
@@ -908,13 +905,15 @@
           ]]
         </t>
       </section>
+
       <section anchor="normalize.headers" title="Normalize Header Data">
         <t>
           Headers to be included in signed requests MUST be normalized.
-          This subsection shows a common procedure for senders and receivers.
+          This subsection shows a common procedure for senders and receivers
+          based on Section 3.2.4 of <xref target="RFC7230"/>.
         </t>
         <t>
-          Collect received headers or headers to be submitted in an ordered list
+          Collect received headers or headers to be submitted in a list
           of header field name and header field value pairs according to the following:
           <list style="symbols">
             <t>
@@ -922,7 +921,7 @@
             </t>
             <t>
               Leading and trailing optional whitespace (OWS) in the header field
-              value MUST be omitted (as specified in HTTP <xref target="RFC7230"/>, Section 3.2.4).
+              value MUST be omitted (as specified in ).
               If there are multiple instances of the same header field, all header field
               values associated with the header field MUST be concatenated, separated by a
               ASCII comma and an ASCII space (', '), and used in the order in which
@@ -944,17 +943,71 @@
           ]]
         </t>
       </section>
-      <section anchor="validate.header" title="Validate HTTP Header Digest">
+
+      <section anchor="validate.header" title="Validate HTTP Header Object">
         <t>
-          [[
-          <list style="empty">
+          To validate a digest of headers in a signed request, perform the
+          following operations:
+          <list style="numbers">
             <t>
-              To be written...
+              Create a collection of received headers as described in <xref target="normalize.headers"/>.
+            </t>
+            <t>
+              Create an empty string "headerBlob".
+            </t>
+            <t>
+              Read the "hdr" property of ".secinf".  This MUST be a JSON Array
+              holding exacty two JSON String elements.
+            </t>
+            <t>
+              Perform the following actions on the data obtained in the previous step:
+              <list style="symbols">
+                <t>
+                  Base64Url-decode the first string into a byte array "digest".
+                </t>
+                <t>
+                  Split the second string into ordered array of strings called "headerList".
+                  Note that the format MUST be a list of header field names in lowercase,
+                  separated by comma (',') characters.  There MUST NOT be any whitespace
+                  or terminating comma in this string.
+                </t>
+              </list>
+            </t>
+            <t>
+              Enumerate the "headerList" and perform the following steps for each entry:
+              <list style="symbols">
+                <t>
+                  Append header field name to "headerBlob".
+                </t>
+                <t>
+                  Append a semicolon (':') to to "headerBlob".
+                </t>
+                <t>
+                  Retrieve the matching header field value from "headerCollection".
+                </t>
+                <t>
+                  Append the result of the previous step to "headerBlob".
+                </t>
+                <t>
+                  For all but the last entry, append a newline (U+000A) to "headerBlob".
+                </t>
+              </list>
+            </t>
+            <t>
+              Run the previously defined "hashAlgorithm" (see <xref target="hash.algorithms"/>)
+              over the UTF-8 <xref target="UNICODE"/> representation of
+              "headerBlob".
+            </t>
+            <t>
+              Verify that the result of the previous step is identical to "digest".
             </t>
           </list>
-          ]]
+        </t>
+        <t>
+          If any of the steps above fail, the service MUST reject the request (see <xref target="return.codes"/>).
         </t>
       </section>
+
       <section anchor="validate.signature" title="Validate Signature">
         <t>
           Validation of the JWS <xref target="RFC7515"/> object,
@@ -998,6 +1051,7 @@
           If any of the steps above fail, the service MUST reject the request (see <xref target="return.codes"/>).
         </t>
       </section>
+
       <section anchor="time.stamps" title="Time Stamps">
         <t>
           Time stamps have the same name ("iat"), format and function as described in JWT <xref target="RFC7519"/>, Section 4.1.6.
@@ -1010,6 +1064,7 @@
           network based clock synchronization in both ends.
         </t>
       </section>
+
       <section anchor="hash.algorithms" title="Hash Algorithms">
         <t>
           Inclusion of HTTP header elements as well as the "htu" property of URI based
@@ -1040,8 +1095,8 @@
 
     <section anchor="overriding" title="Local Naming Conventions">
       <t>
-        Although the ".secinf" JSON property name and
-        ".jws" query component name are highly RECOMMENDED,
+        Although using the ".secinf" JSON property name and
+        ".jws" query component name is RECOMMENDED,
         this specification permits (=being considered as compatible),
         the use of local naming conventions as long as the
         specified procedures and formats are adhered to.
@@ -1076,7 +1131,7 @@
           <t hangText=".secinf">
             &nbsp;
             <vspace blankLines="0"/>
-            JSON property holding the security related data of this specification.
+            JSON Object holding the security related data of this specification.
           </t>
           <t hangText=".jws">
             &nbsp;
@@ -1084,6 +1139,10 @@
             HTTP query component holding the security related data of this specification.
           </t>
         </list>
+      </t>
+      <t>
+        The hash algorithms defined in <xref target="hash.algorithms"/> could also
+        benefit from IANA registration.
       </t>
     </section>
 
@@ -1397,6 +1456,7 @@
         This appendix briefly outlines a few other solutions addressing
         Signed HTTP Requests.
       </t>
+
       <section anchor="other.aws" title="Amazon Web Services">
         <t>
           AWS provides a system for their clients using
@@ -1407,6 +1467,7 @@
           fashion to <xref target="req.operation.urionly"/>.
         </t>
       </section>
+
       <section anchor="other.httsignatures" title="HTTP Signatures">
         <t>
           HTTP Signatures is a system using
@@ -1417,6 +1478,7 @@
           HTTP Signatures also supports signed response data.
         </t>
       </section>
+
       <section anchor="other.openbanking" title="Open Banking (UK)">
         <t>
           The current (3.1) version of the Open Banking API <xref target="OBIE"/>
@@ -1425,7 +1487,7 @@
           message in the HTTP body:
         </t>
         <t>
-          <figure align="left"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
+          <figure align="left"><artwork><![CDATA[  POST /foo HTTP/1.1
   Host: example.com
   Content-Type: application/json
   x-jws-signature: eyJhbGciOiJSUzI1N..SD7xMbpL-2QgwUsAlMGzw
@@ -1456,7 +1518,7 @@
           a scheme where the payload is signed using JWS in Base64Url mode:
         </t>
         <t>
-          <figure align="left"><artwork><![CDATA[  POST /transact/pay HTTP/1.1
+          <figure align="left"><artwork><![CDATA[  POST /foo HTTP/1.1
   Host: example.com
   Content-Type: application/jws
   Content-Length: 1288
