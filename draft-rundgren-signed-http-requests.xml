@@ -110,7 +110,7 @@
         For HTTP requests that do not have a JSON body (see <xref target="req.operation.urionly"/>), the
         signature and additional request data is added to the original URI <xref target="RFC3986"/>,
         making signed URI-only requests self-contained and serializable as well.
-        For simplicy such requests are (in this specification NB), referred to as URI based requests.
+        For simplicity such requests are (in this specification NB), referred to as URI based requests.
       </t>
       <t>
         Both variants utilize JWS <xref target="RFC7515"/> for holding the signature data.
@@ -459,7 +459,7 @@
         <figure align="left"><artwork><![CDATA[  https://example.com/users?id=435]]></artwork></figure>
       </t>
       <t>
-        Adding a signature to this request according to this specfication
+        Adding a signature to this request according to this specification
         would return the following URI:
       </t>
       <t>
@@ -752,7 +752,7 @@
               "headerBlob".
             </t>
             <t>
-              Base64Url-encode the result of the previous operation and assign the result to the first
+              Base64Url-encode the result of the preceding operation and assign the result to the first
               entry in "headerData" in the form of a JSON String.
             </t>
             <t>
@@ -896,13 +896,52 @@
 
       <section anchor="normalize.uri" title="Normalize Target URI">
         <t>
-          [[
+          To facilitate comparison between actual (received) URIs and signed URIs,
+          URIs MUST be normalized according to the following:
           <list style="empty">
             <t>
-              To be written...
+              The schema default ports 443 and 80 MUST be removed
+              from HTTPS and HTTP URIs respectively.
+            </t>
+            <t>
+              URI characters that have been escaped that are in the
+              non-reseved set [ALPHA&nbsp;DIGIT&nbsp;'-'&nbsp;'.'&nbsp;'_'&nbsp;'~']
+              MUST be restored in their natural form.
+            </t>
+            <t>
+              Escape sequences MUST transformed into uppercase.
+            </t>
+            <t>
+              Non-ASCII characters MUST be escaped to their UTF-8 <xref target="UNICODE"/> counterpart.
+            </t>
+            <t>
+              Host names MUST be lowercased.
             </t>
           </list>
-          ]]
+        </t>
+        <t>
+          The following URI shows a non-normalized URI:
+        </t>
+        <t>
+          <figure align="left"><artwork><![CDATA[  https://EXAMPLE.COM:443/%63EURO%2f]]></artwork></figure>
+        </t>
+        <t>
+          <list style="empty">
+            <t>
+              Note: EURO denotes a single Euro character (Unicode: U+20AC),
+              <vspace blankLines="0"/>
+              which not being ASCII, is currently not displayable in RFCs.
+            </t>
+          </list>
+        </t>
+        <t>
+          The same URI after normalization:
+        </t>
+        <t>
+          <figure align="left"><artwork><![CDATA[  https://example.com/c%E2%82%AC%2F]]></artwork></figure>
+        </t>
+        <t>
+          [[ This section is still incomplete ]]
         </t>
       </section>
 
@@ -975,7 +1014,7 @@
               holding exacty two JSON String elements.
             </t>
             <t>
-              Perform the following actions on the data obtained in the previous step:
+              Perform the following actions on the data obtained in the preceding step:
               <list style="symbols">
                 <t>
                   Base64Url-decode the first string into a byte array "digest".
@@ -1005,7 +1044,7 @@
                   Retrieve the matching header field value from "headerCollection".
                 </t>
                 <t>
-                  Append the result of the previous step to "headerBlob".
+                  Append the result of the preceding step to "headerBlob".
                 </t>
                 <t>
                   For all but the last entry, append a newline (U+000A) to "headerBlob".
@@ -1018,7 +1057,7 @@
               "headerBlob".
             </t>
             <t>
-              Verify that the result of the previous step is identical to "digest".
+              Verify that the result of the preceding step is identical to "digest".
             </t>
           </list>
         </t>
@@ -1026,7 +1065,7 @@
           If any of the steps above fail, the service MUST reject the request (see <xref target="return.codes"/>).
         </t>
         <t>
-          Note that this specification do not enforce any particular ordering of signed header elements.
+          Note that this specification does not enforce any particular ordering of signed header elements.
         </t>
       </section>
 
@@ -1078,6 +1117,10 @@
         <t>
           Time stamps have the same name ("iat"), format and function as described in JWT <xref target="RFC7519"/>, Section 4.1.6.
           However, in this specification time stamps are REQUIRED, and stored in the ".secinf" JSON Object.
+        </t>
+        <t>
+          Although JWT permits non-integer values, implementors' of this specification
+          SHOULD limit generated time stamp granularity to seconds and integer representation.
         </t>
         <t>
           The policy with respect to the difference between the current time and received time stamps
@@ -1178,7 +1221,7 @@
       <t>
         For most applications HTTPS <xref target="RFC7231"/> would be the logical choice, not
         only for protecting application data from snooping, but
-        also to not unessecary reveal data about signature keys.
+        also to not unnecessary reveal data about signature keys.
       </t>
       <t>
         In a cloud scenario with Web servers open for access by
