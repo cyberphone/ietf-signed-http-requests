@@ -59,8 +59,8 @@
   <middle>
     <section anchor="Introduction" title="Introduction">
       <t>
-        Currently there is no standard for digitally signing HTTP <xref target="RFC7231"/>
-        requests.  This has lead to the development of a multitude
+        Currently there is no standard for digitally signing HTTP <xref target="RFC7230"/> <xref target="RFC7231"/>
+        requests.  This has led to the development of a multitude
         of more or less proprietary solutions (see <xref target="other.solutions"/>),
         typically building on using HTTP header data for holding security constructs,
         while JSON request data is provided in clear in the HTTP body.
@@ -82,7 +82,8 @@
             HTTP body (if applicable).
           </t>
           <t>
-            Optional: Additional HTTP headers as defined by the actual ecosystem.
+            Optional: Additional HTTP headers as defined by applications
+            implementing this specification.
           </t>
         </list>
       </t>
@@ -328,7 +329,7 @@
               Serialize "message" into an UTF-8 <xref target="UNICODE"/> encoded byte array called "requestData".
             </t>
             <t>
-              Submit an HTTP <xref target="RFC7231"/> compliant request to the "targetURI" including the following information:
+              Submit an HTTP compliant request to the "targetURI" including the following information:
               <list style="symbols">
                 <t>
                   HTTP method set to "targetMethod".
@@ -340,7 +341,7 @@
                   HTTP Header "Content-Type" with the argument set to "application/json".
                 </t>
                 <t>
-                  All HTTP headers (if any) specified in step 7.
+                  All HTTP headers (if any) specified in step 6.
                 </t>
                 <t>
                   Other HTTP headers (if any) needed by the application.
@@ -562,7 +563,7 @@
               &amp; or ? depending on if it is the only query component or not.
             </t>
             <t>
-              Submit an HTTP <xref target="RFC7231"/> compliant request to the target URI including the following information:
+              Submit an HTTP compliant request to the target URI including the following information:
               <list style="symbols">
                 <t>
                   HTTP method set to "targetMethod".
@@ -692,7 +693,7 @@
               Convert "targetURI" into a UTF-8 <xref target="UNICODE"/> encoded byte array.
             </t>
             <t>
-              Create a digest of the result of the preceding step using the previosly defined "hashAlgorithm".
+              Create a digest of the result of the preceding step using the previously defined "hashAlgorithm".
               The result is a byte array.
             </t>
             <t>
@@ -905,7 +906,7 @@
             </t>
             <t>
               URI characters that have been escaped that are in the
-              non-reseved set [ALPHA&nbsp;DIGIT&nbsp;'-'&nbsp;'.'&nbsp;'_'&nbsp;'~']
+              non-reserved set [ALPHA&nbsp;DIGIT&nbsp;'-'&nbsp;'.'&nbsp;'_'&nbsp;'~']
               MUST be restored in their natural form.
             </t>
             <t>
@@ -1011,7 +1012,7 @@
             </t>
             <t>
               Read the "hdr" property of ".secinf".  This MUST be a JSON Array
-              holding exacty two JSON String elements.
+              holding exactly two JSON String elements.
             </t>
             <t>
               Perform the following actions on the data obtained in the preceding step:
@@ -1069,7 +1070,7 @@
         </t>
       </section>
 
-      <section anchor="validate.signature" title="Validate Signature">
+      <section anchor="validate.signature" title="Validate JWS Signature">
         <t>
           Validation of the JWS <xref target="RFC7515"/> object,
           using the previously extracted and decoded objects requires the following steps:
@@ -1119,8 +1120,8 @@
           However, in this specification time stamps are REQUIRED, and stored in the ".secinf" JSON Object.
         </t>
         <t>
-          Although JWT permits non-integer values, implementors' of this specification
-          SHOULD limit generated time stamp granularity to seconds and integer representation.
+          Although JWT permits non-integer values, implementers of this specification
+          SHOULD limit generated time stamp granularity to seconds and use integer representation.
         </t>
         <t>
           The policy with respect to the difference between the current time and received time stamps
@@ -1619,7 +1620,7 @@
     <section anchor="shreq.development" title="Development Portal">
       <t>
         The SHREQ specification is currently developed at:
-        <eref target="https://cyberphone.github.io/ietf-signed-http-requests">https://cyberphone.github.io/ietf-signed-http-requests</eref>.
+        <eref target="https://github.com/cyberphone/ietf-signed-http-requests">https://github.com/cyberphone/ietf-signed-http-requests</eref>.
       </t>
       <t>
         <vspace blankLines="3"/>
