@@ -692,17 +692,17 @@
               Convert "targetURI" into a UTF-8 <xref target="UNICODE"/> encoded byte array.
             </t>
             <t>
-              Create a digest of the result of the previous step using the previosly defined "hashAlgorithm".
+              Create a digest of the result of the preceding step using the previosly defined "hashAlgorithm".
+              The result is a byte array.
             </t>
             <t>
-              Add a "htu" (Hashed Target URI) property to the ".secinf" object, where the
-              argument is a JSON String holding the Base64Url encoded form of the result from the
-              preceding step.
+              The result of the preceding step is subsequently Base64Url encoded.
             </t>
           </list>
         </t>
         <t>
-          The test vectors <xref target="test.vectors"/> provide a few examples.
+          The test vectors in <xref target="test.vectors"/> provide a few examples
+          showing authentic values of the "htu" (Hashed Target URI) property.
         </t>
       </section>
 
@@ -921,26 +921,41 @@
             </t>
             <t>
               Leading and trailing optional whitespace (OWS) in the header field
-              value MUST be omitted (as specified in ).
-              If there are multiple instances of the same header field, all header field
-              values associated with the header field MUST be concatenated, separated by a
+              value MUST be omitted.
+              If there are multiple instances of the same header field name, all header field
+              values associated with the header field name MUST be concatenated, separated by a
               ASCII comma and an ASCII space (', '), and used in the order in which
-              they will appear in the transmitted HTTP message. Any other modification to
+              they are intended to appear in an HTTP message. Any other modification to
               the header field value MUST NOT be made.
             </t>
           </list>
         </t>
         <t>
-          This list is referred to as "headerCollection" in other places of this specification.
+          This list is referred to as "headerCollection" in other places in this specification.
         </t>
         <t>
-          [[
-          <list style="empty">
-            <t>
-              Example to be be written...
-            </t>
-          </list>
-          ]]
+            Below is an example of header input data:
+        </t>
+        <t>
+          <figure align="left"><artwork><![CDATA[  x-debug: full
+  Cache-control:  max-age=60
+  Cache-Control: must-revalidate]]></artwork></figure>
+        </t>
+        <t>
+          Applying the process described in this subsection should generate the following collection:
+        </t>
+        <t>
+          <figure align="left"><artwork><![CDATA[  |======================================================|
+  |  Header Field Name  |      Header Field Value        |
+  |======================================================|
+  | x-debug             | full                           |
+  |------------------------------------------------------|
+  | cache-control       | max-age=60, must-revalidate    |
+  |------------------------------------------------------|]]></artwork></figure>
+        </t>
+        <t>
+          For interoperability reasons it is RECOMMENDED to not use duplicate
+          header names for headers that are to be signed.
         </t>
       </section>
 
@@ -970,6 +985,10 @@
                   Note that the format MUST be a list of header field names in lowercase,
                   separated by comma (',') characters.  There MUST NOT be any whitespace
                   or terminating comma in this string.
+                </t>
+                <t>
+                  Verify that the received "headerList" contains the header field names
+                  as defined by an application specific policy.
                 </t>
               </list>
             </t>
@@ -1005,6 +1024,9 @@
         </t>
         <t>
           If any of the steps above fail, the service MUST reject the request (see <xref target="return.codes"/>).
+        </t>
+        <t>
+          Note that this specification do not enforce any particular ordering of signed header elements.
         </t>
       </section>
 
@@ -1296,7 +1318,7 @@
       </reference>
     </references>
 
-    <section anchor="testing" title="Test Vectors">
+    <section anchor="test.vectors" title="Test Vectors">
       <t>
         The following test vectors "activate" all parts of the specification.
         After removing the line breaks needed for publishing, the test vectors are
@@ -1305,6 +1327,12 @@
       <section anchor="testvector.1" title="Type=URI, Method=GET, Algorithm=HS256">
         <t>
           Target URI:
+        </t>
+        <t>
+          <figure align="left"><artwork><![CDATA[  https://example.com/users/456]]></artwork></figure>
+        </t>
+        <t>
+          Signed URI:
         </t>
         <t>
           <figure align="left"><artwork><![CDATA[  https://example.com/users/456?.jws=eyJhbGciOiJIUzI1NiJ9.eyJodHUi
@@ -1345,8 +1373,8 @@
     ".secinf": {
       "uri": "https://example.com/users",
       "iat": 1551951900,
-      "jws": "eyJhbGciOiJFUzI1NiJ9..GE4lWKwGQPPKTDhNU6ZGCzQpJN_lpS
-  PzZ2mQdHg5jnQLjP2TZSSd-We8moKi2oLReD-QFmd1YY9DcRpt3NQrVw"
+      "jws": "eyJhbGciOiJFUzI1NiJ9..-N7yuF1TEASo5Ub5q2T1_EkLWrWHs2
+  nyHjDupkinoRcQbSo8h2ygL9pmGzd_YU4jn_bcMQF8BrTIlSioNel5GQ"
     }
   }]]></artwork></figure>
         </t>
@@ -1378,8 +1406,8 @@
       "uri": "https://example.com/users/456",
       "mtd": "PUT",
       "iat": 1551951900,
-      "jws": "eyJhbGciOiJFUzI1NiJ9..XMdcL9cVW9rYRKoLNUEQfLYLIJ57WR
-  sVZ-wwSWqXUaOQngARpFL78Vt7Tfel_-XYyV4JEgaHFteH4BT08isftQ"
+      "jws": "eyJhbGciOiJFUzI1NiJ9.._VWTXYcgr6OTCcJg6XZzPkHsLU-jUT
+  T1HoQ92bihMIDlXR7xNfmxlHWSUc9cyFCxzsBy9yq33eFn3fApIH42SA"
     }
   }]]></artwork></figure>
         </t>
@@ -1396,6 +1424,12 @@
       <section anchor="testvector.4" title="Type=URI, Method=DELETE, Algorithm=RS256">
         <t>
           Target URI:
+        </t>
+        <t>
+          <figure align="left"><artwork><![CDATA[  https://example.com/users/456]]></artwork></figure>
+        </t>
+        <t>
+          Signed URI:
         </t>
         <t>
           <figure align="left"><artwork><![CDATA[  https://example.com/users/456?.jws=eyJhbGciOiJSUzI1NiJ9.eyJodHUi
