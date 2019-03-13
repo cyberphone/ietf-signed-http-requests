@@ -2,7 +2,7 @@
 
 # Signed HTTP Requests (SHREQ)
 
-Internet-Draft in progress.  Not yet published...
+Internet Draft: https://tools.ietf.org/html/draft-rundgren-signed-http-requests-00
 
 ["Editor's copy"](https://cyberphone.github.io/ietf-signed-http-requests/shreq.html)
 
