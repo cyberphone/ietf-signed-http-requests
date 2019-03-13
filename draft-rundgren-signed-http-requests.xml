@@ -10,7 +10,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-rundgren-signed-http-requests-00" ipr="trust200902">
+<rfc category="std" docName="draft-rundgren-signed-http-requests-01" ipr="trust200902">
   <front>
     <title abbrev="draft-rundgren-signed-http-requests">
       Signed HTTP Requests (SHREQ)
@@ -46,12 +46,8 @@
         specification combined with the JSON Canonicalization Scheme (JCS),
         can be utilized to support HTTP based applications needing digitally signed requests.
         SHREQ is specifically tailored for Web applications using JSON as data interchange format.
-        However, there is also a SHREQ scheme for HTTP requests that do not have a body ("payload") like GET.
+        There is also a SHREQ scheme for HTTP requests that do not have a body ("payload") like GET.
         SHREQ was designed to be agnostic with respect to REST concepts versus traditional GET/POST schemes.
-      </t>
-      <t>
-        The intended audiences of this document are Web tool vendors, as
-        well as designers of secure Web applications.
       </t>
     </abstract>
   </front>
@@ -120,6 +116,10 @@
         For supporting signed HTTP responses any solution may be used.  For maximum "symmetry"
         and code reuse, the <xref target="JWSJCS"/> scheme should be a suitable candidate
         since it builds on the same building blocks as SHREQ.
+      </t>
+      <t>
+        The intended audiences of this document are Web tool vendors, as
+        well as designers of secure Web applications.
       </t>
     </section>
 

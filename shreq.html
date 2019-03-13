@@ -180,12 +180,12 @@
 <pre>
 Network Working Group                                        A. Rundgren
 Internet-Draft                                               Independent
-Intended status: Standards Track                          March 11, 2019
-Expires: September 12, 2019
+Intended status: Standards Track                          March 13, 2019
+Expires: September 14, 2019
 
 
                       <span class="h1">Signed HTTP Requests (SHREQ)</span>
-                 <span class="h1">draft-rundgren-signed-http-requests-00</span>
+                 <span class="h1">draft-rundgren-signed-http-requests-01</span>
 
 Abstract
 
@@ -193,13 +193,10 @@ Abstract
    specification combined with the JSON Canonicalization Scheme (JCS),
    can be utilized to support HTTP based applications needing digitally
    signed requests.  SHREQ is specifically tailored for Web applications
-   using JSON as data interchange format.  However, there is also a
-   SHREQ scheme for HTTP requests that do not have a body ("payload")
-   like GET.  SHREQ was designed to be agnostic with respect to REST
-   concepts versus traditional GET/POST schemes.
-
-   The intended audiences of this document are Web tool vendors, as well
-   as designers of secure Web applications.
+   using JSON as data interchange format.  There is also a SHREQ scheme
+   for HTTP requests that do not have a body ("payload") like GET.
+   SHREQ was designed to be agnostic with respect to REST concepts
+   versus traditional GET/POST schemes.
 
 Status of This Memo
 
@@ -216,7 +213,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 12, 2019.
+   This Internet-Draft will expire on September 14, 2019.
 
 Copyright Notice
 
@@ -226,17 +223,17 @@ Copyright Notice
    This document is subject to <a href="http://tools.ietf.org/html//bcp78">BCP 78</a> and the IETF Trust's Legal
    Provisions Relating to IETF Documents
    (<a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a>) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019               [Page 1]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019               [Page 1]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-2" id="page-2" href="#page-2" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
 
-   publication of this document.  Please review these documents
-   carefully, as they describe your rights and restrictions with respect
-   to this document.  Code Components extracted from this document must
    include Simplified BSD License text as described in Section 4.e of
    the Trust Legal Provisions and are provided without warranty as
    described in the Simplified BSD License.
@@ -282,17 +279,17 @@ Table of Contents
      <a href="#appendix-A.4">A.4</a>.  Type=URI, Method=DELETE, Algorithm=RS256  . . . . . . . .  <a href="#page-26">26</a>
    <a href="#appendix-B">Appendix B</a>.  Other Signed HTTP Request Solutions  . . . . . . . .  <a href="#page-27">27</a>
      <a href="#appendix-B.1">B.1</a>.  Amazon Web Services . . . . . . . . . . . . . . . . . . .  <a href="#page-27">27</a>
+     <a href="#appendix-B.2">B.2</a>.  HTTP Signatures . . . . . . . . . . . . . . . . . . . . .  <a href="#page-27">27</a>
+     <a href="#appendix-B.3">B.3</a>.  Open Banking (UK) . . . . . . . . . . . . . . . . . . . .  <a href="#page-27">27</a>
+     <a href="#appendix-B.4">B.4</a>.  Financial API . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-28">28</a>
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019               [Page 2]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019               [Page 2]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-3" id="page-3" href="#page-3" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
 
-     <a href="#appendix-B.2">B.2</a>.  HTTP Signatures . . . . . . . . . . . . . . . . . . . . .  <a href="#page-27">27</a>
-     <a href="#appendix-B.3">B.3</a>.  Open Banking (UK) . . . . . . . . . . . . . . . . . . . .  <a href="#page-27">27</a>
-     <a href="#appendix-B.4">B.4</a>.  Financial API . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-28">28</a>
    <a href="#appendix-C">Appendix C</a>.  Development Portal . . . . . . . . . . . . . . . . .  <a href="#page-28">28</a>
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-28">28</a>
 
@@ -338,16 +335,16 @@ Table of Contents
    For HTTP requests that do not have a JSON body (see <a href="#section-5">Section 5</a>), the
    signature and additional request data is added to the original URI
    [<a href="http://tools.ietf.org/html//rfc3986" title="&quot;Uniform Resource Identifier (URI): Generic Syntax&quot;">RFC3986</a>], making signed URI-only requests self-contained and
+   serializable as well.  For simplicity such requests are (in this
+   specification NB), referred to as URI based requests.
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019               [Page 3]</span></pre>
+
+<span class="grey">Rundgren               Expires September 14, 2019               [Page 3]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-4" id="page-4" href="#page-4" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
-
-   serializable as well.  For simplicity such requests are (in this
-   specification NB), referred to as URI based requests.
 
    Both variants utilize JWS [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>] for holding the signature data.
 
@@ -355,6 +352,9 @@ Table of Contents
    maximum "symmetry" and code reuse, the [<a href="#ref-JWSJCS" title="&quot;Combined JWS and JCS Signature Scheme - Work in progress&quot;">JWSJCS</a>] scheme should be a
    suitable candidate since it builds on the same building blocks as
    SHREQ.
+
+   The intended audiences of this document are Web tool vendors, as well
+   as designers of secure Web applications.
 
 <span class="h2"><a class="selflink" name="section-2" href="#section-2">2</a>.  Terminology</span>
 
@@ -397,7 +397,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019               [Page 4]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019               [Page 4]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-5" id="page-5" href="#page-5" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -453,7 +453,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019               [Page 5]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019               [Page 5]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-6" id="page-6" href="#page-6" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -509,7 +509,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019               [Page 6]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019               [Page 6]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-7" id="page-7" href="#page-7" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -565,7 +565,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019               [Page 7]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019               [Page 7]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-8" id="page-8" href="#page-8" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -621,7 +621,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019               [Page 8]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019               [Page 8]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-9" id="page-9" href="#page-9" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -677,7 +677,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019               [Page 9]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019               [Page 9]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-10" id="page-10" href="#page-10" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -733,7 +733,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 10]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 10]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-11" id="page-11" href="#page-11" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -789,7 +789,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 11]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 11]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-12" id="page-12" href="#page-12" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -845,7 +845,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 12]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 12]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-13" id="page-13" href="#page-13" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -901,7 +901,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 13]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 13]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-14" id="page-14" href="#page-14" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -957,7 +957,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 14]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 14]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-15" id="page-15" href="#page-15" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -1013,7 +1013,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 15]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 15]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-16" id="page-16" href="#page-16" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -1069,7 +1069,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 16]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 16]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-17" id="page-17" href="#page-17" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -1125,7 +1125,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 17]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 17]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-18" id="page-18" href="#page-18" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -1181,7 +1181,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 18]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 18]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-19" id="page-19" href="#page-19" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -1237,7 +1237,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 19]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 19]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-20" id="page-20" href="#page-20" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -1293,7 +1293,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 20]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 20]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-21" id="page-21" href="#page-21" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -1349,7 +1349,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 21]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 21]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-22" id="page-22" href="#page-22" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -1405,7 +1405,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 22]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 22]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-23" id="page-23" href="#page-23" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -1461,7 +1461,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 23]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 23]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-24" id="page-24" href="#page-24" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -1517,7 +1517,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 24]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 24]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-25" id="page-25" href="#page-25" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -1573,7 +1573,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 25]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 25]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-26" id="page-26" href="#page-26" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -1629,7 +1629,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 26]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 26]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-27" id="page-27" href="#page-27" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -1685,7 +1685,7 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 12, 2019              [Page 27]</span></pre>
+<span class="grey">Rundgren               Expires September 14, 2019              [Page 27]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-28" id="page-28" href="#page-28" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
@@ -1741,7 +1741,7 @@ Author's Address
 
 
 
-Rundgren               Expires September 12, 2019              [Page 28]
+Rundgren               Expires September 14, 2019              [Page 28]
 
 </pre><br />
     <span class="noprint"><small><small>Html markup produced by rfcmarkup 1.129b, available from
