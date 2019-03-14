@@ -993,10 +993,6 @@
   | cache-control       | max-age=60, must-revalidate    |
   |------------------------------------------------------|]]></artwork></figure>
         </t>
-        <t>
-          For interoperability reasons it is RECOMMENDED to not use duplicate
-          header names for headers that are to be signed.
-        </t>
       </section>
 
       <section anchor="validate.header" title="Validate HTTP Header Object">
