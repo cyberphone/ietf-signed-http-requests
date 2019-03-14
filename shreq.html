@@ -1116,7 +1116,7 @@ Table of Contents
    o  Leading and trailing optional whitespace (OWS) in the header field
       value MUST be omitted.  If there are multiple instances of the
       same header field name, all header field values associated with
-      the header field name MUST be concatenated, separated by a ASCII
+      the header field name MUST be concatenated, separated by an ASCII
       comma and an ASCII space (', '), and used in the order in which
       they are intended to appear in an HTTP message.  Any other
       modification to the header field value MUST NOT be made.
@@ -1150,6 +1150,10 @@ Table of Contents
      | cache-control       | max-age=60, must-revalidate    |
      |------------------------------------------------------|
 
+   For interoperability reasons it is RECOMMENDED to not use duplicate
+   header names for headers that are to be signed.  Apparently proxy
+   servers do not always honor original header ordering.
+
 <span class="h3"><a class="selflink" name="section-6.9" href="#section-6.9">6.9</a>.  Validate HTTP Header Object</span>
 
    To validate a digest of headers in a signed request, perform the
@@ -1174,10 +1178,6 @@ Table of Contents
           There MUST NOT be any whitespace or terminating comma in this
           string.
 
-       *  Verify that the received "headerList" contains the header
-          field names as defined by an application specific policy.
-
-
 
 
 
@@ -1185,6 +1185,9 @@ Table of Contents
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-19" id="page-19" href="#page-19" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
+
+       *  Verify that the received "headerList" contains the header
+          field names as defined by an application specific policy.
 
    5.  Enumerate the "headerList" and perform the following steps for
        each entry:
@@ -1232,15 +1235,14 @@ Table of Contents
 
        *  The previously collected variable "jwsProtectedHeaderB64U".
 
-       *  A period character ('.').
-
-
 
 
 <span class="grey">Rundgren               Expires September 15, 2019              [Page 19]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-20" id="page-20" href="#page-20" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
+
+       *  A period character ('.').
 
        *  The previously collected variable "JWS Payload", but here
           encoded in Base64Url [<a href="http://tools.ietf.org/html//rfc4648" title="&quot;The Base16, Base32, and Base64 Data Encodings&quot;">RFC4648</a>].
@@ -1288,8 +1290,6 @@ Table of Contents
 
       "S384" for SHA-384 [<a href="#ref-SHS" title="&quot;Secure Hash Standard (SHS)&quot;">SHS</a>]
 
-      "S512" for SHA-512 [<a href="#ref-SHS" title="&quot;Secure Hash Standard (SHS)&quot;">SHS</a>]
-
 
 
 
@@ -1297,6 +1297,8 @@ Table of Contents
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-21" id="page-21" href="#page-21" class="invisible"> </a>
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
+
+      "S512" for SHA-512 [<a href="#ref-SHS" title="&quot;Secure Hash Standard (SHS)&quot;">SHS</a>]
 
 <span class="h2"><a class="selflink" name="section-7" href="#section-7">7</a>.  Local Naming Conventions</span>
 
@@ -1344,8 +1346,6 @@ Table of Contents
    not only for protecting application data from snooping, but also to
    not unnecessary reveal data about signature keys.
 
-   In a cloud scenario with Web servers open for access by any party new
-   security challenges are introduced.  Cryptographic solutions protect
 
 
 
@@ -1354,6 +1354,8 @@ Table of Contents
 <span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
 
 
+   In a cloud scenario with Web servers open for access by any party new
+   security challenges are introduced.  Cryptographic solutions protect
    data but may also add vulnerabilities to denial-of-service attacks
    since they often need substantial processing.
 
@@ -1400,8 +1402,6 @@ Table of Contents
               Protocol (HTTP/1.1): Message Syntax and Routing",
               <a href="http://tools.ietf.org/html//rfc7230">RFC 7230</a>, DOI 10.17487/RFC7230, June 2014,
               &lt;<a href="https://www.rfc-editor.org/info/rfc7230">https://www.rfc-editor.org/info/rfc7230</a>&gt;.
-
-
 
 
 

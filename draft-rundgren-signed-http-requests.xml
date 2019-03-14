@@ -963,8 +963,8 @@
               Leading and trailing optional whitespace (OWS) in the header field
               value MUST be omitted.
               If there are multiple instances of the same header field name, all header field
-              values associated with the header field name MUST be concatenated, separated by a
-              ASCII comma and an ASCII space (', '), and used in the order in which
+              values associated with the header field name MUST be concatenated, separated by
+              an ASCII comma and an ASCII space (', '), and used in the order in which
               they are intended to appear in an HTTP message. Any other modification to
               the header field value MUST NOT be made.
             </t>
@@ -992,6 +992,11 @@
   |------------------------------------------------------|
   | cache-control       | max-age=60, must-revalidate    |
   |------------------------------------------------------|]]></artwork></figure>
+        </t>
+        <t>
+          For interoperability reasons it is RECOMMENDED to not use duplicate
+          header names for headers that are to be signed.  Apparently proxy
+          servers do not always honor original header ordering. 
         </t>
       </section>
 
