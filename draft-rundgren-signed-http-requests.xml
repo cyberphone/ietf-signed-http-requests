@@ -1174,21 +1174,22 @@
       </t>
     </section>
  
-    <section anchor="mime.mulipart" title="MIME Multipart Requests">
+    <section anchor="attachments" title="Attachments">
       <t>
         [[
         <list style="empty">
           <t>
-            It should be possible to extending the JSON based request
-            to also support attachments.  This is currently out of scope
-            for this specification.
+            It may be possible to extending the JSON based request
+            to also support attachments using MIME multipart schemes.
+            This is though currently out of scope for this specification.
           </t>
           <t>
             An alternative to attachments is featuring such data in Base64Url encoded fields.
           </t>
           <t>
-            Recently, time-limited, "cloud" based schemes using URLs with hard-to-guess
-            nonce values has become a viable method for transferring other data.
+            Recently, "cloud" based schemes using (preferably time-limited) URLs with hard-to-guess
+            nonce values have become a viable method for supporting related additional data.
+            By combining hash values with such URLs, integrity of the additional data can be verified.
           </t>
         </list>
         ]]
