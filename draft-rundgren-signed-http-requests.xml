@@ -199,7 +199,7 @@
           to be displayed to the user.
         </t>
         <t>
-          Return codes for successful operation is application specific but are
+          Return codes for successful operation are application specific but are
           typically 200 (OK) or 201 (Created).
         </t>
       </section>
@@ -1182,6 +1182,13 @@
             It should be possible to extending the JSON based request
             to also support attachments.  This is currently out of scope
             for this specification.
+          </t>
+          <t>
+            An alternative to attachments is featuring such data in Base64Url encoded fields.
+          </t>
+          <t>
+            Recently, time-limited, "cloud" based schemes using URLs with hard-to-guess
+            nonce values has become a viable method for transferring other data.
           </t>
         </list>
         ]]

@@ -4,7 +4,7 @@
 <head profile="http://dublincore.org/documents/2008/08/04/dc-html/">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="robots" content="index,follow" />
-    <meta name="creator" content="rfcmarkup version 1.129b" />
+    <meta name="creator" content="rfcmarkup version 1.129c" />
     <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/" />
 
     <link rel="icon" href="" type="image/png" />
@@ -180,8 +180,8 @@
 <pre>
 Network Working Group                                        A. Rundgren
 Internet-Draft                                               Independent
-Intended status: Standards Track                          March 14, 2019
-Expires: September 15, 2019
+Intended status: Standards Track                             May 5, 2019
+Expires: November 6, 2019
 
 
                       <span class="h1">Signed HTTP Requests (SHREQ)</span>
@@ -213,7 +213,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 15, 2019.
+   This Internet-Draft will expire on November 6, 2019.
 
 Copyright Notice
 
@@ -229,9 +229,9 @@ Copyright Notice
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019               [Page 1]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019                [Page 1]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-2" id="page-2" href="#page-2" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
    include Simplified BSD License text as described in Section 4.e of
@@ -267,11 +267,11 @@ Table of Contents
    <a href="#section-7">7</a>.  Local Naming Conventions  . . . . . . . . . . . . . . . . . .  <a href="#page-21">21</a>
    <a href="#section-8">8</a>.  MIME Multipart Requests . . . . . . . . . . . . . . . . . . .  <a href="#page-21">21</a>
    <a href="#section-9">9</a>.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  <a href="#page-21">21</a>
-   <a href="#section-10">10</a>. Security Considerations . . . . . . . . . . . . . . . . . . .  <a href="#page-21">21</a>
+   <a href="#section-10">10</a>. Security Considerations . . . . . . . . . . . . . . . . . . .  <a href="#page-22">22</a>
    <a href="#section-11">11</a>. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-22">22</a>
    <a href="#section-12">12</a>. References  . . . . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-22">22</a>
      <a href="#section-12.1">12.1</a>.  Normative References . . . . . . . . . . . . . . . . . .  <a href="#page-22">22</a>
-     <a href="#section-12.2">12.2</a>.  Informal References  . . . . . . . . . . . . . . . . . .  <a href="#page-23">23</a>
+     <a href="#section-12.2">12.2</a>.  Informal References  . . . . . . . . . . . . . . . . . .  <a href="#page-24">24</a>
    <a href="#appendix-A">Appendix A</a>.  Test Vectors . . . . . . . . . . . . . . . . . . . .  <a href="#page-24">24</a>
      <a href="#appendix-A.1">A.1</a>.  Type=URI, Method=GET, Algorithm=HS256 . . . . . . . . . .  <a href="#page-24">24</a>
      <a href="#appendix-A.2">A.2</a>.  Type=JSON, Method=POST, Algorithm=ES256 . . . . . . . . .  <a href="#page-25">25</a>
@@ -280,18 +280,18 @@ Table of Contents
    <a href="#appendix-B">Appendix B</a>.  Other Signed HTTP Request Solutions  . . . . . . . .  <a href="#page-27">27</a>
      <a href="#appendix-B.1">B.1</a>.  Amazon Web Services . . . . . . . . . . . . . . . . . . .  <a href="#page-27">27</a>
      <a href="#appendix-B.2">B.2</a>.  HTTP Signatures . . . . . . . . . . . . . . . . . . . . .  <a href="#page-27">27</a>
-     <a href="#appendix-B.3">B.3</a>.  Open Banking (UK) . . . . . . . . . . . . . . . . . . . .  <a href="#page-27">27</a>
+     <a href="#appendix-B.3">B.3</a>.  Open Banking (UK) . . . . . . . . . . . . . . . . . . . .  <a href="#page-28">28</a>
      <a href="#appendix-B.4">B.4</a>.  Financial API . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-28">28</a>
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019               [Page 2]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019                [Page 2]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-3" id="page-3" href="#page-3" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
    <a href="#appendix-C">Appendix C</a>.  Development Portal . . . . . . . . . . . . . . . . .  <a href="#page-28">28</a>
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-28">28</a>
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-29">29</a>
 
 <span class="h2"><a class="selflink" name="section-1" href="#section-1">1</a>.  Introduction</span>
 
@@ -341,9 +341,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019               [Page 3]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019                [Page 3]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-4" id="page-4" href="#page-4" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
    Both variants utilize JWS [<a href="http://tools.ietf.org/html//rfc7515" title="&quot;JSON Web Signature (JWS)&quot;">RFC7515</a>] for holding the signature data.
@@ -397,9 +397,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019               [Page 4]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019                [Page 4]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-5" id="page-5" href="#page-5" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
 <span class="h3"><a class="selflink" name="section-3.2" href="#section-3.2">3.2</a>.  Return Codes</span>
@@ -428,8 +428,8 @@ Table of Contents
    presumably not return an HTTP error code but rather a specifically
    crafted error message to be displayed to the user.
 
-   Return codes for successful operation is application specific but are
-   typically 200 (OK) or 201 (Created).
+   Return codes for successful operation are application specific but
+   are typically 200 (OK) or 201 (Created).
 
 <span class="h2"><a class="selflink" name="section-4" href="#section-4">4</a>.  Processing of JSON Based Requests</span>
 
@@ -453,9 +453,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019               [Page 5]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019                [Page 5]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-6" id="page-6" href="#page-6" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
      {
@@ -509,9 +509,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019               [Page 6]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019                [Page 6]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-7" id="page-7" href="#page-7" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
    4.   Add a property "uri" to ".secinf" where the argument is a JSON
@@ -565,9 +565,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019               [Page 7]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019                [Page 7]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-8" id="page-8" href="#page-8" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
         *  Other HTTP headers (if any) needed by the application.
@@ -621,9 +621,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019               [Page 8]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019                [Page 8]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-9" id="page-9" href="#page-9" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
    10.  Using ".secinf", the property "mtd" is read.  if "mtd" is
@@ -677,9 +677,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019               [Page 9]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019                [Page 9]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-10" id="page-10" href="#page-10" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
    Notes:
@@ -733,9 +733,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 10]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 10]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-11" id="page-11" href="#page-11" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
    5.   Add a property "htu" (Hashed Target URI) to ".secinf" where the
@@ -789,9 +789,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 11]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 11]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-12" id="page-12" href="#page-12" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
    2.   Store the from the request recreated target URI in a variable
@@ -845,9 +845,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 12]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 12]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-13" id="page-13" href="#page-13" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
    13.  Perform signature validation as described in <a href="#section-6.10">Section 6.10</a>.
@@ -901,9 +901,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 13]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 13]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-14" id="page-14" href="#page-14" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
 <span class="h3"><a class="selflink" name="section-6.3" href="#section-6.3">6.3</a>.  Create HTTP Header Object</span>
@@ -957,9 +957,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 14]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 14]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-15" id="page-15" href="#page-15" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
    Applying the process described in this subsection and using the
@@ -1013,9 +1013,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 15]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 15]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-16" id="page-16" href="#page-16" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
        *  For URI based requests only: "jwsPayloadB64U".  That is, JSON
@@ -1069,9 +1069,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 16]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 16]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-17" id="page-17" href="#page-17" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
       The schema default ports 443 and 80 MUST be removed from HTTPS and
@@ -1125,9 +1125,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 17]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 17]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-18" id="page-18" href="#page-18" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
    This list is referred to as "headerCollection" in other places in
@@ -1181,9 +1181,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 18]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 18]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-19" id="page-19" href="#page-19" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
        *  Verify that the received "headerList" contains the header
@@ -1237,9 +1237,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 19]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 19]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-20" id="page-20" href="#page-20" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
        *  A period character ('.').
@@ -1293,9 +1293,9 @@ Table of Contents
 
 
 
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 20]</span></pre>
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 20]</span></pre>
 <hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-21" id="page-21" href="#page-21" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
 
 
       "S512" for SHA-512 [<a href="#ref-SHS" title="&quot;Secure Hash Standard (SHS)&quot;">SHS</a>]
@@ -1318,6 +1318,13 @@ Table of Contents
       support attachments.  This is currently out of scope for this
       specification.
 
+      An alternative to attachments is featuring such data in Base64Url
+      encoded fields.
+
+      Recently, time-limited, "cloud" based schemes using URLs with
+      hard-to-guess nonce values has become a viable method for
+      transferring other data.
+
    ]]
 
 <span class="h2"><a class="selflink" name="section-9" href="#section-9">9</a>.  IANA Considerations</span>
@@ -1336,6 +1343,17 @@ Table of Contents
    The hash algorithms defined in <a href="#section-6.12">Section 6.12</a> could also benefit from
    IANA registration.
 
+
+
+
+
+
+
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 21]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-22" id="page-22" href="#page-22" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
+
+
 <span class="h2"><a class="selflink" name="section-10" href="#section-10">10</a>.  Security Considerations</span>
 
    The purpose of this specification is adding an integrity and
@@ -1345,14 +1363,6 @@ Table of Contents
    For most applications HTTPS [<a href="http://tools.ietf.org/html//rfc7231" title="&quot;Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content&quot;">RFC7231</a>] would be the logical choice,
    not only for protecting application data from snooping, but also to
    not unnecessary reveal data about signature keys.
-
-
-
-
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 21]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-22" id="page-22" href="#page-22" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
    In a cloud scenario with Web servers open for access by any party new
    security challenges are introduced.  Cryptographic solutions protect
@@ -1389,6 +1399,17 @@ Table of Contents
               DOI 10.17487/RFC2119, March 1997,
               &lt;<a href="https://www.rfc-editor.org/info/rfc2119">https://www.rfc-editor.org/info/rfc2119</a>&gt;.
 
+
+
+
+
+
+
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 22]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-23" id="page-23" href="#page-23" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
+
+
    [<a name="ref-RFC3986" id="ref-RFC3986">RFC3986</a>]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
               Resource Identifier (URI): Generic Syntax", STD 66,
               <a href="http://tools.ietf.org/html//rfc3986">RFC 3986</a>, DOI 10.17487/RFC3986, January 2005,
@@ -1402,13 +1423,6 @@ Table of Contents
               Protocol (HTTP/1.1): Message Syntax and Routing",
               <a href="http://tools.ietf.org/html//rfc7230">RFC 7230</a>, DOI 10.17487/RFC7230, June 2014,
               &lt;<a href="https://www.rfc-editor.org/info/rfc7230">https://www.rfc-editor.org/info/rfc7230</a>&gt;.
-
-
-
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 22]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-23" id="page-23" href="#page-23" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
    [<a name="ref-RFC7231" id="ref-RFC7231">RFC7231</a>]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
               Protocol (HTTP/1.1): Semantics and Content", <a href="http://tools.ietf.org/html//rfc7231">RFC 7231</a>,
@@ -1445,6 +1459,13 @@ Table of Contents
               &lt;<a href="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf">https://nvlpubs.nist.gov/nistpubs/FIPS/</a>
               <a href="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf">NIST.FIPS.180-4.pdf</a>&gt;.
 
+
+
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 23]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-24" id="page-24" href="#page-24" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
+
+
    [<a name="ref-UNICODE" id="ref-UNICODE">UNICODE</a>]  The Unicode Consortium, "The Unicode Standard, Version
               10.0.0",
               &lt;<a href="https://www.unicode.org/versions/Unicode10.0.0/">https://www.unicode.org/versions/Unicode10.0.0/</a>&gt;.
@@ -1457,14 +1478,6 @@ Table of Contents
 
    [<a name="ref-FAPI" id="ref-FAPI">FAPI</a>]     Open ID, "Financial-grade API",
               &lt;<a href="https://openid.net/wg/fapi/">https://openid.net/wg/fapi/</a>&gt;.
-
-
-
-
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 23]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-24" id="page-24" href="#page-24" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
    [<a name="ref-HTTPSIG" id="ref-HTTPSIG">HTTPSIG</a>]  M. Cavage, M. Sporny, "Signing HTTP Messages",
               &lt;<a href="https://tools.ietf.org/html/draft-cavage-http-signatures-10">https://tools.ietf.org/html/</a>
@@ -1502,6 +1515,13 @@ Table of Contents
      aWF0IjoxNTUxOTUxOTAwfQ.Wll5cFEE9sidHs01sADus8kbHNHAC5DCzyytYoAtT
      2g
 
+
+
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 24]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-25" id="page-25" href="#page-25" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
+
+
    Decoded JWS Payload:
 
      {
@@ -1512,15 +1532,6 @@ Table of Contents
    Symmetric signature validation key, here in hexadecimal notation:
 
      7fdd851a3b9d2dafc5f0d00030e22b9343900cd42ede4948568a4a2ee655291a
-
-
-
-
-
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 24]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-25" id="page-25" href="#page-25" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
 <span class="h3"><a class="selflink" name="appendix-A.2" href="#appendix-A.2">A.2</a>.  Type=JSON, Method=POST, Algorithm=ES256</span>
 
@@ -1556,6 +1567,17 @@ Table of Contents
 
    JSON Body:
 
+
+
+
+
+
+
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 25]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-26" id="page-26" href="#page-26" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
+
+
      {
        "name": "Jane Smith",
        "profession": "Hacker",
@@ -1569,14 +1591,6 @@ Table of Contents
      }
 
    Public signature validation key, here in PEM format:
-
-
-
-
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 25]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-26" id="page-26" href="#page-26" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
      -----BEGIN PUBLIC KEY-----
      MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEcensDzcMEkgiePz6DXB7cDuwFems
@@ -1606,6 +1620,20 @@ Table of Contents
 
    Decoded JWS Payload:
 
+
+
+
+
+
+
+
+
+
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 26]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-27" id="page-27" href="#page-27" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
+
+
      {
        "htu": "9GqmD0REdjH1Y6IoItwR7JEDnSJcW3nJxh3O9xt7fMQCW27qm8D2YC
      m7XxG4pSXp8bE3ySOtsZXHGEIIl53NcA",
@@ -1623,16 +1651,6 @@ Table of Contents
      x-debug: full
 
    Public signature validation key, here in PEM format:
-
-
-
-
-
-
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 26]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-27" id="page-27" href="#page-27" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
      -----BEGIN PUBLIC KEY-----
      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhFWEXArvaZEpSP5qNX7x
@@ -1664,6 +1682,14 @@ Table of Contents
    API [<a href="#ref-STET" title="&quot;PSD2 API V1.4.1&quot;">STET</a>].  For more information see the Internet draft [<a href="#ref-HTTPSIG" title="&quot;Signing HTTP Messages&quot;">HTTPSIG</a>].
    HTTP Signatures also supports signed response data.
 
+
+
+
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 27]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-28" id="page-28" href="#page-28" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
+
+
 <span class="h3"><a class="selflink" name="appendix-B.3" href="#appendix-B.3">B.3</a>.  Open Banking (UK)</span>
 
    The current (3.1) version of the Open Banking API [<a href="#ref-OBIE" title="&quot;Open Banking API&quot;">OBIE</a>] use a scheme
@@ -1682,13 +1708,6 @@ Table of Contents
             Additional application specific properties
 
      }
-
-
-
-<span class="grey">Rundgren               Expires September 15, 2019              [Page 27]</span></pre>
-<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-28" id="page-28" href="#page-28" class="invisible"> </a>
-<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>        March 2019</span>
-
 
    Notes:
 
@@ -1722,6 +1741,11 @@ Table of Contents
 
 
 
+<span class="grey">Rundgren                Expires November 6, 2019               [Page 28]</span></pre>
+<hr class='noprint' style='width: 96ex;' align='left'/><!--NewPage--><pre class='newpage'><a name="page-29" id="page-29" href="#page-29" class="invisible"> </a>
+<span class="grey">Internet-Draft     <a href="http://tools.ietf.org/html//draft-rundgren-signed-http-requests">draft-rundgren-signed-http-requests</a>          May 2019</span>
+
+
 Author's Address
 
    Anders Rundgren
@@ -1741,10 +1765,42 @@ Author's Address
 
 
 
-Rundgren               Expires September 15, 2019              [Page 28]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rundgren                Expires November 6, 2019               [Page 29]
 
 </pre><br />
-    <span class="noprint"><small><small>Html markup produced by rfcmarkup 1.129b, available from
+    <span class="noprint"><small><small>Html markup produced by rfcmarkup 1.129c, available from
       <a href="https://tools.ietf.org/tools/rfcmarkup/">https://tools.ietf.org/tools/rfcmarkup/</a>
     </small></small></span>
   </div>
